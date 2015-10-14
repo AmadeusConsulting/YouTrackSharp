@@ -70,7 +70,12 @@ namespace YouTrackSharp.Infrastructure
 
         public HttpStatusCode HttpStatusCode { get; private set; }
 
-        public T Get<T>(string command)
+        public IEnumerable<T> GetList<T>(string command) where T : new()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public T Get<T>(string command) where T : new ()
         {
             var httpRequest = CreateHttpRequest();
 
@@ -78,7 +83,6 @@ namespace YouTrackSharp.Infrastructure
             try
             {
                 var staticBody = httpRequest.Get(_uriConstructor.ConstructBaseUri(command)).StaticBody<T>();
-
                 HttpStatusCode = httpRequest.Response.StatusCode;
 
                 return staticBody;
@@ -93,15 +97,19 @@ namespace YouTrackSharp.Infrastructure
             }
         }
 
-        public IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, IDataWrapper<TInternal>
+        public IEnumerable<TInternal> Get<TWrapper, TInternal>(string command)
+            where TWrapper : class, 
+            IDataWrapper<TInternal>, new()
+            where TInternal : new()
         {
-            var response = Get<TWrapper>(command);
+            //var response = Get<TWrapper>(command);
 
-            if (response != null)
-            {
-                return response.Data;
-            }
-            return new List<TInternal>();
+            //if (response != null)
+            //{
+            //    return response.Data;
+            //}
+            //return new List<TInternal>();
+            throw new System.NotImplementedException();
         }
 
 
@@ -114,7 +122,7 @@ namespace YouTrackSharp.Infrastructure
 
             var contentType = GetFileContentType(path);
 
-            var files = new List<FileData>() {new FileData() {FieldName = "file", Filename = path, ContentTransferEncoding = "binary", ContentType = contentType}};
+            var files = new List<FileData>() { new FileData() { FieldName = "file", Filename = path, ContentTransferEncoding = "binary", ContentType = contentType } };
 
 
             httpRequest.Post(_uriConstructor.ConstructBaseUri(command), null, files);
@@ -137,7 +145,7 @@ namespace YouTrackSharp.Infrastructure
 
             httpRequest.Put(_uriConstructor.ConstructBaseUri(command), data,
                              HttpContentTypes.ApplicationXWwwFormUrlEncoded);
-
+            string content = httpRequest.Request.ContentLength;
             HttpStatusCode = httpRequest.Response.StatusCode;
         }
 
@@ -291,7 +299,7 @@ namespace YouTrackSharp.Infrastructure
 
             if (_authenticationCookie != null)
             {
-                httpClient.Request.Cookies = new CookieCollection {_authenticationCookie};
+                httpClient.Request.Cookies = new CookieCollection { _authenticationCookie };
             }
 
 

@@ -42,8 +42,12 @@ namespace YouTrackSharp.Infrastructure
     {
         bool IsAuthenticated { get; }
         HttpStatusCode HttpStatusCode { get; }
-        T Get<T>(string command);
-        IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, IDataWrapper<TInternal>;
+        T Get<T>(string command) where T : new() ;
+        IEnumerable<T> GetList<T>(string command) where T : new();
+        IEnumerable<TInternal> Get<TWrapper, TInternal>(string command)
+            where TWrapper : class, 
+            IDataWrapper<TInternal>, new()
+            where TInternal : new();
         dynamic Post(string command, object data, string accept);
         void Authenticate(string username, string password);
         void Logout();

@@ -50,7 +50,7 @@ namespace YouTrackSharp.Admin
 		public IEnumerable<User> GetAllUsers()
 		{
 			ICollection<User> users = new Collection<User>();
-			IEnumerable<AllUsersItem> userItems = _connection.Get<IEnumerable<AllUsersItem>>("admin/user");
+			IEnumerable<AllUsersItem> userItems = _connection.GetList<AllUsersItem>("admin/user");
 
 			foreach (AllUsersItem userItem in userItems)
 			{
@@ -75,7 +75,7 @@ namespace YouTrackSharp.Admin
 
 		public IEnumerable<Filter> GetFiltersByUsername(string username)
 		{
-			return _connection.Get<IEnumerable<Filter>>(String.Format("user/filters/{0}", username));
+			return _connection.GetList<Filter>(String.Format("user/filters/{0}", username));
 		}
 	}
 }

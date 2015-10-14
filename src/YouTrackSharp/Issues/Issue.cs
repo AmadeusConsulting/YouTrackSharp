@@ -37,15 +37,9 @@ using System.Dynamic;
 
 namespace YouTrackSharp.Issues
 {
-    public class Issue : DynamicObject
+    public abstract class YouTrackExpando : DynamicObject, IDictionary<string, object>
     {
         readonly IDictionary<string, object> _allFields = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
-        string _id;
-
-        public string Id
-        {
-            get { return _id ?? (_id = (string) _allFields["id"]); }
-        }
 
         public ExpandoObject ToExpandoObject()
         {
@@ -67,7 +61,7 @@ namespace YouTrackSharp.Issues
                     expando.Add(field.Key.ToLower(), field.Value);
                 }
             }
-            return (ExpandoObject) expando;
+            return (ExpandoObject)expando;
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
@@ -84,7 +78,7 @@ namespace YouTrackSharp.Issues
         {
             if (String.Compare(binder.Name, "field", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                foreach (var val in (IEnumerable<dynamic>) value)
+                foreach (var val in (IEnumerable<dynamic>)value)
                 {
                     _allFields[val.name] = val.value;
                 }
@@ -92,6 +86,113 @@ namespace YouTrackSharp.Issues
             }
             _allFields[binder.Name] = value;
             return true;
+        }
+
+        public virtual void Add(string key, object value)
+        {
+            _allFields.Add(key, value);
+        }
+
+        public virtual bool ContainsKey(string key)
+        {
+            return _allFields.ContainsKey(key);
+        }
+
+        public ICollection<string> Keys
+        {
+            get { return _allFields.Keys; }
+        }
+
+        public bool Remove(string key)
+        {
+            return _allFields.Remove(key);
+        }
+
+        bool IDictionary<string, object>.TryGetValue(string key, out object value)
+        {
+            return _allFields.TryGetValue(key, out value);
+        }
+
+        public ICollection<object> Values
+        {
+            get { return _allFields.Values; }
+        }
+
+        public object this[string key]
+        {
+            get
+            {
+                return _allFields.ContainsKey(key) ? _allFields[key] : null;
+            }
+            set
+            {
+                _allFields[key] = value;
+            }
+        }
+
+        public virtual void Add(KeyValuePair<string, object> item)
+        {
+            _allFields.Add(item);
+        }
+
+        public virtual void Clear()
+        {
+            _allFields.Clear();
+        }
+
+        public bool Contains(KeyValuePair<string, object> item)
+        {
+            return _allFields.Contains(item);
+        }
+
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+        {
+            _allFields.CopyTo(array, arrayIndex);
+        }
+
+        public int Count
+        {
+            get { return _allFields.Count; }
+        }
+
+        public bool IsReadOnly
+        {
+            get { return _allFields.IsReadOnly; }
+        }
+
+        public bool Remove(KeyValuePair<string, object> item)
+        {
+            return _allFields.Remove(item);
+        }
+
+        IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
+        {
+            return _allFields.GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return _allFields.GetEnumerator();
+        }
+    }
+
+
+    public class Issue : YouTrackExpando
+    {
+        public string Id
+        {
+            get { return base["id"] as string; }
+            set { base["id"] = value; }
+        }
+
+        public override bool TrySetMember(SetMemberBinder binder, object value)
+        {
+            if (binder.Name != null && binder.Name.Equals("id", StringComparison.OrdinalIgnoreCase))
+            {
+                Id = value != null ? value.ToString() : null;
+            }
+            
+            return base.TrySetMember(binder, value);
         }
     }
 }

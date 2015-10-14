@@ -31,10 +31,11 @@
 
 #endregion
 
+using System.Collections.Generic;
 namespace YouTrackSharp.Projects
 {
     public interface IDataWrapper<T>
     {
-        T[] Data { get; set; }
+        IEnumerable<T> Data { get; set; }
     }
 }

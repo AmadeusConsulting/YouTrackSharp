@@ -44,7 +44,7 @@ namespace YouTrackSharp.Projects
         public ProjectManagement(IConnection connection)
         {
             try
-            {
+            { 
                 _connection = connection;
             }
             catch (ConnectionException e)
@@ -55,28 +55,29 @@ namespace YouTrackSharp.Projects
 
         public IEnumerable<Project> GetProjects()
         {
-            return _connection.Get<IEnumerable<Project>>("project/all");
+            return _connection.GetList<Project>("project/all");
+            
         }
 
 
         public IEnumerable<ProjectPriority> GetPriorities()
         {
-            return _connection.Get<IEnumerable<ProjectPriority>>("project/priorities");
+            return _connection.GetList<ProjectPriority>("project/priorities");
         }
 
         public IEnumerable<ProjectState> GetStates()
         {
-            return _connection.Get<IEnumerable<ProjectState>>("project/states");
+            return _connection.GetList<ProjectState>("project/states");
         }
 
         public IEnumerable<ProjectIssueTypes> GetIssueTypes()
         {
-            return _connection.Get<IEnumerable<ProjectIssueTypes>>("project/types");
+            return _connection.GetList<ProjectIssueTypes>("project/types");
         }
 
         public IEnumerable<ProjectResolutionType> GetResolutions()
         {
-            return _connection.Get<IEnumerable<ProjectResolutionType>>("project/resolutions");
+            return _connection.GetList<ProjectResolutionType>("project/resolutions");
         }
 
         public IEnumerable<ProjectVersion> GetVersions(string versionBundleName)
@@ -92,32 +93,30 @@ namespace YouTrackSharp.Projects
 
         public Project GetProject(string projectName)
         {
-            return _connection.Get<Project>(String.Format("admin/project/{0}", projectName));
+            return _connection.Get<Project>(String.Format("rest/admin/project/{0}", projectName));
+        }
+        
+        public void AddSubsystem(string projectName, string subsystem)
+        {
+            _connection.Put(String.Format("rest/admin/project/{0}/subsystem/{1}", projectName, subsystem), null);
+           
         }
 
-        public void AddSubsystem(string projectName, string subsystem)
-        {            
-            _connection.Put(String.Format("admin/project/{0}/subsystem/{1}", projectName, subsystem), null);
+        public IEnumerable<Subsystem> ListSubsystems(string projectName)
+        {
+            return _connection.GetList<Subsystem>(String.Format("rest/admin/project/{0}/subsystem", projectName));
         }
 
         public void AddVersion(Project project, ProjectVersion version)
         {
-            AddVersion(project.VersionBundleName(), version);
-        }
-
-        public void AddVersion(string versionBundleName, ProjectVersion version)
-        {
-            _connection.Put(String.Format("admin/customfield/versionBundle/{0}/{1}", versionBundleName, version.GetQueryString()), "");
-        }
-
-        public void DeleteVersion(Project project, string versionName)
-        {
-            DeleteVersion(project.VersionBundleName(), versionName);
         }
 
         public void DeleteVersion(string bundleName, string versionName)
         {
             _connection.Delete(string.Format("admin/customfield/versionBundle/{0}/{1}", bundleName, versionName));
         }
+
+
+       
     }
 }
