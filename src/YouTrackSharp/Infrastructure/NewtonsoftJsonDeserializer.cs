@@ -1,4 +1,5 @@
 ﻿#region License
+
 //   Copyright 2010 John Sheehan
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +13,7 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
+
 #endregion
 
 using System;
@@ -20,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Utilities;
-
 using RestSharp.Extensions;
 using System.Globalization;
 using RestSharp.Deserializers;
@@ -55,23 +56,23 @@ namespace YouTrackSharp.Infrastructure
                 if (RootElement.HasValue())
                 {
                     var root = FindRoot(response.Content);
-                    target = (T)BuildList(objType, root.Children());
+                    target = (T) BuildList(objType, root.Children());
                 }
                 else
                 {
                     JArray json = JArray.Parse(response.Content);
-                    target = (T)BuildList(objType, json.Root.Children());
+                    target = (T) BuildList(objType, json.Root.Children());
                 }
             }
             else if (target is IDictionary)
             {
                 var root = FindRoot(response.Content);
-                target = (T)BuildDictionary(target.GetType(), root.Children());
+                target = (T) BuildDictionary(target.GetType(), root.Children());
             }
             else if (target is IDictionary<string, object>)
             {
                 var root = FindRoot(response.Content);
-                target = (T)PopulateDictionaryType((IDictionary<string, object>)target, root.Children());
+                target = (T) PopulateDictionaryType((IDictionary<string, object>) target, root.Children());
             }
             else
             {
@@ -97,137 +98,111 @@ namespace YouTrackSharp.Infrastructure
         {
             var objType = x.GetType();
 
-            if (typeof(YouTrackExpando).IsAssignableFrom(objType))
+            var props = objType.GetProperties().Where(p => p.CanWrite).ToList();
+
+            foreach (var prop in props)
             {
-                var dynObj = (IDictionary<string,object>)x;
-                foreach (var val in json)
+                var type = prop.PropertyType;
+                var jsonPropertyAttr =
+                    prop.GetCustomAttributes(typeof (JsonPropertyAttribute), true)
+                        .Cast<JsonPropertyAttribute>()
+                        .FirstOrDefault();
+                var name = jsonPropertyAttr != null ? jsonPropertyAttr.PropertyName : prop.Name;
+
+                var actualName = name.GetNameVariants(Culture).FirstOrDefault(n => json[n] != null);
+                var value = actualName != null ? json[actualName] : null;
+
+                if (value == null || value.Type == JTokenType.Null)
                 {
-                    var jprop = (Newtonsoft.Json.Linq.JProperty)val;
-                    
-                   // switch (json.Type)
-                    switch(jprop.Value.Type)
-                    {
-                        case JTokenType.Date:
-                            dynObj[jprop.Name] = val.ToObject<DateTime>();
-                            break;
-                        case JTokenType.Boolean:
-                            dynObj["bool"] = val.ToObject<bool>();
-                            break;
-                        case JTokenType.Float:
-                            //dynObj.TrySetMember(null, val.ToObject<double>());
-                            break;
-                        // ...
-                        default:
-                            dynObj[jprop.Name] = val.ToString();
-                            break;
-                    }
+                    continue;
                 }
-            }
-            else
-            {
-                var props = objType.GetProperties().Where(p => p.CanWrite).ToList();
 
-                foreach (var prop in props)
+                // check for nullable and extract underlying type
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>))
                 {
-                    var type = prop.PropertyType;
-                    var jsonPropertyAttr = prop.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Cast<JsonPropertyAttribute>().FirstOrDefault();
-                    var name = jsonPropertyAttr != null ? jsonPropertyAttr.PropertyName : prop.Name;
+                    type = type.GetGenericArguments()[0];
+                }
 
-                    var actualName = name.GetNameVariants(Culture).FirstOrDefault(n => json[n] != null);
-                    var value = actualName != null ? json[actualName] : null;
-
-                    if (value == null || value.Type == JTokenType.Null)
+                if (type.IsPrimitive)
+                {
+                    // no primitives can contain quotes so we can safely remove them
+                    // allows converting a json value like {"index": "1"} to an int
+                    var tmpVal = value.AsString().Replace("\"", string.Empty);
+                    prop.SetValue(x, tmpVal.ChangeType(type, Culture), null);
+                }
+                else if (type.IsEnum)
+                {
+                    var converted = type.FindEnumValue(value.AsString(), Culture);
+                    prop.SetValue(x, converted, null);
+                }
+                else if (type == typeof (Uri))
+                {
+                    string raw = value.AsString();
+                    var uri = new Uri(raw, UriKind.RelativeOrAbsolute);
+                    prop.SetValue(x, uri, null);
+                }
+                else if (type == typeof (string))
+                {
+                    string raw = value.AsString();
+                    prop.SetValue(x, raw, null);
+                }
+                else if (type == typeof (DateTime) || type == typeof (DateTimeOffset))
+                {
+                    DateTime dt;
+                    if (DateFormat.HasValue())
                     {
-                        continue;
+                        var clean = value.AsString();
+                        dt = DateTime.ParseExact(clean, DateFormat, Culture);
+                    }
+                    else if (value.Type == JTokenType.Date)
+                    {
+                        dt = value.Value<DateTime>().ToUniversalTime();
+                    }
+                    else
+                    {
+                        // try parsing instead
+                        // value.Value<long>()/1000;
+                        //dt = value.AsString().ParseJsonDate(Culture);
+                        Int64 dateInt = Int64.Parse(value.AsString())/1000;
+                       // dt = ParseToDateTime(value.AsString());
+                        dt = dateInt.ToString().ParseJsonDate(Culture);
+                       
+                        
                     }
 
-                    // check for nullable and extract underlying type
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    if (type == typeof (DateTime))
+                        prop.SetValue(x, dt, null);
+                    else if (type == typeof (DateTimeOffset))
+                        prop.SetValue(x, (DateTimeOffset) dt, null);
+                }
+                else if (type == typeof (Decimal))
+                {
+                    var dec = Decimal.Parse(value.AsString(Culture), Culture);
+                    prop.SetValue(x, dec, null);
+                }
+                else if (type == typeof (Guid))
+                {
+                    string raw = value.AsString();
+                    var guid = string.IsNullOrEmpty(raw) ? Guid.Empty : new Guid(raw);
+                    prop.SetValue(x, guid, null);
+                }
+                else if (type.IsGenericType)
+                {
+                    var genericTypeDef = type.GetGenericTypeDefinition();
+                    if (genericTypeDef == typeof (List<>))
                     {
-                        type = type.GetGenericArguments()[0];
+                        var list = BuildList(type, value.Children());
+                        prop.SetValue(x, list, null);
                     }
+                    else if (genericTypeDef == typeof (Dictionary<,>))
+                    {
+                        var keyType = type.GetGenericArguments()[0];
 
-                    if (type.IsPrimitive)
-                    {
-                        // no primitives can contain quotes so we can safely remove them
-                        // allows converting a json value like {"index": "1"} to an int
-                        var tmpVal = value.AsString().Replace("\"", string.Empty);
-                        prop.SetValue(x, tmpVal.ChangeType(type, Culture), null);
-                    }
-                    else if (type.IsEnum)
-                    {
-                        var converted = type.FindEnumValue(value.AsString(), Culture);
-                        prop.SetValue(x, converted, null);
-                    }
-                    else if (type == typeof(Uri))
-                    {
-                        string raw = value.AsString();
-                        var uri = new Uri(raw, UriKind.RelativeOrAbsolute);
-                        prop.SetValue(x, uri, null);
-                    }
-                    else if (type == typeof(string))
-                    {
-                        string raw = value.AsString();
-                        prop.SetValue(x, raw, null);
-                    }
-                    else if (type == typeof(DateTime) || type == typeof(DateTimeOffset))
-                    {
-                        DateTime dt;
-                        if (DateFormat.HasValue())
+                        // only supports Dict<string, T>()
+                        if (keyType == typeof (string))
                         {
-                            var clean = value.AsString();
-                            dt = DateTime.ParseExact(clean, DateFormat, Culture);
-                        }
-                        else if (value.Type == JTokenType.Date)
-                        {
-                            dt = value.Value<DateTime>().ToUniversalTime();
-                        }
-                        else
-                        {
-                            // try parsing instead
-                            dt = value.AsString().ParseJsonDate(Culture);
-                        }
-
-                        if (type == typeof(DateTime))
-                            prop.SetValue(x, dt, null);
-                        else if (type == typeof(DateTimeOffset))
-                            prop.SetValue(x, (DateTimeOffset)dt, null);
-                    }
-                    else if (type == typeof(Decimal))
-                    {
-                        var dec = Decimal.Parse(value.AsString(Culture), Culture);
-                        prop.SetValue(x, dec, null);
-                    }
-                    else if (type == typeof(Guid))
-                    {
-                        string raw = value.AsString();
-                        var guid = string.IsNullOrEmpty(raw) ? Guid.Empty : new Guid(raw);
-                        prop.SetValue(x, guid, null);
-                    }
-                    else if (type.IsGenericType)
-                    {
-                        var genericTypeDef = type.GetGenericTypeDefinition();
-                        if (genericTypeDef == typeof(List<>))
-                        {
-                            var list = BuildList(type, value.Children());
-                            prop.SetValue(x, list, null);
-                        }
-                        else if (genericTypeDef == typeof(Dictionary<,>))
-                        {
-                            var keyType = type.GetGenericArguments()[0];
-
-                            // only supports Dict<string, T>()
-                            if (keyType == typeof(string))
-                            {
-                                var dict = BuildDictionary(type, value.Children());
-                                prop.SetValue(x, dict, null);
-                            }
-                        }
-                        else
-                        {
-                            // nested property classes
-                            var item = CreateAndMap(type, json[actualName]);
-                            prop.SetValue(x, item, null);
+                            var dict = BuildDictionary(type, value.Children());
+                            prop.SetValue(x, dict, null);
                         }
                     }
                     else
@@ -237,27 +212,41 @@ namespace YouTrackSharp.Infrastructure
                         prop.SetValue(x, item, null);
                     }
                 }
+                else
+                {
+                    // nested property classes
+                    var item = CreateAndMap(type, json[actualName]);
+                    prop.SetValue(x, item, null);
+                }
             }
+        }
+
+        private DateTime ParseToDateTime(string dateString)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var dateInt = Int64.Parse(dateString);
+            return epoch.AddMilliseconds(dateInt);
         }
 
 
         private object CreateAndMap(Type type, JToken element)
         {
             object instance = null;
+
             if (type.IsGenericType)
             {
                 var genericTypeDef = type.GetGenericTypeDefinition();
-                if (genericTypeDef == typeof(Dictionary<,>))
+                if (genericTypeDef == typeof (Dictionary<,>))
                 {
                     instance = BuildDictionary(type, element.Children());
                 }
-                else if (genericTypeDef == typeof(List<>))
+                else if (genericTypeDef == typeof (List<>))
                 {
                     instance = BuildList(type, element.Children());
                 }
-                else if (type == typeof(string))
+                else if (type == typeof (string))
                 {
-                    instance = (string)element;
+                    instance = (string) element;
                 }
                 else
                 {
@@ -265,9 +254,40 @@ namespace YouTrackSharp.Infrastructure
                     Map(instance, element);
                 }
             }
-            else if (type == typeof(string))
+            else if (type == typeof (string))
             {
-                instance = (string)element;
+                instance = (string) element;
+            }
+            else if (type == typeof (object))
+            {
+                Type targetType;
+                switch (element.Type)
+                {
+                    case JTokenType.String:
+                        targetType = typeof (string);
+                        break;
+                    case JTokenType.Float:
+                        targetType = typeof (float);
+                        break;
+                    case JTokenType.Date:
+                        targetType = typeof (DateTime);
+                        break;
+                    case JTokenType.Integer:
+                        targetType = typeof (int);
+                        break;
+                    case JTokenType.Boolean:
+                        targetType = typeof (bool);
+                        break;
+                    case JTokenType.Uri:
+                        targetType = typeof (Uri);
+                        break;
+                    default:
+                       // throw new NotImplementedException(string.Format("Target type of {0} is not implemented", element.Type));
+                        targetType = typeof (object);
+                        break;
+                }
+
+                instance = element.ToObject(targetType);
             }
             else
             {
@@ -279,7 +299,7 @@ namespace YouTrackSharp.Infrastructure
 
         private IDictionary BuildDictionary(Type type, JEnumerable<JToken> elements)
         {
-            var dict = (IDictionary)Activator.CreateInstance(type);
+            var dict = (IDictionary) Activator.CreateInstance(type);
             var valueType = type.GetGenericArguments()[1];
             foreach (JProperty child in elements)
             {
@@ -291,7 +311,8 @@ namespace YouTrackSharp.Infrastructure
             return dict;
         }
 
-        private IDictionary<string,object> PopulateDictionaryType(IDictionary<string,object> dict, JEnumerable<JToken> elements)
+        private IDictionary<string, object> PopulateDictionaryType(IDictionary<string, object> dict,
+            JEnumerable<JToken> elements)
         {
             //TODO: Deal with child objects and array values
 
@@ -303,11 +324,12 @@ namespace YouTrackSharp.Infrastructure
                     throw new FormatException(string.Format("Expected JSON property, instead got {0}", child.Type));
                 }
 
-                var unsupportedJTokenTypes = new[] { JTokenType.Object, JTokenType.Array };
+                var unsupportedJTokenTypes = new[] {JTokenType.Object, JTokenType.Array};
 
-                if ( unsupportedJTokenTypes.Contains(jproperty.Value.Type))
+                if (unsupportedJTokenTypes.Contains(jproperty.Value.Type))
                 {
-                    throw new NotImplementedException(string.Format("Deserialization of JTokenType {0} is not yet implemented!", jproperty.Value.Type));
+                    throw new NotImplementedException(
+                        string.Format("Deserialization of JTokenType {0} is not yet implemented!", jproperty.Value.Type));
                 }
 
                 Type valueType;
@@ -332,7 +354,7 @@ namespace YouTrackSharp.Infrastructure
                         valueType = typeof (string);
                         break;
                 }
-                
+
                 var key = jproperty.Name;
                 dict.Add(key, jproperty.Value.ToObject(valueType));
             }
@@ -342,7 +364,7 @@ namespace YouTrackSharp.Infrastructure
 
         private IList BuildList(Type type, JEnumerable<JToken> elements)
         {
-            var list = (IList)Activator.CreateInstance(type);
+            var list = (IList) Activator.CreateInstance(type);
             var itemType = type.GetGenericArguments()[0];
 
             foreach (var element in elements)
@@ -355,7 +377,7 @@ namespace YouTrackSharp.Infrastructure
                         list.Add(value.Value.ChangeType(itemType, Culture));
                     }
                 }
-                else if (itemType == typeof(string))
+                else if (itemType == typeof (string))
                 {
                     list.Add(element.AsString());
                 }

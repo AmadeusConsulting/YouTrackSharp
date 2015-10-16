@@ -123,7 +123,7 @@ namespace YouTrackSharp.Issues
 		public IEnumerable<Issue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
 		{
 			return
-					_connection.Get<MultipleIssueWrapper, Issue>(string.Format("rest/project/issues/{0}?max={1}&after={2}",	 projectIdentifier, max, start));
+					_connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("rest/project/issues/{0}?max={1}&after={2}",	 projectIdentifier, max, start));
 		}
 
 		/// <summary>
@@ -212,7 +212,7 @@ namespace YouTrackSharp.Issues
 		{
 			var encodedQuery = HttpUtility.UrlEncode(searchString);
 
-			return _connection.Get<MultipleIssueWrapper, Issue>(string.Format("project/issues?filter={0}&max={1}&after={2}",encodedQuery, max, start));
+			return _connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("project/issues?filter={0}&max={1}&after={2}",encodedQuery, max, start));
 		}
 
 		public int GetIssueCount(string searchString)

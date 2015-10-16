@@ -32,6 +32,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace YouTrackSharp.Issues
 {
@@ -40,6 +42,23 @@ namespace YouTrackSharp.Issues
         public string Author { get; set; }
         // TODO:Convert this to datetime
         public Int64 Created { get; set; }
+        public Int64 Updated { get; set; }
         public string Text { get; set; }
+        public string Id { get; set; }
+        public string AuthorFullName { get; set; }
+        public string IssueId { get; set; }
+        public string ParentId { get; set; }
+        public bool Deleted { get; set; }
+        public string JiraId { get; set; }
+        public bool ShownForIssueAuthor { get; set; }
+        public string PermittedGroup { get; set; }
+        private List<Comment> _replies;
+
+        [JsonProperty(PropertyName = "replies")]
+        public List<Comment> Replies
+        {
+            get { return _replies ?? (_replies = new List<Comment>()); }
+            set { _replies = value; }
+        }
     }
 }

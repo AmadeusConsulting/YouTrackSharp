@@ -39,13 +39,13 @@ using Newtonsoft.Json;
 
 namespace YouTrackSharp.Issues
 {
-    public class MultipleIssueWrapper : IDataWrapper<Issue>
+    public class MultipleIssueWrapper : IDataWrapper<ListIssue>
     {
         [JsonName("issue")]
         [JsonProperty(PropertyName="issue")]
-        public List<Issue> Data { get; set; }
+        public List<ListIssue> Data { get; set; }
 
-        IEnumerable<Issue> IDataWrapper<Issue>.Data
+        IEnumerable<ListIssue> IDataWrapper<ListIssue>.Data
         {
             get
             {
@@ -53,7 +53,7 @@ namespace YouTrackSharp.Issues
             }
             set
             {
-                this.Data = new List<Issue>(value);
+                this.Data = new List<ListIssue>(value);
             }
         }
     }

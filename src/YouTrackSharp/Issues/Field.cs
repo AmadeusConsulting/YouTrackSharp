@@ -31,6 +31,8 @@
 
 #endregion
 
+using Newtonsoft.Json;
+
 namespace YouTrackSharp.Issues
 {
     public class Field

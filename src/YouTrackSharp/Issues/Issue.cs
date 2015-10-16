@@ -33,32 +33,52 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Dynamic;
+using System.Linq;
+using System.Web.UI.WebControls;
+using Newtonsoft.Json;
 
 namespace YouTrackSharp.Issues
 {
-    public abstract class YouTrackExpando : DynamicObject, IDictionary<string, object>
+    public abstract class YouTrackExpando : DynamicObject
     {
-        readonly IDictionary<string, object> _allFields = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+
+        private List<Comment> _comments;
+
+        [JsonProperty(PropertyName = "comment")]
+        public List<Comment> Comments
+        {
+            get { return _comments ?? (_comments = new List<Comment>()); }
+            set { _comments = value; }
+        }
+        private List<Field> _fields;
+        
+        [JsonProperty(PropertyName = "field")]
+        public List<Field> Fields
+        {
+            get { return _fields ?? (_fields = new List<Field>()); }
+            set { _fields = value; }
+        }
 
         public ExpandoObject ToExpandoObject()
         {
             IDictionary<string, object> expando = new ExpandoObject();
 
 
-            foreach (dynamic field in _allFields)
+            foreach (var field in Fields)
             {
-                if (String.Compare(field.Key, "ProjectShortName", StringComparison.InvariantCultureIgnoreCase) == 0)
+                if (String.Compare(field.name, "ProjectShortName", StringComparison.InvariantCultureIgnoreCase) == 0)
                 {
-                    expando.Add("project", field.Value);
+                    expando.Add("project", field.value);
                 }
-                else if (String.Compare(field.Key, "permittedGroup", StringComparison.InvariantCultureIgnoreCase) == 0)
+                else if (String.Compare(field.name, "permittedGroup", StringComparison.InvariantCultureIgnoreCase) == 0)
                 {
-                    expando.Add("permittedGroup", field.Value);
+                    expando.Add("permittedGroup", field.value);
                 }
                 else
                 {
-                    expando.Add(field.Key.ToLower(), field.Value);
+                    expando.Add(field.name.ToLower(), field.value);
                 }
             }
             return (ExpandoObject)expando;
@@ -66,9 +86,9 @@ namespace YouTrackSharp.Issues
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            if (_allFields.ContainsKey(binder.Name))
+            if (Fields.Any(f => f.name.Equals(binder.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                result = _allFields[binder.Name];
+                result = Fields.Single(f => f.name.Equals(binder.Name, StringComparison.OrdinalIgnoreCase)).value;
                 return true;
             }
             return base.TryGetMember(binder, out result);
@@ -76,123 +96,107 @@ namespace YouTrackSharp.Issues
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            if (String.Compare(binder.Name, "field", StringComparison.OrdinalIgnoreCase) == 0)
+            if (Fields.Any(f => f.name.Equals(binder.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                foreach (var val in (IEnumerable<dynamic>)value)
-                {
-                    _allFields[val.name] = val.value;
-                }
-                return true;
+                // update val
+                Fields.Single(f => f.name.Equals(binder.Name, StringComparison.OrdinalIgnoreCase)).value = value;
             }
-            _allFields[binder.Name] = value;
+            else
+            {
+                Fields.Add(new Field {name = binder.Name, value = value});
+            }
             return true;
-        }
-
-        public virtual void Add(string key, object value)
-        {
-            _allFields.Add(key, value);
-        }
-
-        public virtual bool ContainsKey(string key)
-        {
-            return _allFields.ContainsKey(key);
-        }
-
-        public ICollection<string> Keys
-        {
-            get { return _allFields.Keys; }
-        }
-
-        public bool Remove(string key)
-        {
-            return _allFields.Remove(key);
-        }
-
-        bool IDictionary<string, object>.TryGetValue(string key, out object value)
-        {
-            return _allFields.TryGetValue(key, out value);
-        }
-
-        public ICollection<object> Values
-        {
-            get { return _allFields.Values; }
-        }
-
-        public object this[string key]
-        {
-            get
-            {
-                return _allFields.ContainsKey(key) ? _allFields[key] : null;
-            }
-            set
-            {
-                _allFields[key] = value;
-            }
-        }
-
-        public virtual void Add(KeyValuePair<string, object> item)
-        {
-            _allFields.Add(item);
-        }
-
-        public virtual void Clear()
-        {
-            _allFields.Clear();
-        }
-
-        public bool Contains(KeyValuePair<string, object> item)
-        {
-            return _allFields.Contains(item);
-        }
-
-        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
-        {
-            _allFields.CopyTo(array, arrayIndex);
-        }
-
-        public int Count
-        {
-            get { return _allFields.Count; }
-        }
-
-        public bool IsReadOnly
-        {
-            get { return _allFields.IsReadOnly; }
-        }
-
-        public bool Remove(KeyValuePair<string, object> item)
-        {
-            return _allFields.Remove(item);
-        }
-
-        IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
-        {
-            return _allFields.GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return _allFields.GetEnumerator();
         }
     }
 
 
     public class Issue : YouTrackExpando
     {
-        public string Id
-        {
-            get { return base["id"] as string; }
-            set { base["id"] = value; }
-        }
+        public string Id { get; set; }
+
+        public string EntityId { get; set; }
+
+        public string JiraId { get; set; }
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
             if (binder.Name != null && binder.Name.Equals("id", StringComparison.OrdinalIgnoreCase))
             {
                 Id = value != null ? value.ToString() : null;
+                return true;
             }
             
             return base.TrySetMember(binder, value);
         }
+    }
+
+    public class ListIssue : Issue
+    {
+        /*
+         "priority": "3",
+      "type": "Bug",
+      "state": "Submitted",
+      "subsystem": "No Subsystem",
+      "affectsVersion": null,
+      "id": "NAT-1",
+      "fixedVersion": null,
+      "projectShortName": "NAT",
+      "assigneeName": null,
+      "reporterName": "Meagan_Combs",
+      "updaterName": "Meagan_Combs",
+      "fixedInBuild": "Next build",
+      "commentsCount": 0,
+      "numberInProject": 1,
+      "summary": "test",
+      "description": null,
+      "created": 1443729466358,
+      "updated": 1444855950067,
+      "historyUpdated": 1444855950067,
+      "resolved": null,
+      "jiraId": null,
+      "votes": 0,
+      "permittedGroup": null,
+         */
+
+        public string Priority { get; set; }
+        public string Type { get; set; }
+        public string State { get; set; }
+        public string Subsystem { get; set; }
+        public string AffectsVersion { get; set; }
+        public string FixedVersion { get; set; }
+        public string ProjectShortName { get; set; }
+        public string AssigneeName { get; set; }
+        public string ReporterName { get; set; }
+        public string UpdaterName { get; set; }
+        public string FixedInBiuld { get; set; }
+        public int CommentsCount { get; set; }
+        public int NumberInProject { get; set; }
+        public string Summary { get; set; }
+      //  [JsonProperty(ItemConverterType = typeof(DateTime))]
+        public DateTime Created { get; set; }
+        public DateTime Updated { get; set; }
+        public DateTime HistoryUpdated { get; set; }
+        public string Resolved { get; set; }
+        public int Votes { get; set; }
+        public string PermittedGroup { get; set; }
+
+        private List<Attachment> _attachments;
+
+        [JsonProperty(PropertyName = "attachments")]
+        public List<Attachment> Attachments
+        {
+            get { return _attachments ?? (_attachments = new List<Attachment>()); }
+            set { _attachments = value; }
+        }
+
+        private List<Link> _links;
+
+        [JsonProperty(PropertyName = "attachments")]
+        public List<Link> Links
+        {
+            get { return _links ?? (_links = new List<Link>()); }
+            set { _links = value; }
+        }
+
     }
 }

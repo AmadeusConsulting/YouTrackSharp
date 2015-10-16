@@ -125,7 +125,7 @@ namespace YouTrackSharp.Infrastructure
             return response.Data.Data != null ? response.Data.Data.First() : default(TInternal);
         }
 
-        public System.Collections.Generic.IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, 
+        public IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, 
             IDataWrapper<TInternal>, new() where TInternal : new()
         {
        
