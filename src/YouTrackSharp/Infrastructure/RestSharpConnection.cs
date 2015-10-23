@@ -13,6 +13,7 @@ using RestSharp.Validation;
 using YouTrackSharp.Admin;
 using YouTrackSharp.Projects;
 using RestSharp;
+using YouTrackSharp.Issues;
 
 
 namespace YouTrackSharp.Infrastructure
@@ -141,12 +142,20 @@ namespace YouTrackSharp.Infrastructure
 
         public dynamic Post(string command, object data, string accept)
         {
-            var request = new RestRequest(command, Method.POST);
-            request.AddHeader("Accept", accept);
-            request.AddBody(data);
-            
 
-            var response = _client.Execute<dynamic>(request);
+            var expando = (IDictionary<string, object>)data;
+            var request = new RestRequest("rest/issue?project={project}&summary={summary}&description={description}", Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
+            request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
+            request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
+            request.AddHeader("accept", accept);
+            foreach (KeyValuePair<string, object> kvp in expando)
+            {
+                request.AddParameter(kvp.Key, kvp.Value);
+            }
+       
+            var response = _client.Execute<ListIssue>(request);
             return response.Data;
         }
 
@@ -190,24 +199,36 @@ namespace YouTrackSharp.Infrastructure
         {
             var contentType = GetFileContentType(path);
             var request = new RestRequest(command, Method.POST);
-            request.AddFile("file", File.ReadAllBytes(path), contentType);
-           
+            request.AddFile("file", File.ReadAllBytes(path), Path.GetFileName(path), contentType);
+            request.AddHeader("Content-type", "application/json");
+            request.AddHeader("Accept", "application/json");
+            request.RequestFormat = DataFormat.Json;
+            var response = _client.Execute(request);
+
+            HttpStatusCode = response.StatusCode;
         }
 
         public void Head(string command)
         {
-            throw new System.NotImplementedException();
+           var request = new RestRequest(command, Method.HEAD);
+
+            var response = _client.Execute(request);
+            HttpStatusCode = response.StatusCode;
+
         }
 
         public void Post(string command, object data)
         {
-
+            var expando = (IDictionary<string, object>)data;
             var request = new RestRequest(command, Method.POST);
-            request.AddBody(data);
+            foreach (KeyValuePair<string, object> kvp in expando)
+            {
+                request.AddParameter(kvp.Key, kvp.Value);
+            }
             var response = _client.Execute(request);
-
+            
             HttpStatusCode = response.StatusCode;
-
+           
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
                 throw response.ErrorException;
@@ -217,7 +238,22 @@ namespace YouTrackSharp.Infrastructure
 
         public void Put(string command, object data)
         {
-            var request = new RestRequest(command, Method.PUT);
+            RestRequest request;
+            if (data != null)
+            {
+                var expando = (IDictionary<string, object>) data;
+                 request = new RestRequest(
+                    "rest/issue?project={project}&summary={summary}&description={description}", Method.PUT);
+                request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
+                request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
+                request.AddUrlSegment("description",
+                    expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
+            }
+            else
+            {
+               request = new RestRequest(command, Method.PUT);
+            }
+
             var response = _client.Execute(request);
 
             HttpStatusCode = response.StatusCode;

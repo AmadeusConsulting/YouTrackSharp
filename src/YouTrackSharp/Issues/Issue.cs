@@ -34,10 +34,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Web.UI.WebControls;
 using Newtonsoft.Json;
+using RestSharp.Extensions;
 
 namespace YouTrackSharp.Issues
 {
@@ -120,13 +122,45 @@ namespace YouTrackSharp.Issues
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            if (binder.Name != null && binder.Name.Equals("id", StringComparison.OrdinalIgnoreCase))
+            if (binder.Name.Equals("created", StringComparison.OrdinalIgnoreCase) || binder.Name.Equals("updated", StringComparison.OrdinalIgnoreCase))
+            {
+                Field fieldToSet = Fields.Find(field => field.name == "created");
+                DateTime dt = DateTime.Parse(value.ToString());
+                value =
+                    dt.ToUniversalTime()
+                        .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
+                        .TotalMilliseconds.ToString();
+                return true;
+
+            }
+            else if (binder.Name != null && binder.Name.Equals("id", StringComparison.OrdinalIgnoreCase))
             {
                 Id = value != null ? value.ToString() : null;
                 return true;
             }
             
             return base.TrySetMember(binder, value);
+        }
+
+        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        {
+            List<string> dateProperties = new List<string>{"created", "updated", "historyUpdated"};
+            if(dateProperties.Contains(binder.Name.ToLowerInvariant()))
+            {
+                var createdField = Fields.SingleOrDefault(f => f.name == "created");
+                
+                    if (createdField != null && createdField.value != null)
+                    {
+                        long timestampMillis = long.Parse(createdField.value.ToString());
+                        result =
+                            new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds((double) timestampMillis);
+                        return true;
+                    }
+                    return base.TryGetMember(binder, out result);
+               
+            }
+
+            return base.TryGetMember(binder, out result);
         }
     }
 
@@ -172,7 +206,7 @@ namespace YouTrackSharp.Issues
         public int CommentsCount { get; set; }
         public int NumberInProject { get; set; }
         public string Summary { get; set; }
-      //  [JsonProperty(ItemConverterType = typeof(DateTime))]
+     //   [JsonDateFormat(JsonDateFormat.TimestampMillis)]
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public DateTime HistoryUpdated { get; set; }

@@ -47,6 +47,11 @@ namespace YouTrackSharp.Infrastructure
 
         public T Deserialize<T>(IRestResponse response)
         {
+            if (typeof(T) == typeof(IDynamicMetaObjectProvider))
+            {
+                return JsonConvert.DeserializeObject<dynamic>(response.Content);
+            } 
+            
             var target = Activator.CreateInstance<T>();
 
             if (target is IList)
@@ -74,6 +79,7 @@ namespace YouTrackSharp.Infrastructure
                 var root = FindRoot(response.Content);
                 target = (T) PopulateDictionaryType((IDictionary<string, object>) target, root.Children());
             }
+            
             else
             {
                 var root = FindRoot(response.Content);
@@ -160,11 +166,7 @@ namespace YouTrackSharp.Infrastructure
                     }
                     else
                     {
-                        // try parsing instead
-                        // value.Value<long>()/1000;
-                        //dt = value.AsString().ParseJsonDate(Culture);
                         Int64 dateInt = Int64.Parse(value.AsString())/1000;
-                       // dt = ParseToDateTime(value.AsString());
                         dt = dateInt.ToString().ParseJsonDate(Culture);
                        
                         
@@ -216,19 +218,13 @@ namespace YouTrackSharp.Infrastructure
                 {
                     // nested property classes
                     var item = CreateAndMap(type, json[actualName]);
+                
                     prop.SetValue(x, item, null);
                 }
             }
         }
 
-        private DateTime ParseToDateTime(string dateString)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var dateInt = Int64.Parse(dateString);
-            return epoch.AddMilliseconds(dateInt);
-        }
-
-
+       
         private object CreateAndMap(Type type, JToken element)
         {
             object instance = null;

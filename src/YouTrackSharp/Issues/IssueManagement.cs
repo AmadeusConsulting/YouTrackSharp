@@ -102,9 +102,9 @@ namespace YouTrackSharp.Issues
 
 				foreach (var customField in customFields)
 				{
-					ApplyCommand(response.id, string.Format("{0} {1}", customField.Key, customField.Value), string.Empty);
+					ApplyCommand(response.Id, string.Format("{0} {1}", customField.Key, customField.Value), string.Empty);
 				}
-				return response.id;
+				return response.Id;
 			}
 			catch (HttpException httpException)
 			{
@@ -120,7 +120,7 @@ namespace YouTrackSharp.Issues
 		/// <param name="max">[Optional] Maximum number of issues to return. Default is int.MaxValue</param>
 		/// <param name="start">[Optional] The number by which to start the issues. Default is 0. Used for paging.</param>
 		/// <returns>List of Issues</returns>
-		public IEnumerable<Issue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
+		public IEnumerable<ListIssue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
 		{
 			return
 					_connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("rest/project/issues/{0}?max={1}&after={2}",	 projectIdentifier, max, start));
@@ -151,7 +151,7 @@ namespace YouTrackSharp.Issues
 
 		public void AttachFileToIssue(string issuedId, string path)
 		{
-			_connection.PostFile(string.Format("issue/{0}/attachment", issuedId), path);
+			_connection.PostFile(string.Format("rest/issue/{0}/attachment", issuedId), path);
 
 			if (_connection.HttpStatusCode != HttpStatusCode.Created)
 			{
@@ -170,7 +170,6 @@ namespace YouTrackSharp.Issues
 			{
 				dynamic commandMessage = new ExpandoObject();
 
-
 				commandMessage.command = command;
 				commandMessage.comment = comment;
 				if (disableNotifications)
@@ -178,7 +177,7 @@ namespace YouTrackSharp.Issues
 				if (!string.IsNullOrWhiteSpace(runAs))
 					commandMessage.runAs = runAs;
 
-				_connection.Post(string.Format("issue/{0}/execute", issueId), commandMessage);
+				_connection.Post(string.Format("rest/issue/{0}/execute", issueId), commandMessage);
 			}
 			catch (HttpException httpException)
 			{
