@@ -112,18 +112,18 @@ namespace YouTrackSharp.Specs.Specs
     [Ignore("The server says forbidden.")]
     public class when_retrieving_A_list_of_versions_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
     {
-        Because of = () =>
-            {
-                project = projectManagement.GetProject("SB");
-                projectManagement.AddVersion(project, new ProjectVersion { Name= "0.1", IsReleased = false, IsArchived = false});
-                versions = projectManagement.GetVersions(project);
-                projectManagement.DeleteVersion(project, "0.1");
-            };
+		//Because of = () =>
+		//	{
+		//		project = projectManagement.GetProject("SB");
+		//		projectManagement.AddVersion(project, new ProjectVersion { Name= "0.1", IsReleased = false, IsArchived = false});
+		//		versions = projectManagement.GetVersions(project);
+		//		projectManagement.DeleteVersion(project, "0.1");
+		//	};
 
-        It should_return_versions = () => { versions.ShouldNotBeEmpty(); };
+		//It should_return_versions = () => { versions.ShouldNotBeEmpty(); };
 
-        static Project project;
-        static IEnumerable<ProjectVersion> versions;
+		//static Project project;
+		//static IEnumerable<ProjectVersion> versions;
     }
     
 }

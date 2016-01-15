@@ -1,0 +1,807 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DetailIssueWithComments" xml:space="preserve">
+    <value>{
+  "id": "NAT-7",
+  "entityId": "97-159",
+  "jiraId": null,
+  "field": [
+    {
+      "name": "projectShortName",
+      "value": "NAT"
+    },
+    {
+      "name": "numberInProject",
+      "value": "7"
+    },
+    {
+      "name": "summary",
+      "value": "updated"
+    },
+    {
+      "name": "description",
+      "value": "updated"
+    },
+    {
+      "name": "created",
+      "value": "1443731565889"
+    },
+    {
+      "name": "updated",
+      "value": "1444849398783"
+    },
+    {
+      "name": "updaterName",
+      "value": "Meagan_Combs"
+    },
+    {
+      "name": "updaterFullName",
+      "value": "Meagan Combs"
+    },
+    {
+      "name": "reporterName",
+      "value": "Meagan_Combs"
+    },
+    {
+      "name": "reporterFullName",
+      "value": "Meagan Combs"
+    },
+    {
+      "name": "commentsCount",
+      "value": "2"
+    },
+    {
+      "name": "votes",
+      "value": "0"
+    },
+    {
+      "name": "Priority",
+      "value": [
+        "Normal"
+      ],
+      "valueId": [
+        "Normal"
+      ],
+      "color": {
+        "bg": "#ebf4dd",
+        "fg": "#64992C"
+      }
+    },
+    {
+      "name": "Type",
+      "value": [
+        "Bug"
+      ],
+      "valueId": [
+        "Bug"
+      ],
+      "color": null
+    },
+    {
+      "name": "State",
+      "value": [
+        "Submitted"
+      ],
+      "valueId": [
+        "Submitted"
+      ],
+      "color": null
+    },
+    {
+      "name": "Assignee",
+      "value": [
+        {
+          "value": "Meagan_Combs",
+          "fullName": "Meagan Combs"
+        }
+      ]
+    },
+    {
+      "name": "Subsystem",
+      "value": [
+        "Documentation"
+      ],
+      "valueId": [
+        "Documentation"
+      ],
+      "color": null
+    },
+    {
+      "name": "Non-Billable",
+      "value": [
+        "No"
+      ],
+      "valueId": [
+        "No"
+      ],
+      "color": null
+    },
+    {
+      "name": "attachments",
+      "value": [
+        {
+          "value": "Screenshot_2015-10-14-16-54-36 (1).png",
+          "id": "113-0",
+          "url": "https://yt.wolfgang.com/youtrack/_persistent/Screenshot_2015-10-14-16-54-36%20(1).png?file=113-0&amp;v=0&amp;c=true"
+        }
+      ]
+    }
+  ],
+  "comment": [
+    {
+      "id": "107-3",
+      "author": "Meagan_Combs",
+      "authorFullName": "Meagan Combs",
+      "issueId": "NAT-7",
+      "parentId": null,
+      "deleted": false,
+      "jiraId": null,
+      "text": "text",
+      "shownForIssueAuthor": false,
+      "created": 1444849393312,
+      "updated": null,
+      "permittedGroup": null,
+      "replies": []
+    },
+    {
+      "id": "107-4",
+      "author": "Meagan_Combs",
+      "authorFullName": "Meagan Combs",
+      "issueId": "NAT-7",
+      "parentId": null,
+      "deleted": false,
+      "jiraId": null,
+      "text": "test",
+      "shownForIssueAuthor": false,
+      "created": 1444849398783,
+      "updated": 1444849393300,
+      "permittedGroup": null,
+      "replies": []
+    }
+  ],
+  "tag": [
+    {
+      "value": "Star",
+      "cssClass": "tag0"
+    }
+  ]
+}</value>
+  </data>
+  <data name="IssueDetail" xml:space="preserve">
+    <value>{
+    "id": "NAT-2",
+    "entityId": "97-151",
+    "jiraId": null,
+    "field": [
+        {
+            "name": "projectShortName",
+            "value": "NAT"
+        },
+        {
+            "name": "numberInProject",
+            "value": "2"
+        },
+        {
+            "name": "summary",
+            "value": "Admin Login"
+        },
+        {
+            "name": "description",
+            "value": "testing"
+        },
+        {
+            "name": "created",
+            "value": "1443729652313"
+        },
+        {
+            "name": "updated",
+            "value": "1443729652313"
+        },
+        {
+            "name": "updaterName",
+            "value": "Meagan_Combs"
+        },
+        {
+            "name": "updaterFullName",
+            "value": "Meagan Combs"
+        },
+        {
+            "name": "reporterName",
+            "value": "Meagan_Combs"
+        },
+        {
+            "name": "reporterFullName",
+            "value": "Meagan Combs"
+        },
+        {
+            "name": "commentsCount",
+            "value": "0"
+        },
+        {
+            "name": "votes",
+            "value": "0"
+        },
+        {
+            "name": "Priority",
+            "value": [
+                "Normal"
+            ],
+            "valueId": [
+                "Normal"
+            ],
+            "color": {
+                "bg": "#ebf4dd",
+                "fg": "#64992C"
+            }
+        },
+        {
+            "name": "Type",
+            "value": [
+                "Bug"
+            ],
+            "valueId": [
+                "Bug"
+            ],
+            "color": null
+        },
+        {
+            "name": "State",
+            "value": [
+                "Submitted"
+            ],
+            "valueId": [
+                "Submitted"
+            ],
+            "color": null
+        },
+        {
+            "name": "Non-Billable",
+            "value": [
+                "No"
+            ],
+            "valueId": [
+                "No"
+            ],
+            "color": null
+        }
+    ],
+    "comment": [],
+    "tag": []
+}</value>
+  </data>
+  <data name="IssueList" xml:space="preserve">
+    <value>{
+    "issue": [
+        {
+            "priority": "3",
+            "type": "Bug",
+            "state": "Submitted",
+            "subsystem": "No Subsystem",
+            "affectsVersion": null,
+            "id": "NAT-1",
+            "fixedVersion": null,
+            "projectShortName": "NAT",
+            "assigneeName": null,
+            "reporterName": "Meagan_Combs",
+            "updaterName": "Meagan_Combs",
+            "fixedInBuild": "Next build",
+            "commentsCount": 0,
+            "numberInProject": 1,
+            "summary": "test",
+            "description": null,
+            "created": 1443729466358,
+            "updated": 1444855950067,
+            "historyUpdated": 1444855950067,
+            "resolved": null,
+            "jiraId": null,
+            "votes": 0,
+            "permittedGroup": null,
+            "field": [
+                {
+                    "name": "Work Hours",
+                    "value": [],
+                    "valueId": [],
+                    "color": null
+                },
+                {
+                    "name": "Non-Billable",
+                    "value": [
+                        "No"
+                    ],
+                    "valueId": [
+                        "No"
+                    ],
+                    "color": null
+                }
+            ],
+            "attachments": [],
+            "links": []
+        },
+        {
+            "priority": "3",
+            "type": "Bug",
+            "state": "Submitted",
+            "subsystem": "No Subsystem",
+            "affectsVersion": null,
+            "id": "NAT-2",
+            "fixedVersion": null,
+            "projectShortName": "NAT",
+            "assigneeName": null,
+            "reporterName": "Meagan_Combs",
+            "updaterName": "Meagan_Combs",
+            "fixedInBuild": "Next build",
+            "commentsCount": 0,
+            "numberInProject": 2,
+            "summary": "Admin Login",
+            "description": "testing",
+            "created": 1443729652313,
+            "updated": 1443729652313,
+            "historyUpdated": 1443729652313,
+            "resolved": null,
+            "jiraId": null,
+            "votes": 0,
+            "permittedGroup": null,
+            "field": [
+                {
+                    "name": "Work Hours",
+                    "value": [],
+                    "valueId": [],
+                    "color": null
+                },
+                {
+                    "name": "Non-Billable",
+                    "value": [
+                        "No"
+                    ],
+                    "valueId": [
+                        "No"
+                    ],
+                    "color": null
+                }
+            ],
+            "attachments": [],
+            "links": []
+        },
+        {
+            "priority": "3",
+            "type": "Bug",
+            "state": "Submitted",
+            "subsystem": "No Subsystem",
+            "affectsVersion": null,
+            "id": "NAT-3",
+            "fixedVersion": null,
+            "projectShortName": "NAT",
+            "assigneeName": null,
+            "reporterName": "Meagan_Combs",
+            "updaterName": "Meagan_Combs",
+            "fixedInBuild": "Next build",
+            "commentsCount": 0,
+            "numberInProject": 3,
+            "summary": "Admin Login",
+            "description": "testing",
+            "created": 1443730317432,
+            "updated": 1443730317432,
+            "historyUpdated": 1443730317432,
+            "resolved": null,
+            "jiraId": null,
+            "votes": 0,
+            "permittedGroup": null,
+            "field": [
+                {
+                    "name": "Work Hours",
+                    "value": [],
+                    "valueId": [],
+                    "color": null
+                },
+                {
+                    "name": "Non-Billable",
+                    "value": [
+                        "No"
+                    ],
+                    "valueId": [
+                        "No"
+                    ],
+                    "color": null
+                }
+            ],
+            "attachments": [],
+            "links": []
+        },
+        {
+            "priority": "3",
+            "type": "Bug",
+            "state": "Submitted",
+            "subsystem": "No Subsystem",
+            "affectsVersion": null,
+            "id": "NAT-4",
+            "fixedVersion": null,
+            "projectShortName": "NAT",
+            "assigneeName": null,
+            "reporterName": "Meagan_Combs",
+            "updaterName": "Meagan_Combs",
+            "fixedInBuild": "Next build",
+            "commentsCount": 0,
+            "numberInProject": 4,
+            "summary": "User Test",
+            "description": "testing",
+            "created": 1443731152159,
+            "updated": 1443731152159,
+            "historyUpdated": 1443731152159,
+            "resolved": null,
+            "jiraId": null,
+            "votes": 0,
+            "permittedGroup": null,
+            "field": [
+                {
+                    "name": "Work Hours",
+                    "value": [],
+                    "valueId": [],
+                    "color": null
+                },
+                {
+                    "name": "Non-Billable",
+                    "value": [
+                        "No"
+                    ],
+                    "valueId": [
+                        "No"
+                    ],
+                    "color": null
+                }
+            ],
+            "attachments": [],
+            "links": []
+        },
+        {
+            "priority": "3",
+            "type": "Bug",
+            "state": "Submitted",
+            "subsystem": "No Subsystem",
+            "affectsVersion": null,
+            "id": "NAT-5",
+            "fixedVersion": null,
+            "projectShortName": "NAT",
+            "assigneeName": null,
+            "reporterName": "Meagan_Combs",
+            "updaterName": "Meagan_Combs",
+            "fixedInBuild": "Next build",
+            "commentsCount": 0,
+            "numberInProject": 5,
+            "summary": "User Test",
+            "description": "testing",
+            "created": 1443731199488,
+            "updated": 1443731199488,
+            "historyUpdated": 1443731199488,
+            "resolved": null,
+            "jiraId": null,
+            "votes": 0,
+            "permittedGroup": null,
+            "field": [
+                {
+                    "name": "Work Hours",
+                    "value": [],
+                    "valueId": [],
+                    "color": null
+                },
+                {
+                    "name": "Non-Billable",
+                    "value": [
+                        "No"
+                    ],
+                    "valueId": [
+                        "No"
+                    ],
+                    "color": null
+                }
+            ],
+            "attachments": [],
+            "links": []
+        },
+        {
+            "priority": "1",
+            "type": "Bug",
+            "state": "Submitted",
+            "subsystem": "Documentation",
+            "affectsVersion": null,
+            "id": "NAT-6",
+            "fixedVersion": null,
+            "projectShortName": "NAT",
+            "assigneeName": "Meagan_Combs",
+            "reporterName": "Meagan_Combs",
+            "updaterName": "Meagan_Combs",
+            "fixedInBuild": "Next build",
+            "commentsCount": 0,
+            "numberInProject": 6,
+            "summary": "Register Test",
+            "description": "testing",
+            "created": 1443731307195,
+            "updated": 1443795905060,
+            "historyUpdated": 1443795905060,
+            "resolved": null,
+            "jiraId": null,
+            "votes": 0,
+            "permittedGroup": null,
+            "field": [
+                {
+                    "name": "Work Hours",
+                    "value": [],
+                    "valueId": [],
+                    "color": null
+                },
+                {
+                    "name": "Non-Billable",
+                    "value": [
+                        "No"
+                    ],
+                    "valueId": [
+                        "No"
+                    ],
+                    "color": null
+                }
+            ],
+            "attachments": [],
+            "links": []
+        },
+        {
+            "priority": "3",
+            "type": "Bug",
+            "state": "Submitted",
+            "subsystem": "Documentation",
+            "affectsVersion": null,
+            "id": "NAT-7",
+            "fixedVersion": null,
+            "projectShortName": "NAT",
+            "assigneeName": "Meagan_Combs",
+            "reporterName": "Meagan_Combs",
+            "updaterName": "Meagan_Combs",
+            "fixedInBuild": "Next build",
+            "commentsCount": 2,
+            "numberInProject": 7,
+            "summary": "updated",
+            "description": "updated",
+            "created": 1443731565889,
+            "updated": 1444849398783,
+            "historyUpdated": 1444849398783,
+            "resolved": null,
+            "jiraId": null,
+            "votes": 0,
+            "permittedGroup": null,
+            "field": [
+                {
+                    "name": "Work Hours",
+                    "value": [],
+                    "valueId": [],
+                    "color": null
+                },
+                {
+                    "name": "Non-Billable",
+                    "value": [
+                        "No"
+                    ],
+                    "valueId": [
+                        "No"
+                    ],
+                    "color": null
+                }
+            ],
+            "attachments": [
+                {
+                    "id": "113-0",
+                    "url": "https://yt.wolfgang.com/youtrack/_persistent/Screenshot_2015-10-14-16-54-36%20(1).png?file=113-0&amp;v=0&amp;c=false",
+                    "name": "Screenshot_2015-10-14-16-54-36 (1).png",
+                    "authorLogin": "Meagan_Combs",
+                    "group": "All Users",
+                    "created": 1444849393312
+                }
+            ],
+            "links": []
+        },
+        {
+            "priority": "3",
+            "type": "Bug",
+            "state": "Fixed",
+            "subsystem": "No Subsystem",
+            "affectsVersion": null,
+            "id": "NAT-8",
+            "fixedVersion": null,
+            "projectShortName": "NAT",
+            "assigneeName": null,
+            "reporterName": "Meagan_Combs",
+            "updaterName": "Meagan_Combs",
+            "fixedInBuild": "Next build",
+            "commentsCount": 0,
+            "numberInProject": 8,
+            "summary": "Register Test",
+            "description": "testing",
+            "created": 1443731685723,
+            "updated": 1443731687244,
+            "historyUpdated": 1443731687244,
+            "resolved": 1443731687237,
+            "jiraId": null,
+            "votes": 0,
+            "permittedGroup": null,
+            "field": [
+                {
+                    "name": "Work Hours",
+                    "value": [],
+                    "valueId": [],
+                    "color": null
+                },
+                {
+                    "name": "Non-Billable",
+                    "value": [
+                        "No"
+                    ],
+                    "valueId": [
+                        "No"
+                    ],
+                    "color": null
+                }
+            ],
+            "attachments": [],
+            "links": []
+        }
+    ]
+}</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>{
+  "name": "NexusAdminTest",
+  "id": "NAT",
+  "description": null,
+  "archived": false,
+  "lead": "Meagan_Combs",
+  "startingNumber": null,
+  "assigneesUrl": "https://yt.wolfgang.com/youtrack/rest/admin/project/NAT/assignee",
+  "subsystemsUrl": "https://yt.wolfgang.com/youtrack/rest/admin/project/NAT/subsystem",
+  "buildsUrl": "https://yt.wolfgang.com/youtrack/rest/admin/project/NAT/build",
+  "versionsUrl": "https://yt.wolfgang.com/youtrack/rest/admin/project/NAT/version"
+}</value>
+  </data>
+  <data name="ProjectSubsystems" xml:space="preserve">
+    <value>[
+  {
+    "name": "Admin",
+    "defaultAssignee": "",
+    "isDefault": false
+  },
+  {
+    "name": "Documentation",
+    "defaultAssignee": "",
+    "isDefault": false
+  },
+  {
+    "name": "postmantest",
+    "defaultAssignee": "",
+    "isDefault": false
+  },
+  {
+    "name": "subsystem",
+    "defaultAssignee": "",
+    "isDefault": false
+  },
+  {
+    "name": "Web Services",
+    "defaultAssignee": "Meagan_Combs",
+    "isDefault": false
+  }
+]</value>
+  </data>
+</root>

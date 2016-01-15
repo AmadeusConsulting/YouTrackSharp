@@ -39,20 +39,24 @@
     <Reference Include="CommandLine">
       <HintPath>lib\CommandLine.dll</HintPath>
     </Reference>
-    <Reference Include="EasyHttp, Version=1.6.80.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\EasyHttp.1.6.80.0\lib\net40\EasyHttp.dll</HintPath>
+    <Reference Include="EasyHttp, Version=1.6.68.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyHttp.1.6.68.0\lib\net40\EasyHttp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="JsonFx, Version=2.0.1209.2802, Culture=neutral, PublicKeyToken=315052dd637f8a52, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\JsonFx.2.0.1209.2802\lib\net40\JsonFx.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.7.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\RestSharp.105.2.3\lib\net4\RestSharp.dll</HintPath>
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net4\RestSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -84,9 +88,12 @@
     <Compile Include="Commands\CommandOptions\CreateIssueCommandOptions.cs" />
     <Compile Include="Commands\CommandOptions\DeleteIssueCommandOptions.cs" />
     <Compile Include="Commands\CommandParser.cs" />
+    <Compile Include="Infrastructure\DefaultRestClientFactory.cs" />
+    <Compile Include="Infrastructure\IRestClientFactory.cs" />
     <Compile Include="Infrastructure\NewtonsoftJsonDeserializer.cs" />
     <Compile Include="Infrastructure\NewtonsoftJsonSerializer.cs" />
     <Compile Include="Infrastructure\NewtonsoftJtokenExtensions.cs" />
+    <Compile Include="Infrastructure\OAuth2AccessToken.cs" />
     <Compile Include="Infrastructure\RestSharpConnection.cs" />
     <Compile Include="Infrastructure\Connection.cs" />
     <Compile Include="Infrastructure\IConnection.cs" />
@@ -134,7 +141,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
