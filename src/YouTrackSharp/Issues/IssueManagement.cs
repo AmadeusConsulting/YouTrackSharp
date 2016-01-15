@@ -68,15 +68,9 @@ namespace YouTrackSharp.Issues
 		{
 			try
 			{
-				dynamic response = _connection.Get<Issue>(String.Format("issue/{0}", issueId));
+				dynamic issue = _connection.Get<Issue>(String.Format("issue/{0}", issueId));
 
-				if (response != null)
-				{
-					response.Id = response.id;
-
-					return response;
-				}
-				return null;
+				return issue;
 			}
 			catch (HttpException exception)
 			{
