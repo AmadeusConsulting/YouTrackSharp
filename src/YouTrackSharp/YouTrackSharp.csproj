@@ -88,16 +88,25 @@
     <Compile Include="Commands\CommandOptions\CreateIssueCommandOptions.cs" />
     <Compile Include="Commands\CommandOptions\DeleteIssueCommandOptions.cs" />
     <Compile Include="Commands\CommandParser.cs" />
+    <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
+    <Compile Include="Import\ImportedItem.cs" />
+    <Compile Include="Import\ImportedItemReport.cs" />
+    <Compile Include="Import\ImportErrorDetail.cs" />
+    <Compile Include="Import\ImportResponse.cs" />
+    <Compile Include="Import\ImportError.cs" />
+    <Compile Include="Infrastructure\ApiResponse.cs" />
     <Compile Include="Infrastructure\DefaultRestClientFactory.cs" />
     <Compile Include="Infrastructure\IRestClientFactory.cs" />
     <Compile Include="Infrastructure\NewtonsoftJsonDeserializer.cs" />
     <Compile Include="Infrastructure\NewtonsoftJsonSerializer.cs" />
     <Compile Include="Infrastructure\NewtonsoftJtokenExtensions.cs" />
     <Compile Include="Infrastructure\OAuth2AccessToken.cs" />
+    <Compile Include="Infrastructure\RestResponseExtensions.cs" />
     <Compile Include="Infrastructure\RestSharpConnection.cs" />
     <Compile Include="Infrastructure\Connection.cs" />
     <Compile Include="Infrastructure\IConnection.cs" />
     <Compile Include="Infrastructure\ISearchEngine.cs" />
+    <Compile Include="Infrastructure\TimestampSecondsJsonConverter.cs" />
     <Compile Include="Issues\Attachment.cs" />
     <Compile Include="Issues\Count.cs" />
     <Compile Include="Issues\Entity.cs" />
@@ -131,6 +140,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Admin\UserManagement.cs" />
     <Compile Include="Admin\User.cs" />
+    <Compile Include="TimeTracking\TimeTrackingManagement.cs" />
+    <Compile Include="TimeTracking\WorkItem.cs" />
+    <Compile Include="TimeTracking\WorkItemAuthor.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Language.resx">

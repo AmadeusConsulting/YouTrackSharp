@@ -32,7 +32,7 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Net;
+
 using YouTrackSharp.Admin;
 using YouTrackSharp.Projects;
 
@@ -41,8 +41,8 @@ namespace YouTrackSharp.Infrastructure
     public interface IConnection
     {
         bool IsAuthenticated { get; }
-        HttpStatusCode HttpStatusCode { get; }
-        T Get<T>(string command) where T : new() ;
+
+	    T Get<T>(string command) where T : new() ;
         IEnumerable<T> GetList<T>(string command) where T : new();
         IEnumerable<TInternal> Get<TWrapper, TInternal>(string command)
             where TWrapper : class, 
@@ -52,10 +52,13 @@ namespace YouTrackSharp.Infrastructure
         void Authenticate(string username, string password);
         void Logout();
         User GetCurrentAuthenticatedUser();
-        void PostFile(string command, string path);
-        void Head(string command);
-        void Post(string command, object data);
-        void Put(string command, object data);
+        ApiResponse PostFile(string command, string path);
+        ApiResponse Head(string command);
+        ApiResponse Post(string command, object data);
+		ApiResponse Put(string command, object data, params KeyValuePair<string, string>[] requestParameters);
+		ApiResponse<T> Put<T>(string resource, object data, params KeyValuePair<string, string>[] requestParameters) where T : new();
         void Delete(string command);
+
+	    
     }
 }

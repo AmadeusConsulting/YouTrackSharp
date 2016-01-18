@@ -33,9 +33,9 @@ using YouTrackSharp.Infrastructure;
 
 namespace YouTrackSharp.Specs.Helpers
 {
-    public class YouTrackConnection
-    {
-        protected static Connection connection;
-        Establish context = () => { connection = new Connection("workshop.myjetbrains.com", 80, false, "youtrack"); };
-    }
+	//public class YouTrackConnection
+	//{
+	//	protected static Connection connection;
+	//	Establish context = () => { connection = new Connection("workshop.myjetbrains.com", 80, false, "youtrack"); };
+	//}
 }
