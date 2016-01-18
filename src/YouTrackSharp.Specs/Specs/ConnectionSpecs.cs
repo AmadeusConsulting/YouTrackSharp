@@ -40,59 +40,59 @@ using YouTrackSharp.Specs.Helpers;
 
 namespace YouTrackSharp.Specs.Specs
 {
-    [Subject(typeof (Connection))]
-    public class when_authenticating_with_valid_username_and_password_given_valid_connection_details:  YouTrackConnection
-    {
+	//[Subject(typeof (Connection))]
+	//public class when_authenticating_with_valid_username_and_password_given_valid_connection_details:  YouTrackConnection
+	//{
 
-        Because of = () => connection.Authenticate("youtrackapi", "youtrackapi");
+	//	Because of = () => connection.Authenticate("youtrackapi", "youtrackapi");
 
-        It should_succeed = () => connection.IsAuthenticated.ShouldBeTrue();
+	//	It should_succeed = () => connection.IsAuthenticated.ShouldBeTrue();
 
-    }
+	//}
 
-    [Subject(typeof(Connection))]
-    public class when_authenticating_with_valid_netword_credentials_given_valid_connection_details : YouTrackConnection
-    {
-        Because of = () => connection.Authenticate(new NetworkCredential("youtrackapi", "youtrackapi"));
+	//[Subject(typeof(Connection))]
+	//public class when_authenticating_with_valid_netword_credentials_given_valid_connection_details : YouTrackConnection
+	//{
+	//	Because of = () => connection.Authenticate(new NetworkCredential("youtrackapi", "youtrackapi"));
 
-        It should_succeed = () => connection.IsAuthenticated.ShouldBeTrue();
-    }
+	//	It should_succeed = () => connection.IsAuthenticated.ShouldBeTrue();
+	//}
 
-    [Subject(typeof(Connection))]
-    public class when_authenticating_with_valid_username_and_secure_string_given_valid_connection_details : YouTrackConnection
-    {
-        Because of = () =>
-        {
-            var secure = new SecureString();
-            foreach (var c in "youtrackapi")
-                secure.AppendChar(c);
-            connection.Authenticate(new NetworkCredential("youtrackapi", secure));
-        };
+	//[Subject(typeof(Connection))]
+	//public class when_authenticating_with_valid_username_and_secure_string_given_valid_connection_details : YouTrackConnection
+	//{
+	//	Because of = () =>
+	//	{
+	//		var secure = new SecureString();
+	//		foreach (var c in "youtrackapi")
+	//			secure.AppendChar(c);
+	//		connection.Authenticate(new NetworkCredential("youtrackapi", secure));
+	//	};
 
-        It should_succeed = () => connection.IsAuthenticated.ShouldBeTrue();
-    }
+	//	It should_succeed = () => connection.IsAuthenticated.ShouldBeTrue();
+	//}
 
-    [Subject(typeof (Connection))]
-    public class when_authenticating_with_invalid_username_and_or_password_given_valid_connection_details:YouTrackConnection
-    {
+	//[Subject(typeof (Connection))]
+	//public class when_authenticating_with_invalid_username_and_or_password_given_valid_connection_details:YouTrackConnection
+	//{
 
-        Because of = () => { exception = Catch.Exception( () => connection.Authenticate("YouTrackSelfTestUser", "fdfdfd")); };
+	//	Because of = () => { exception = Catch.Exception( () => connection.Authenticate("YouTrackSelfTestUser", "fdfdfd")); };
 
-        It should_throw_authentication_exception = () => exception.ShouldBeOfType<AuthenticationException>();
+	//	It should_throw_authentication_exception = () => exception.ShouldBeOfType<AuthenticationException>();
        
 
-        static Exception exception;
-    }
+	//	static Exception exception;
+	//}
 
-    [Subject(typeof (Connection))]
-    public class when_requesting_current_logged_in_user_given_authenticated_details: AuthenticatedYouTrackConnection
-    {
-        Because of = () => { user = connection.GetCurrentAuthenticatedUser(); };
+	//[Subject(typeof (Connection))]
+	//public class when_requesting_current_logged_in_user_given_authenticated_details: AuthenticatedYouTrackConnection
+	//{
+	//	Because of = () => { user = connection.GetCurrentAuthenticatedUser(); };
 
-        It should_contain_valid_username = () => user.Username.ShouldEqual("youtrackapi");
+	//	It should_contain_valid_username = () => user.Username.ShouldEqual("youtrackapi");
 
-        It should_contain_valid_fullname = () => user.FullName.ShouldEqual("YouTrack API");
+	//	It should_contain_valid_fullname = () => user.FullName.ShouldEqual("YouTrack API");
 
-        static User user;
-    }
+	//	static User user;
+	//}
 }

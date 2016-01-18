@@ -36,94 +36,94 @@ using YouTrackSharp.Specs.Helpers;
 
 namespace YouTrackSharp.Specs.Specs
 {
-    [Subject(typeof (ProjectManagement))]
-    public class when_retrieving_a_list_of_projects_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
-    {
-        Because of = () => { projects = projectManagement.GetProjects(); };
+	//[Subject(typeof (ProjectManagement))]
+	//public class when_retrieving_a_list_of_projects_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
+	//{
+	//	Because of = () => { projects = projectManagement.GetProjects(); };
 
-        It should_return_all_projects = () => { projects.ShouldNotBeEmpty(); };
+	//	It should_return_all_projects = () => { projects.ShouldNotBeEmpty(); };
 
-        It should_contain_valid_project_data = () => { projects.First().Name.ShouldNotBeEmpty(); };
+	//	It should_contain_valid_project_data = () => { projects.First().Name.ShouldNotBeEmpty(); };
 
-        static IEnumerable<Project> projects;
-    }
+	//	static IEnumerable<Project> projects;
+	//}
 
-    [Subject(typeof (ProjectManagement))]
-    public class when_retrieving_a_list_of_priorities_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
-    {
-        Because of = () => { priorities = projectManagement.GetPriorities(); };
+	//[Subject(typeof (ProjectManagement))]
+	//public class when_retrieving_a_list_of_priorities_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
+	//{
+	//	Because of = () => { priorities = projectManagement.GetPriorities(); };
 
-        It should_return_all_priorities = () => priorities.ShouldNotBeEmpty();
+	//	It should_return_all_priorities = () => priorities.ShouldNotBeEmpty();
 
-        It should_contain_correct_name = () => priorities.First().Name.ShouldNotBeEmpty();
+	//	It should_contain_correct_name = () => priorities.First().Name.ShouldNotBeEmpty();
 
-        It should_contain_correct_numericvalue = () => priorities.First().NumericValue.ShouldNotBeNull();
+	//	It should_contain_correct_numericvalue = () => priorities.First().NumericValue.ShouldNotBeNull();
 
-        static IEnumerable<ProjectPriority> priorities;
-    }
+	//	static IEnumerable<ProjectPriority> priorities;
+	//}
 
-    [Subject(typeof (ProjectManagement))]
-    public class when_retrieving_a_list_of_states_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
-    {
-        Because of = () => { states = projectManagement.GetStates(); };
+	//[Subject(typeof (ProjectManagement))]
+	//public class when_retrieving_a_list_of_states_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
+	//{
+	//	Because of = () => { states = projectManagement.GetStates(); };
 
-        It should_return_all_states = () => states.Count().ShouldBeGreaterThan(0);
+	//	It should_return_all_states = () => states.Count().ShouldBeGreaterThan(0);
 
-        It should_contain_valid_state_data = () => states.First().Name.ShouldNotBeEmpty();
+	//	It should_contain_valid_state_data = () => states.First().Name.ShouldNotBeEmpty();
 
-        static IEnumerable<ProjectState> states;
-    }
+	//	static IEnumerable<ProjectState> states;
+	//}
 
-    [Subject(typeof (ProjectManagement))]
-    public class when_retrieving_a_list_of_issue_types_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
-    {
-        Because of = () => { issueTypes = projectManagement.GetIssueTypes(); };
+	//[Subject(typeof (ProjectManagement))]
+	//public class when_retrieving_a_list_of_issue_types_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
+	//{
+	//	Because of = () => { issueTypes = projectManagement.GetIssueTypes(); };
 
-        It should_return_all_issue_types = () => issueTypes.ShouldNotBeNull();
+	//	It should_return_all_issue_types = () => issueTypes.ShouldNotBeNull();
 
-        It should_contain_valid_issue_type_data = () => issueTypes.First().Name.ShouldNotBeEmpty();
+	//	It should_contain_valid_issue_type_data = () => issueTypes.First().Name.ShouldNotBeEmpty();
 
-        static IEnumerable<ProjectIssueTypes> issueTypes;
-    }
+	//	static IEnumerable<ProjectIssueTypes> issueTypes;
+	//}
 
-    [Subject(typeof (ProjectManagement))]
-    public class when_retrieving_a_list_of_resolution_states_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
-    {
-        Because of = () => { resolutions = projectManagement.GetResolutions(); };
+	//[Subject(typeof (ProjectManagement))]
+	//public class when_retrieving_a_list_of_resolution_states_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
+	//{
+	//	Because of = () => { resolutions = projectManagement.GetResolutions(); };
 
-        It should_return_all_resolution_states = () => resolutions.ShouldNotBeEmpty();
+	//	It should_return_all_resolution_states = () => resolutions.ShouldNotBeEmpty();
 
-        It should_contain_valid_resolution_state_data = () => resolutions.First().Name.ShouldNotBeEmpty();
+	//	It should_contain_valid_resolution_state_data = () => resolutions.First().Name.ShouldNotBeEmpty();
 
-        static IEnumerable<ProjectResolutionType> resolutions;
-    }
+	//	static IEnumerable<ProjectResolutionType> resolutions;
+	//}
 
-    [Subject(typeof(ProjectManagement))]
-    public class when_retrieving_an_existing_project_by_name : AuthenticatedYouTrackConnectionForProjectSpecs
-    {
-        Because of = () => { project = projectManagement.GetProject("SB"); };
+	//[Subject(typeof(ProjectManagement))]
+	//public class when_retrieving_an_existing_project_by_name : AuthenticatedYouTrackConnectionForProjectSpecs
+	//{
+	//	Because of = () => { project = projectManagement.GetProject("SB"); };
 
-        It should_return_the_specified_project = () => { project.Name.ShouldEqual("Sandbox"); };
+	//	It should_return_the_specified_project = () => { project.Name.ShouldEqual("Sandbox"); };
 
-        static Project project;
-    }
+	//	static Project project;
+	//}
 
-    [Subject(typeof(ProjectManagement))]
-    [Ignore("The server says forbidden.")]
-    public class when_retrieving_A_list_of_versions_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
-    {
-		//Because of = () =>
-		//	{
-		//		project = projectManagement.GetProject("SB");
-		//		projectManagement.AddVersion(project, new ProjectVersion { Name= "0.1", IsReleased = false, IsArchived = false});
-		//		versions = projectManagement.GetVersions(project);
-		//		projectManagement.DeleteVersion(project, "0.1");
-		//	};
+	//[Subject(typeof(ProjectManagement))]
+	//[Ignore("The server says forbidden.")]
+	//public class when_retrieving_A_list_of_versions_given_authenticated_connection_and_existing_projects : AuthenticatedYouTrackConnectionForProjectSpecs
+	//{
+	//	//Because of = () =>
+	//	//	{
+	//	//		project = projectManagement.GetProject("SB");
+	//	//		projectManagement.AddVersion(project, new ProjectVersion { Name= "0.1", IsReleased = false, IsArchived = false});
+	//	//		versions = projectManagement.GetVersions(project);
+	//	//		projectManagement.DeleteVersion(project, "0.1");
+	//	//	};
 
-		//It should_return_versions = () => { versions.ShouldNotBeEmpty(); };
+	//	//It should_return_versions = () => { versions.ShouldNotBeEmpty(); };
 
-		//static Project project;
-		//static IEnumerable<ProjectVersion> versions;
-    }
+	//	//static Project project;
+	//	//static IEnumerable<ProjectVersion> versions;
+	//}
     
 }

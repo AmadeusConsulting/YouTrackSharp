@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Authentication;
+using System.Text;
 
 using log4net;
 
@@ -84,8 +85,6 @@ namespace YouTrackSharp.Infrastructure
 
 		#region Public Properties
 
-		public HttpStatusCode HttpStatusCode { get; private set; }
-
 		public bool IsAuthenticated
 		{
 			get
@@ -142,12 +141,7 @@ namespace YouTrackSharp.Infrastructure
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.DELETE);
 			var response = GetClient().Execute(request);
 
-			HttpStatusCode = response.StatusCode;
-
-			if (response.StatusCode != HttpStatusCode.OK)
-			{
-				throw new InvalidRequestException(string.Format("Request Failed! \n{0}", response.Content));
-			}
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
 		}
 
 		public T Get<T>(string command) where T : new()
@@ -157,21 +151,10 @@ namespace YouTrackSharp.Infrastructure
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
 
 			IRestResponse<T> response = GetClient().Execute<T>(request);
-			HttpStatusCode = response.StatusCode;
 
-			if (response.ResponseStatus != ResponseStatus.Completed)
-			{
-				throw response.ErrorException;
-			}
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
 
-			if (response.StatusCode == HttpStatusCode.OK)
-			{
-				return response.Data;
-			}
-			else
-			{
-				throw new InvalidRequestException(string.Format("Request Failed! \n{0}", response.Content));
-			}
+			return response.Data;
 		}
 
 		public IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, IDataWrapper<TInternal>, new()
@@ -183,6 +166,8 @@ namespace YouTrackSharp.Infrastructure
 
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET) { RequestFormat = DataFormat.Json };
 			var response = GetClient().Execute<TWrapper>(request);
+
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
 
 			return response.Data.Data ?? new TInternal[0];
 		}
@@ -203,21 +188,15 @@ namespace YouTrackSharp.Infrastructure
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
 
 			IRestResponse<List<T>> response = GetClient().Execute<List<T>>(request);
-			HttpStatusCode = response.StatusCode;
 
 			if (response.ResponseStatus != ResponseStatus.Completed)
 			{
 				throw response.ErrorException;
 			}
 
-			if (response.StatusCode == HttpStatusCode.OK)
-			{
-				return response.Data;
-			}
-			else
-			{
-				throw new InvalidRequestException(string.Format("Request Failed! \n{0}", response.Content));
-			}
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+
+			return response.Data;
 		}
 
 		public TInternal GetWrappedData<TInternal, TWrapper>(string command) where TWrapper : class, IDataWrapper<TInternal>, new()
@@ -228,17 +207,25 @@ namespace YouTrackSharp.Infrastructure
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
 			var response = GetClient().Execute<TWrapper>(request);
 
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+
 			return response.Data.Data != null ? response.Data.Data.First() : default(TInternal);
 		}
 
-		public void Head(string command)
+		public ApiResponse Head(string command)
 		{
 			EnsureAuthenticated();
 
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.HEAD);
 
 			var response = GetClient().Execute(request);
-			HttpStatusCode = response.StatusCode;
+
+			if (response.ResponseStatus != ResponseStatus.Completed)
+			{
+				throw new ConnectionException(string.Format("HEAD request to {0} failed.", request.Resource), response.ErrorException);
+			}
+
+			return response.AsApiResponse();
 		}
 
 		public void Logout()
@@ -265,10 +252,13 @@ namespace YouTrackSharp.Infrastructure
 			}
 
 			var response = GetClient().Execute<ListIssue>(request);
+
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
+
 			return response.Data;
 		}
 
-		public void Post(string command, object data)
+		public ApiResponse Post(string command, object data)
 		{
 			EnsureAuthenticated();
 
@@ -280,15 +270,12 @@ namespace YouTrackSharp.Infrastructure
 			}
 			var response = GetClient().Execute(request);
 
-			HttpStatusCode = response.StatusCode;
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
 
-			if (response.ResponseStatus != ResponseStatus.Completed)
-			{
-				throw response.ErrorException;
-			}
+			return response.AsApiResponse();
 		}
 
-		public void PostFile(string command, string path)
+		public ApiResponse PostFile(string command, string path)
 		{
 			EnsureAuthenticated();
 
@@ -300,17 +287,17 @@ namespace YouTrackSharp.Infrastructure
 			request.RequestFormat = DataFormat.Json;
 			var response = GetClient().Execute(request);
 
-			HttpStatusCode = response.StatusCode;
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
+
+			return response.AsApiResponse();
 		}
 
-		public void Put(string command, object data)
+		public ApiResponse Put(string resource, object data, params KeyValuePair<string, string>[] requestParameters)
 		{
 			EnsureAuthenticated();
 
-			RestRequest request;
-			if (data != null)
-			{
-				var expando = (IDictionary<string, object>)data;
+			/*
+			 var expando = (IDictionary<string, object>)data;
 				request =
 					new RestRequest(
 						string.Format("{0}/{1}", YouTrackRestResourceBase, "issue?project={project}&summary={summary}&description={description}"),
@@ -318,20 +305,66 @@ namespace YouTrackSharp.Infrastructure
 				request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
 				request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
 				request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
-			}
-			else
+			 */
+
+			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, Method.PUT);
+
+			if (data != null)
 			{
-				request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.PUT);
+				request.AddBody(data);
 			}
 
 			var response = GetClient().Execute(request);
 
-			HttpStatusCode = response.StatusCode;
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted, HttpStatusCode.Created);
 
-			if (response.ResponseStatus != ResponseStatus.Completed)
+			return response.AsApiResponse();
+		}
+
+		public ApiResponse<T> Put<T>(string resource, object data, params KeyValuePair<string, string>[] requestParameters) where T : new()
+		{
+			EnsureAuthenticated();
+
+			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, Method.PUT);
+
+			if (data != null)
 			{
-				throw response.ErrorException;
+				request.AddBody(data);
 			}
+
+			var response = GetClient().Execute<T>(request);
+
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted, HttpStatusCode.Created);
+
+			return response.AsApiResponse();
+		}
+
+		private static RestRequest BuildPutPostRequest(string resource, KeyValuePair<string, string>[] requestParameters, Method requestMethod = Method.GET)
+		{
+			var requestResourceBuilder = new StringBuilder(resource);
+
+			if (requestParameters.Any())
+			{
+				requestResourceBuilder.Append("?");
+			}
+			var firstParam = true;
+			foreach (var kvp in requestParameters)
+			{
+				requestResourceBuilder.AppendFormat("{0}{1}={{{1}}}", !firstParam ? "&" : string.Empty, kvp.Key);
+				firstParam = false;
+			}
+
+			var request = new RestRequest(requestResourceBuilder.ToString(), requestMethod)
+				              {
+					              RequestFormat = DataFormat.Json,
+					              JsonSerializer = new NewtonsoftJsonSerializer()
+				              };
+
+			foreach (var kvp in requestParameters)
+			{
+				request.AddUrlSegment(kvp.Key, kvp.Value);
+			}
+			return request;
 		}
 
 		#endregion

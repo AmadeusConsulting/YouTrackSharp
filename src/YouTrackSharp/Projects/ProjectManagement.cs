@@ -93,18 +93,18 @@ namespace YouTrackSharp.Projects
 
         public Project GetProject(string projectName)
         {
-            return _connection.Get<Project>(String.Format("rest/admin/project/{0}", projectName));
+            return _connection.Get<Project>(String.Format("admin/project/{0}", projectName));
         }
         
         public void AddSubsystem(string projectName, string subsystem)
         {
-            _connection.Put(String.Format("rest/admin/project/{0}/subsystem/{1}", projectName, subsystem), null);
+            _connection.Put(String.Format("admin/project/{0}/subsystem/{1}", projectName, subsystem), null);
            
         }
 
         public IEnumerable<Subsystem> ListSubsystems(string projectName)
         {
-            return _connection.GetList<Subsystem>(String.Format("rest/admin/project/{0}/subsystem", projectName));
+            return _connection.GetList<Subsystem>(String.Format("admin/project/{0}/subsystem", projectName));
         }
 
         public void AddVersion(Project project, ProjectVersion version)

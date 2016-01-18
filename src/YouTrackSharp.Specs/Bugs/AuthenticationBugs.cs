@@ -35,40 +35,40 @@ using YouTrackSharp.Issues;
 
 namespace YouTrackSharp.Specs.Bugs
 {
-    public class YTSRP8
-    {
-        Establish context = () =>
-        {
-            connection = new Connection("youtrack.jetbrains.net");
-            connection.Authenticate("youtrackapi", "youtrackapi");
+	//public class YTSRP8
+	//{
+	//	Establish context = () =>
+	//	{
+	//		connection = new Connection("youtrack.jetbrains.net");
+	//		connection.Authenticate("youtrackapi", "youtrackapi");
 
-        };
+	//	};
 
-        Because of = () =>
-        {
-            var issueManagement = new IssueManagement(connection);
-            dynamic issue1 = new Issue();
+	//	Because of = () =>
+	//	{
+	//		var issueManagement = new IssueManagement(connection);
+	//		dynamic issue1 = new Issue();
             
-            issue1.Summary = "authbug1";
-            issue1.Description = "description1";
-            issue1.ProjectShortName = "SB";
+	//		issue1.Summary = "authbug1";
+	//		issue1.Description = "description1";
+	//		issue1.ProjectShortName = "SB";
 
-            dynamic issue2 = new Issue();
+	//		dynamic issue2 = new Issue();
             
-            issue2.Summary = "authbug2";
-            issue2.Description = "description2";
-            issue2.ProjectShortName = "SB";
+	//		issue2.Summary = "authbug2";
+	//		issue2.Description = "description2";
+	//		issue2.ProjectShortName = "SB";
             
-            issueId1 = issueManagement.CreateIssue(issue1);
-            issueId2 = issueManagement.CreateIssue(issue2);
+	//		issueId1 = issueManagement.CreateIssue(issue1);
+	//		issueId2 = issueManagement.CreateIssue(issue2);
 
-        };
+	//	};
 
-        It should_create_issue1 = () => issueId1.ShouldNotBeNull();
-        It should_create_issue2 = () => issueId2.ShouldNotBeNull();
+	//	It should_create_issue1 = () => issueId1.ShouldNotBeNull();
+	//	It should_create_issue2 = () => issueId2.ShouldNotBeNull();
 
-        static Connection connection;
-        static string issueId1;
-        static string issueId2;
-    }
+	//	static Connection connection;
+	//	static string issueId1;
+	//	static string issueId2;
+	//}
 }
