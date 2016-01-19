@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexus.Admin.Test {
+namespace YouTrackSharp.Tests {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Nexus.Admin.Test {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Nexus.Admin.Test.ApiResponse", typeof(ApiResponse).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("YouTrackSharp.Tests.ApiResponse", typeof(ApiResponse).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

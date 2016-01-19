@@ -132,24 +132,17 @@ namespace YouTrackSharp.Issues
 
 		public bool CheckIfIssueExists(string issueId)
 		{
-			try
-			{
-				_connection.Head(string.Format("issue/{0}/exists", issueId));
-				return _connection.HttpStatusCode == HttpStatusCode.OK;
-			}
-			catch (HttpException httpException)
-			{
-				throw new InvalidRequestException(httpException.StatusDescription, httpException);
-			}
+			var response = _connection.Head(string.Format("issue/{0}/exists", issueId));
+			return response.StatusCode == HttpStatusCode.OK;
 		}
 
 		public void AttachFileToIssue(string issuedId, string path)
 		{
-			_connection.PostFile(string.Format("rest/issue/{0}/attachment", issuedId), path);
+			var response = _connection.PostFile(string.Format("rest/issue/{0}/attachment", issuedId), path);
 
-			if (_connection.HttpStatusCode != HttpStatusCode.Created)
+			if (response.StatusCode != HttpStatusCode.Created)
 			{
-				throw new InvalidRequestException(_connection.HttpStatusCode.ToString());
+				throw new InvalidRequestException(response.StatusCode.ToString());
 			}
 		}
 

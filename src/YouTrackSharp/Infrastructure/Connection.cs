@@ -44,6 +44,7 @@ using YouTrackSharp.Projects;
 
 namespace YouTrackSharp.Infrastructure
 {
+	[Obsolete("Use RestSharpConnection", true)]
     public class Connection : IConnection
     {
         readonly string _host;
@@ -68,9 +69,7 @@ namespace YouTrackSharp.Infrastructure
             _uriConstructor = new DefaultUriConstructor(protocol, _host, _port, path);
         }
 
-        public HttpStatusCode HttpStatusCode { get; private set; }
-
-        public IEnumerable<T> GetList<T>(string command) where T : new()
+		public IEnumerable<T> GetList<T>(string command) where T : new()
         {
             throw new System.NotImplementedException();
         }
@@ -83,9 +82,8 @@ namespace YouTrackSharp.Infrastructure
             try
             {
                 var staticBody = httpRequest.Get(_uriConstructor.ConstructBaseUri(command)).StaticBody<T>();
-                HttpStatusCode = httpRequest.Response.StatusCode;
 
-                return staticBody;
+	            return staticBody;
             }
             catch (HttpException httpException)
             {
@@ -113,43 +111,43 @@ namespace YouTrackSharp.Infrastructure
         }
 
 
-        public void PostFile(string command, string path)
+        public ApiResponse PostFile(string command, string path)
         {
-            var httpRequest = CreateHttpRequest();
+			//var httpRequest = CreateHttpRequest();
 
-            httpRequest.Request.Accept = HttpContentTypes.ApplicationXml;
-
-
-            var contentType = GetFileContentType(path);
-
-            var files = new List<FileData>() { new FileData() { FieldName = "file", Filename = path, ContentTransferEncoding = "binary", ContentType = contentType } };
+			//httpRequest.Request.Accept = HttpContentTypes.ApplicationXml;
 
 
-            httpRequest.Post(_uriConstructor.ConstructBaseUri(command), null, files);
-            HttpStatusCode = httpRequest.Response.StatusCode;
+			//var contentType = GetFileContentType(path);
+
+			//var files = new List<FileData>() { new FileData() { FieldName = "file", Filename = path, ContentTransferEncoding = "binary", ContentType = contentType } };
+
+
+			//httpRequest.Post(_uriConstructor.ConstructBaseUri(command), null, files);
+			throw new NotImplementedException();
         }
 
-        public void Head(string command)
+        public ApiResponse Head(string command)
         {
-            var httpRequest = CreateHttpRequest();
+			//var httpRequest = CreateHttpRequest();
 
-            httpRequest.Head(_uriConstructor.ConstructBaseUri(command));
-            HttpStatusCode = httpRequest.Response.StatusCode;
+			//httpRequest.Head(_uriConstructor.ConstructBaseUri(command));
+			throw new NotImplementedException();
         }
 
-        public void Put(string command, object data)
-        {
-            var httpRequest = CreateHttpRequest();
+		public ApiResponse<T> Put<T>(string resource, object data, params KeyValuePair<string, string>[] requestParameters) where T : new()
+		{
+			//var httpRequest = CreateHttpRequest();
 
-            httpRequest.Request.Accept = HttpContentTypes.ApplicationXml;
+			//httpRequest.Request.Accept = HttpContentTypes.ApplicationXml;
 
-            httpRequest.Put(_uriConstructor.ConstructBaseUri(command), data,
-                             HttpContentTypes.ApplicationXWwwFormUrlEncoded);
-            string content = httpRequest.Request.ContentLength;
-            HttpStatusCode = httpRequest.Response.StatusCode;
-        }
+			//httpRequest.Put(_uriConstructor.ConstructBaseUri(command), data,
+			//				 HttpContentTypes.ApplicationXWwwFormUrlEncoded);
+			//string content = httpRequest.Request.ContentLength;
+			throw new NotImplementedException();
+		}
 
-        public void Delete(string command)
+		public void Delete(string command)
         {
             var httpRequest = CreateHttpRequest();
 
@@ -157,17 +155,22 @@ namespace YouTrackSharp.Infrastructure
 
             var constructBaseUri = _uriConstructor.ConstructBaseUri(command);
             httpRequest.Delete(constructBaseUri);
-
-            HttpStatusCode = httpRequest.Response.StatusCode;
         }
 
-        public void Post(string command, object data)
+        public ApiResponse Post(string command, object data)
         {
             // This actually doesn't return Application/XML...Bug in YouTrack
-            MakePostRequest(command, data, HttpContentTypes.ApplicationXml);
+            //MakePostRequest(command, data, HttpContentTypes.ApplicationXml);
+
+	        throw new NotImplementedException();
         }
 
-        public dynamic Post(string command, object data, string accept)
+		public ApiResponse Put(string command, object data, params KeyValuePair<string, string>[] requestParameters)
+		{
+			throw new NotImplementedException();
+		}
+
+		public dynamic Post(string command, object data, string accept)
         {
             var httpRequest = MakePostRequest(command, data, accept);
 
@@ -246,9 +249,7 @@ namespace YouTrackSharp.Infrastructure
             {
                 var dynamicBody = httpRequest.Get(_uriConstructor.ConstructBaseUri(command)).DynamicBody();
 
-                HttpStatusCode = httpRequest.Response.StatusCode;
-
-                return dynamicBody;
+	            return dynamicBody;
             }
             catch (HttpException httpException)
             {
@@ -283,9 +284,7 @@ namespace YouTrackSharp.Infrastructure
             httpRequest.Post(_uriConstructor.ConstructBaseUri(command), data,
                              HttpContentTypes.ApplicationXWwwFormUrlEncoded);
 
-            HttpStatusCode = httpRequest.Response.StatusCode;
-
-            return httpRequest;
+	        return httpRequest;
         }
 
 
