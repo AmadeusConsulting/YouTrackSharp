@@ -50,7 +50,7 @@ namespace YouTrackSharp.Infrastructure
 
 		void Authenticate(string username, string password);
 
-		void Delete(string command);
+		ApiResponse Delete(string command);
 
 		T Get<T>(string command) where T : new();
 

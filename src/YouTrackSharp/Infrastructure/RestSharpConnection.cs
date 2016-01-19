@@ -133,14 +133,16 @@ namespace YouTrackSharp.Infrastructure
 			}
 		}
 
-		public void Delete(string command)
+		public ApiResponse Delete(string command)
 		{
 			EnsureAuthenticated();
 
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.DELETE);
 			var response = GetClient().Execute(request);
 
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted);
+
+			return response.AsApiResponse();
 		}
 
 		public T Get<T>(string command) where T : new()
@@ -422,6 +424,21 @@ namespace YouTrackSharp.Infrastructure
 
 		private void EnsureExpectedResponseStatus(IRestResponse response, params HttpStatusCode[] expectedStatuses)
 		{
+			/*
+			 ---------------------------
+			  Error
+			 ---------------------------
+				An error occurred: An error has occurred.
+
+				API request returned an unexpected response: BadRequest (Bad Request) -- Expected one of OK 
+
+				 {"param":{"name":"workItem"},"cause":"HTTP 404 Not Found"} 
+ 
+			---------------------------
+			OK   
+			---------------------------
+			*/
+
 			_log.Debug(string.Format("Checking request status for {0} ...", response.Request.Resource));
 
 			if (response.ResponseStatus != ResponseStatus.Completed)
@@ -434,12 +451,14 @@ namespace YouTrackSharp.Infrastructure
 			if (!expectedStatuses.Contains(response.StatusCode))
 			{
 				_log.Warn(string.Format("Response returned an unexpected status = {0}", response.StatusCode));
-				throw new ConnectionException(
+				
+				throw new HttpStatusCodeException(
+					response.AsApiResponse(),
 					string.Format(
 						"API request returned an unexpected response: {0} ({1}) -- Expected one of {2} \n\n {3}",
 						response.StatusCode,
 						response.StatusDescription,
-						expectedStatuses.Select(s => s.ToString()).Aggregate((s1, s2) => string.Format("{0}{1}", s1, s2)),
+						expectedStatuses.Select(s => s.ToString()).Aggregate((s1, s2) => string.Format("{0} {1}", s1, s2)),
 						response.Content));
 			}
 		}

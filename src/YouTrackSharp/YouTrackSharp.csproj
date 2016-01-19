@@ -129,6 +129,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Language.resx</DependentUpon>
     </Compile>
+    <Compile Include="Projects\HttpStatusCodeException.cs" />
     <Compile Include="Projects\Subsystem.cs" />
     <Compile Include="Projects\ConnectionException.cs" />
     <Compile Include="Projects\Customer.cs" />

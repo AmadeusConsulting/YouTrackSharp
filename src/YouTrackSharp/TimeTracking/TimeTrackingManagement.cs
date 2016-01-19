@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 using YouTrackSharp.Import;
 using YouTrackSharp.Infrastructure;
+using YouTrackSharp.Projects;
 
 namespace YouTrackSharp.TimeTracking
 {
@@ -53,7 +55,19 @@ namespace YouTrackSharp.TimeTracking
 
 		public virtual void DeleteWorkItem(string issueId, string workItemId)
 		{
-			_connection.Delete(string.Format("issue/{0}/timetracking/workitem/{1}", issueId, workItemId));
+			try
+			{
+				_connection.Delete(string.Format("issue/{0}/timetracking/workitem/{1}", issueId, workItemId));
+			}
+			catch (HttpStatusCodeException ex)
+			{
+				// if we get a 404 trying to delete a resource, assume it's already been deleted ... otherwise rethrow the exception
+				if (ex.Response.StatusCode != HttpStatusCode.NotFound && !(ex.Response.ResponseContent != null && ex.Response.ResponseContent.Contains("HTTP 404 Not Found")))
+
+				{
+					throw;
+				}
+			}
 		}
 
 		public virtual void UpdateWorkItem(string issueId, WorkItem workItem)
