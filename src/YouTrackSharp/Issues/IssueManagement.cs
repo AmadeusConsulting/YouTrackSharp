@@ -90,15 +90,17 @@ namespace YouTrackSharp.Issues
 			{
 				var fieldList = issue.ToExpandoObject();
 
-				var response = _connection.Post("rest/issue", fieldList, HttpContentTypes.ApplicationJson);
+				var apiResponse = _connection.Post<Issue>("rest/issue", fieldList);
+
+				var createdIssue = apiResponse.Data;
 
 				var customFields = fieldList.Where(field => !PresetFields.Contains(field.Key.ToLower())).ToDictionary(field => field.Key, field => field.Value);
 
 				foreach (var customField in customFields)
 				{
-					ApplyCommand(response.Id, string.Format("{0} {1}", customField.Key, customField.Value), string.Empty);
+					ApplyCommand(createdIssue.Id, string.Format("{0} {1}", customField.Key, customField.Value), string.Empty);
 				}
-				return response.Id;
+				return createdIssue.Id;
 			}
 			catch (HttpException httpException)
 			{
