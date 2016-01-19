@@ -14,7 +14,6 @@ using RestSharp;
 using RestSharp.Authenticators;
 
 using YouTrackSharp.Admin;
-using YouTrackSharp.Issues;
 using YouTrackSharp.Projects;
 
 namespace YouTrackSharp.Infrastructure
@@ -233,41 +232,49 @@ namespace YouTrackSharp.Infrastructure
 			_accessToken = null;
 		}
 
-		public dynamic Post(string command, object data, string accept)
+		public ApiResponse<T> Post<T>(
+			string command,
+			object data,
+			IDictionary<string, string> postParameters = null,
+			params KeyValuePair<string, string>[] requestParameters) where T : new()
 		{
 			EnsureAuthenticated();
 
-			var expando = (IDictionary<string, object>)data;
-			var request =
-				new RestRequest(
-					string.Format("{0}/{1}", YouTrackRestResourceBase, "issue?project={project}&summary={summary}&description={description}"),
-					Method.POST) { RequestFormat = DataFormat.Json };
-			request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
-			request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
-			request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
-			request.AddHeader("accept", accept);
-			foreach (KeyValuePair<string, object> kvp in expando)
-			{
-				request.AddParameter(kvp.Key, kvp.Value);
-			}
+			//var expando = (IDictionary<string, object>)data;
+			//var request =
+			//	new RestRequest(
+			//		string.Format("{0}/{1}", YouTrackRestResourceBase, "issue?project={project}&summary={summary}&description={description}"),
+			//		Method.POST) { RequestFormat = DataFormat.Json };
+			//request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
+			//request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
+			//request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
+			//request.AddHeader("accept", accept);
 
-			var response = GetClient().Execute<ListIssue>(request);
+			//foreach (KeyValuePair<string, object> kvp in expando)
+			//{
+			//	request.AddParameter(kvp.Key, kvp.Value);
+			//}
+			var resource = string.Format("{0}/{1}", YouTrackRestResourceBase, command);
+
+			var request = BuildPutPostRequest(resource, requestParameters, postParameters, data);
+
+			var response = GetClient().Execute<T>(request);
 
 			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
 
-			return response.Data;
+			return response.AsApiResponse();
 		}
 
-		public ApiResponse Post(string command, object data)
+		public ApiResponse Post(
+			string command,
+			object data = null,
+			IDictionary<string, string> postParameters = null,
+			params KeyValuePair<string, string>[] requestParameters)
 		{
 			EnsureAuthenticated();
 
-			var expando = (IDictionary<string, object>)data;
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.POST);
-			foreach (KeyValuePair<string, object> kvp in expando)
-			{
-				request.AddParameter(kvp.Key, kvp.Value);
-			}
+			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), requestParameters, postParameters, data);
+
 			var response = GetClient().Execute(request);
 
 			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
@@ -307,12 +314,7 @@ namespace YouTrackSharp.Infrastructure
 				request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
 			 */
 
-			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, Method.PUT);
-
-			if (data != null)
-			{
-				request.AddBody(data);
-			}
+			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, null, data, Method.PUT);
 
 			var response = GetClient().Execute(request);
 
@@ -325,7 +327,7 @@ namespace YouTrackSharp.Infrastructure
 		{
 			EnsureAuthenticated();
 
-			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, Method.PUT);
+			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, null, data, Method.PUT);
 
 			if (data != null)
 			{
@@ -339,8 +341,22 @@ namespace YouTrackSharp.Infrastructure
 			return response.AsApiResponse();
 		}
 
-		private static RestRequest BuildPutPostRequest(string resource, KeyValuePair<string, string>[] requestParameters, Method requestMethod = Method.GET)
+		#endregion
+
+		#region Methods
+
+		private static RestRequest BuildPutPostRequest(
+			string resource,
+			KeyValuePair<string, string>[] requestParameters,
+			IDictionary<string, string> postParameters,
+			object postBody,
+			Method requestMethod = Method.POST)
 		{
+			if (postBody != null && postParameters != null && postParameters.Any())
+			{
+				throw new ArgumentException("Pass only non-null postBody or postParameters ... NOT BOTH", "postBody");
+			}
+
 			var requestResourceBuilder = new StringBuilder(resource);
 
 			if (requestParameters.Any())
@@ -364,12 +380,21 @@ namespace YouTrackSharp.Infrastructure
 			{
 				request.AddUrlSegment(kvp.Key, kvp.Value);
 			}
+
+			if (postBody != null)
+			{
+				request.AddBody(postBody);
+			}
+			else if (postParameters != null)
+			{
+				foreach (var p in postParameters)
+				{
+					request.AddParameter(p.Key, p.Value);
+				}
+			}
+
 			return request;
 		}
-
-		#endregion
-
-		#region Methods
 
 		private void EnsureAuthenticated()
 		{

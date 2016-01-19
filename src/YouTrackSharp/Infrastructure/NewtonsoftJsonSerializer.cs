@@ -41,7 +41,8 @@ namespace YouTrackSharp.Infrastructure
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
                 NullValueHandling = NullValueHandling.Include,
-                DefaultValueHandling = DefaultValueHandling.Include
+                DefaultValueHandling = DefaultValueHandling.Include,
+				ContractResolver = new SkipDeserializeOnlyContractResolver()
             };
         }
 

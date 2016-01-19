@@ -38,27 +38,50 @@ using YouTrackSharp.Projects;
 
 namespace YouTrackSharp.Infrastructure
 {
-    public interface IConnection
-    {
-        bool IsAuthenticated { get; }
+	public interface IConnection
+	{
+		#region Public Properties
 
-	    T Get<T>(string command) where T : new() ;
-        IEnumerable<T> GetList<T>(string command) where T : new();
-        IEnumerable<TInternal> Get<TWrapper, TInternal>(string command)
-            where TWrapper : class, 
-            IDataWrapper<TInternal>, new()
-            where TInternal : new();
-        dynamic Post(string command, object data, string accept);
-        void Authenticate(string username, string password);
-        void Logout();
-        User GetCurrentAuthenticatedUser();
-        ApiResponse PostFile(string command, string path);
-        ApiResponse Head(string command);
-        ApiResponse Post(string command, object data);
+		bool IsAuthenticated { get; }
+
+		#endregion
+
+		#region Public Methods and Operators
+
+		void Authenticate(string username, string password);
+
+		void Delete(string command);
+
+		T Get<T>(string command) where T : new();
+
+		IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, IDataWrapper<TInternal>, new() where TInternal : new();
+
+		User GetCurrentAuthenticatedUser();
+
+		IEnumerable<T> GetList<T>(string command) where T : new();
+
+		ApiResponse Head(string command);
+
+		void Logout();
+
+		ApiResponse<T> Post<T>(
+			string command,
+			object data,
+			IDictionary<string, string> postParameters = null,
+			params KeyValuePair<string, string>[] requestParameters) where T : new();
+
+		ApiResponse Post(
+			string command,
+			object data = null,
+			IDictionary<string, string> postParameters = null,
+			params KeyValuePair<string, string>[] requestParameters);
+
+		ApiResponse PostFile(string command, string path);
+
 		ApiResponse Put(string command, object data, params KeyValuePair<string, string>[] requestParameters);
-		ApiResponse<T> Put<T>(string resource, object data, params KeyValuePair<string, string>[] requestParameters) where T : new();
-        void Delete(string command);
 
-	    
-    }
+		ApiResponse<T> Put<T>(string resource, object data, params KeyValuePair<string, string>[] requestParameters) where T : new();
+
+		#endregion
+	}
 }
