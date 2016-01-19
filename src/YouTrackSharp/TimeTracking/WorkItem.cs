@@ -15,6 +15,7 @@ namespace YouTrackSharp.TimeTracking
 		public string Id { get; set; }
 
 		[JsonProperty(PropertyName = "url")]
+		[JsonDeserializeOnly]
 		public string Url { get; set; }
 
 		[JsonProperty(PropertyName = "date")]

@@ -16,5 +16,16 @@ namespace YouTrackSharp.Extensions
 		{
 			return new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, date.Offset);
 		}
+
+		/// <summary>
+		/// Convert the current DateTimeOffset to an epoch timestamp in milliseconds.
+		/// </summary>
+		/// <param name="date">The date.</param>
+		/// <returns></returns>
+		public static long ToTimestampMillis(this DateTimeOffset date)
+		{
+			var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+			return (long)(date - epoch).TotalMilliseconds;
+		}
 	}
 }
