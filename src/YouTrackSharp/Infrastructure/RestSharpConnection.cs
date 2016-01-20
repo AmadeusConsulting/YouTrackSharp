@@ -76,26 +76,6 @@ namespace YouTrackSharp.Infrastructure
             _youtrackScopeId = youtrackScopeId;
         }
 
-        public RestSharpConnection(Uri apiBaseUrl, IRestClientFactory restClientFactory, string youtrackScopeId)
-        {
-            if (apiBaseUrl == null)
-            {
-                throw new ArgumentNullException("apiBaseUrl");
-            }
-            if (restClientFactory == null)
-            {
-                throw new ArgumentNullException("restClientFactory");
-            }
-            if (string.IsNullOrEmpty(youtrackScopeId))
-            {
-                throw new ArgumentNullException("youtrackScopeId");
-            }
-
-            _baseUri = apiBaseUrl;
-            _restClientFactory = restClientFactory;
-            _youtrackScopeId = youtrackScopeId;
-        }
-
         #endregion
 
         #region Public Properties
