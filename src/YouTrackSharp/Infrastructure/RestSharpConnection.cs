@@ -1,481 +1,504 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.Win32;
+using RestSharp;
+using RestSharp.Authenticators;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
-
-using log4net;
-
-using Microsoft.Win32;
-
-using RestSharp;
-using RestSharp.Authenticators;
-
 using YouTrackSharp.Admin;
 using YouTrackSharp.Projects;
 
 namespace YouTrackSharp.Infrastructure
 {
-	public class RestSharpConnection : IConnection
-	{
-		#region Constants
+    public class RestSharpConnection : IConnection
+    {
+        #region Constants
+
+        private const string OAuth2TokenResource = "hub/api/rest/oauth2/token";
+
+        private const string YouTrackRestResourceBase = "youtrack/rest";
+
+        #endregion
+
+        #region Fields
+
+        private readonly object _authenticationSync = new object();
+
+        private readonly Uri _baseUri;
+
+        private readonly string _clientId;
+
+        private readonly string _clientSecret;
+
+        private readonly ILog _log = LogManager.GetLogger(typeof(RestSharpConnection));
+
+        private readonly IRestClientFactory _restClientFactory;
+
+        private readonly string _youtrackScopeId;
+
+        private OAuth2AccessToken _accessToken;
+
+        #endregion
+
+        #region Constructors and Destructors
+
+        public RestSharpConnection(Uri apiBaseUrl, IRestClientFactory restClientFactory, string clientId, string clientSecret, string youtrackScopeId)
+        {
+            if (apiBaseUrl == null)
+            {
+                throw new ArgumentNullException("apiBaseUrl");
+            }
+            if (restClientFactory == null)
+            {
+                throw new ArgumentNullException("restClientFactory");
+            }
+            if (string.IsNullOrEmpty(youtrackScopeId))
+            {
+                throw new ArgumentNullException("youtrackScopeId");
+            }
+            if (string.IsNullOrEmpty(clientSecret))
+            {
+                throw new ArgumentNullException("clientSecret");
+            }
+            if (string.IsNullOrEmpty(clientId))
+            {
+                throw new ArgumentNullException("clientId");
+            }
+
+            _baseUri = apiBaseUrl;
+            _restClientFactory = restClientFactory;
+            _clientId = clientId;
+            _clientSecret = clientSecret;
+            _youtrackScopeId = youtrackScopeId;
+        }
+
+        public RestSharpConnection(Uri apiBaseUrl, IRestClientFactory restClientFactory, string youtrackScopeId)
+        {
+            if (apiBaseUrl == null)
+            {
+                throw new ArgumentNullException("apiBaseUrl");
+            }
+            if (restClientFactory == null)
+            {
+                throw new ArgumentNullException("restClientFactory");
+            }
+            if (string.IsNullOrEmpty(youtrackScopeId))
+            {
+                throw new ArgumentNullException("youtrackScopeId");
+            }
+
+            _baseUri = apiBaseUrl;
+            _restClientFactory = restClientFactory;
+            _youtrackScopeId = youtrackScopeId;
+        }
+
+        #endregion
 
-		private const string OAuth2TokenResource = "hub/api/rest/oauth2/token";
-
-		private const string YouTrackRestResourceBase = "youtrack/rest";
-
-		#endregion
-
-		#region Fields
-
-		private readonly object _authenticationSync = new object();
-
-		private readonly Uri _baseUri;
-
-		private readonly string _clientId;
-
-		private readonly string _clientSecret;
-
-		private readonly ILog _log = LogManager.GetLogger(typeof(RestSharpConnection));
-
-		private readonly IRestClientFactory _restClientFactory;
-
-		private readonly string _youtrackScopeId;
-
-		private OAuth2AccessToken _accessToken;
-
-		#endregion
-
-		#region Constructors and Destructors
+        #region Public Properties
+
+        public bool IsAuthenticated
+        {
+            get
+            {
+                if (_accessToken == null)
+                {
+                    return false;
+                }
+                return !_accessToken.IsExpired;
+            }
+        }
 
-		public RestSharpConnection(Uri apiBaseUrl, IRestClientFactory restClientFactory, string clientId, string clientSecret, string youtrackScopeId)
-		{
-			if (apiBaseUrl == null)
-			{
-				throw new ArgumentNullException("apiBaseUrl");
-			}
-			if (restClientFactory == null)
-			{
-				throw new ArgumentNullException("restClientFactory");
-			}
-			if (string.IsNullOrEmpty(youtrackScopeId))
-			{
-				throw new ArgumentNullException("youtrackScopeId");
-			}
-			if (string.IsNullOrEmpty(clientSecret))
-			{
-				throw new ArgumentNullException("clientSecret");
-			}
-			if (string.IsNullOrEmpty(clientId))
-			{
-				throw new ArgumentNullException("clientId");
-			}
+        #endregion
 
-			_baseUri = apiBaseUrl;
-			_restClientFactory = restClientFactory;
-			_clientId = clientId;
-			_clientSecret = clientSecret;
-			_youtrackScopeId = youtrackScopeId;
-		}
+        #region Public Methods and Operators
 
-		#endregion
+        public void Authenticate(string username, string password)
+        {
+            // Obtains a new OAuth2 Access Token using the Resource Owner Password workflow
+            // see https://www.jetbrains.com/hub/help/1.0/Resource-Owner-Password-Credentials.html
 
-		#region Public Properties
+            var request = new RestRequest(OAuth2TokenResource, Method.POST);
+            request.AddParameter("username", username);
+            request.AddParameter("password", password);
+            request.AddParameter("grant_type", "password");
+            request.AddParameter("scope", _youtrackScopeId);
 
-		public bool IsAuthenticated
-		{
-			get
-			{
-				if (_accessToken == null)
-				{
-					return false;
-				}
-				return !_accessToken.IsExpired;
-			}
-		}
+            var client = GetClient(skipAuthentication: true);
+            client.Authenticator = new HttpBasicAuthenticator(_clientId, _clientSecret);
 
-		#endregion
+            var response = client.Execute<OAuth2AccessToken>(request);
+            DateTime dateObtained = DateTime.Now;
 
-		#region Public Methods and Operators
+            try
+            {
+                EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+            }
+            catch (ConnectionException ex)
+            {
+                throw new AuthenticationException(Language.YouTrackClient_Login_Authentication_Failed, ex);
+            }
 
-		public void Authenticate(string username, string password)
-		{
-			// Obtains a new OAuth2 Access Token using the Resource Owner Password workflow
-			// see https://www.jetbrains.com/hub/help/1.0/Resource-Owner-Password-Credentials.html
+            lock (_authenticationSync)
+            {
+                _accessToken = response.Data;
+                _accessToken.DateObtained = dateObtained;
+            }
+        }
 
-			var request = new RestRequest(OAuth2TokenResource, Method.POST);
-			request.AddParameter("username", username);
-			request.AddParameter("password", password);
-			request.AddParameter("grant_type", "password");
-			request.AddParameter("scope", _youtrackScopeId);
+        public void Delete(string command)
+        {
+            EnsureAuthenticated();
 
-			var client = GetClient(skipAuthentication: true);
-			client.Authenticator = new HttpBasicAuthenticator(_clientId, _clientSecret);
+            var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.DELETE);
+            var response = GetClient().Execute(request);
 
-			var response = client.Execute<OAuth2AccessToken>(request);
-			DateTime dateObtained = DateTime.Now;
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+        }
 
-			try
-			{
-				EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
-			}
-			catch (ConnectionException ex)
-			{
-				throw new AuthenticationException(Language.YouTrackClient_Login_Authentication_Failed, ex);
-			}
+        public T Get<T>(string command) where T : new()
+        {
+            EnsureAuthenticated();
 
-			lock (_authenticationSync)
-			{
-				_accessToken = response.Data;
-				_accessToken.DateObtained = dateObtained;
-			}
-		}
+            var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
 
-		public void Delete(string command)
-		{
-			EnsureAuthenticated();
+            IRestResponse<T> response = GetClient().Execute<T>(request);
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.DELETE);
-			var response = GetClient().Execute(request);
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
 
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
-		}
+            return response.Data;
+        }
 
-		public T Get<T>(string command) where T : new()
-		{
-			EnsureAuthenticated();
+        public IEnumerable<TInternal> Get<TWrapper, TInternal>(string command)
+            where TWrapper : class, IDataWrapper<TInternal>, new()
+            where TInternal : new()
+        {
+            EnsureAuthenticated();
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
+            // TInternal data = GetWrappedData<TInternal, TWrapper>(command); 
 
-			IRestResponse<T> response = GetClient().Execute<T>(request);
+            var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET) { RequestFormat = DataFormat.Json };
+            var response = GetClient().Execute<TWrapper>(request);
 
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
 
-			return response.Data;
-		}
+            return response.Data.Data ?? new TInternal[0];
+        }
 
-		public IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, IDataWrapper<TInternal>, new()
-			where TInternal : new()
-		{
-			EnsureAuthenticated();
+        public User GetCurrentAuthenticatedUser()
+        {
+            EnsureAuthenticated();
 
-			// TInternal data = GetWrappedData<TInternal, TWrapper>(command); 
+            var user = Get<User>(string.Format("{0}/{1}", YouTrackRestResourceBase, "user/current"));
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET) { RequestFormat = DataFormat.Json };
-			var response = GetClient().Execute<TWrapper>(request);
+            return user;
+        }
 
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+        public IEnumerable<T> GetList<T>(string command) where T : new()
+        {
+            EnsureAuthenticated();
 
-			return response.Data.Data ?? new TInternal[0];
-		}
+            var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
 
-		public User GetCurrentAuthenticatedUser()
-		{
-			EnsureAuthenticated();
+            IRestResponse<List<T>> response = GetClient().Execute<List<T>>(request);
 
-			var user = Get<User>(string.Format("{0}/{1}", YouTrackRestResourceBase, "user/current"));
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                throw response.ErrorException;
+            }
 
-			return user;
-		}
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
 
-		public IEnumerable<T> GetList<T>(string command) where T : new()
-		{
-			EnsureAuthenticated();
+            return response.Data;
+        }
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
+        public TInternal GetWrappedData<TInternal, TWrapper>(string command) where TWrapper : class, IDataWrapper<TInternal>, new()
+        // where TInternal : class
+        {
+            EnsureAuthenticated();
 
-			IRestResponse<List<T>> response = GetClient().Execute<List<T>>(request);
+            var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
+            var response = GetClient().Execute<TWrapper>(request);
 
-			if (response.ResponseStatus != ResponseStatus.Completed)
-			{
-				throw response.ErrorException;
-			}
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
 
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+            return response.Data.Data != null ? response.Data.Data.First() : default(TInternal);
+        }
 
-			return response.Data;
-		}
+        public ApiResponse Head(string command)
+        {
+            EnsureAuthenticated();
 
-		public TInternal GetWrappedData<TInternal, TWrapper>(string command) where TWrapper : class, IDataWrapper<TInternal>, new()
-			// where TInternal : class
-		{
-			EnsureAuthenticated();
+            var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.HEAD);
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
-			var response = GetClient().Execute<TWrapper>(request);
+            var response = GetClient().Execute(request);
 
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                throw new ConnectionException(string.Format("HEAD request to {0} failed.", request.Resource), response.ErrorException);
+            }
 
-			return response.Data.Data != null ? response.Data.Data.First() : default(TInternal);
-		}
+            return response.AsApiResponse();
+        }
 
-		public ApiResponse Head(string command)
-		{
-			EnsureAuthenticated();
+        public void Logout()
+        {
+            _accessToken = null;
+        }
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.HEAD);
+        public ApiResponse<T> Post<T>(
+            string command,
+            object data,
+            IDictionary<string, string> postParameters = null,
+            params KeyValuePair<string, string>[] requestParameters) where T : new()
+        {
+            EnsureAuthenticated();
 
-			var response = GetClient().Execute(request);
+            //var expando = (IDictionary<string, object>)data;
+            //var request =
+            //	new RestRequest(
+            //		string.Format("{0}/{1}", YouTrackRestResourceBase, "issue?project={project}&summary={summary}&description={description}"),
+            //		Method.POST) { RequestFormat = DataFormat.Json };
+            //request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
+            //request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
+            //request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
+            //request.AddHeader("accept", accept);
 
-			if (response.ResponseStatus != ResponseStatus.Completed)
-			{
-				throw new ConnectionException(string.Format("HEAD request to {0} failed.", request.Resource), response.ErrorException);
-			}
+            //foreach (KeyValuePair<string, object> kvp in expando)
+            //{
+            //	request.AddParameter(kvp.Key, kvp.Value);
+            //}
+            var resource = string.Format("{0}/{1}", YouTrackRestResourceBase, command);
 
-			return response.AsApiResponse();
-		}
+            var request = BuildPutPostRequest(resource, requestParameters, postParameters, data);
 
-		public void Logout()
-		{
-			_accessToken = null;
-		}
+            var response = GetClient().Execute<T>(request);
 
-		public ApiResponse<T> Post<T>(
-			string command,
-			object data,
-			IDictionary<string, string> postParameters = null,
-			params KeyValuePair<string, string>[] requestParameters) where T : new()
-		{
-			EnsureAuthenticated();
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
 
-			//var expando = (IDictionary<string, object>)data;
-			//var request =
-			//	new RestRequest(
-			//		string.Format("{0}/{1}", YouTrackRestResourceBase, "issue?project={project}&summary={summary}&description={description}"),
-			//		Method.POST) { RequestFormat = DataFormat.Json };
-			//request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
-			//request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
-			//request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
-			//request.AddHeader("accept", accept);
+            return response.AsApiResponse();
+        }
 
-			//foreach (KeyValuePair<string, object> kvp in expando)
-			//{
-			//	request.AddParameter(kvp.Key, kvp.Value);
-			//}
-			var resource = string.Format("{0}/{1}", YouTrackRestResourceBase, command);
+        public ApiResponse Post(
+            string command,
+            object data = null,
+            IDictionary<string, string> postParameters = null,
+            params KeyValuePair<string, string>[] requestParameters)
+        {
+            EnsureAuthenticated();
 
-			var request = BuildPutPostRequest(resource, requestParameters, postParameters, data);
+            var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), requestParameters, postParameters, data);
 
-			var response = GetClient().Execute<T>(request);
+            var response = GetClient().Execute(request);
 
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
 
-			return response.AsApiResponse();
-		}
+            return response.AsApiResponse();
+        }
 
-		public ApiResponse Post(
-			string command,
-			object data = null,
-			IDictionary<string, string> postParameters = null,
-			params KeyValuePair<string, string>[] requestParameters)
-		{
-			EnsureAuthenticated();
+        public ApiResponse PostFile(string command, string path)
+        {
+            EnsureAuthenticated();
 
-			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), requestParameters, postParameters, data);
+            var contentType = GetFileContentType(path);
+            var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.POST);
+            request.AddFile("file", File.ReadAllBytes(path), Path.GetFileName(path), contentType);
+            request.AddHeader("Content-type", "application/json");
+            request.AddHeader("Accept", "application/json");
+            request.RequestFormat = DataFormat.Json;
+            var response = GetClient().Execute(request);
 
-			var response = GetClient().Execute(request);
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
 
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
+            return response.AsApiResponse();
+        }
 
-			return response.AsApiResponse();
-		}
+        public ApiResponse Put(string resource, object data, params KeyValuePair<string, string>[] requestParameters)
+        {
+            EnsureAuthenticated();
 
-		public ApiResponse PostFile(string command, string path)
-		{
-			EnsureAuthenticated();
-
-			var contentType = GetFileContentType(path);
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.POST);
-			request.AddFile("file", File.ReadAllBytes(path), Path.GetFileName(path), contentType);
-			request.AddHeader("Content-type", "application/json");
-			request.AddHeader("Accept", "application/json");
-			request.RequestFormat = DataFormat.Json;
-			var response = GetClient().Execute(request);
-
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.Accepted);
-
-			return response.AsApiResponse();
-		}
-
-		public ApiResponse Put(string resource, object data, params KeyValuePair<string, string>[] requestParameters)
-		{
-			EnsureAuthenticated();
-
-			/*
-			 var expando = (IDictionary<string, object>)data;
-				request =
-					new RestRequest(
-						string.Format("{0}/{1}", YouTrackRestResourceBase, "issue?project={project}&summary={summary}&description={description}"),
-						Method.PUT);
-				request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
-				request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
-				request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
-			 */
-
-			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, null, data, Method.PUT);
-
-			var response = GetClient().Execute(request);
-
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted, HttpStatusCode.Created);
-
-			return response.AsApiResponse();
-		}
-
-		public ApiResponse<T> Put<T>(string resource, object data, params KeyValuePair<string, string>[] requestParameters) where T : new()
-		{
-			EnsureAuthenticated();
-
-			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, null, data, Method.PUT);
-
-			if (data != null)
-			{
-				request.AddBody(data);
-			}
-
-			var response = GetClient().Execute<T>(request);
-
-			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted, HttpStatusCode.Created);
-
-			return response.AsApiResponse();
-		}
-
-		#endregion
-
-		#region Methods
-
-		private static RestRequest BuildPutPostRequest(
-			string resource,
-			KeyValuePair<string, string>[] requestParameters,
-			IDictionary<string, string> postParameters,
-			object postBody,
-			Method requestMethod = Method.POST)
-		{
-			if (postBody != null && postParameters != null && postParameters.Any())
-			{
-				throw new ArgumentException("Pass only non-null postBody or postParameters ... NOT BOTH", "postBody");
-			}
-
-			var requestResourceBuilder = new StringBuilder(resource);
-
-			if (requestParameters.Any())
-			{
-				requestResourceBuilder.Append("?");
-			}
-			var firstParam = true;
-			foreach (var kvp in requestParameters)
-			{
-				requestResourceBuilder.AppendFormat("{0}{1}={{{1}}}", !firstParam ? "&" : string.Empty, kvp.Key);
-				firstParam = false;
-			}
-
-			var request = new RestRequest(requestResourceBuilder.ToString(), requestMethod)
-				              {
-					              RequestFormat = DataFormat.Json,
-					              JsonSerializer = new NewtonsoftJsonSerializer()
-				              };
-
-			foreach (var kvp in requestParameters)
-			{
-				request.AddUrlSegment(kvp.Key, kvp.Value);
-			}
-
-			if (postBody != null)
-			{
-				request.AddBody(postBody);
-			}
-			else if (postParameters != null)
-			{
-				foreach (var p in postParameters)
-				{
-					request.AddParameter(p.Key, p.Value);
-				}
-			}
-
-			return request;
-		}
-
-		private void EnsureAuthenticated()
-		{
-			// in the absence of an explicit call to the Authenticate method, we use the Client Credentials workflow to obtain an access token for YouTrack
-			// see https://www.jetbrains.com/hub/help/1.0/Client-Credentials.html
-			lock (_authenticationSync)
-			{
-				if (!IsAuthenticated)
-				{
-					var client = GetClient(skipAuthentication: true);
-					// make a request to the oauth2 token endpoint using the client_credentials grant
-					var request = new RestRequest(OAuth2TokenResource, Method.POST);
-					request.AddParameter("grant_type", "client_credentials");
-					request.AddParameter("scope", _youtrackScopeId);
-					client.Authenticator = new HttpBasicAuthenticator(_clientId, _clientSecret);
-
-					var response = client.Execute<OAuth2AccessToken>(request);
-					var dateObtained = DateTime.Now;
-					EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
-					_accessToken = response.Data;
-					_accessToken.DateObtained = dateObtained;
-				}
-			}
-		}
-
-		private void EnsureExpectedResponseStatus(IRestResponse response, params HttpStatusCode[] expectedStatuses)
-		{
-			_log.Debug(string.Format("Checking request status for {0} ...", response.Request.Resource));
-
-			if (response.ResponseStatus != ResponseStatus.Completed)
-			{
-				_log.Error(string.Format("!!!! Response status = {0} !!!!", response.ResponseStatus), response.ErrorException);
-				throw new ConnectionException(
-					string.Format("API request did not complete successfully.  ResponseStatus = {0}", response.ResponseStatus),
-					response.ErrorException);
-			}
-			if (!expectedStatuses.Contains(response.StatusCode))
-			{
-				_log.Warn(string.Format("Response returned an unexpected status = {0}", response.StatusCode));
-				throw new ConnectionException(
-					string.Format(
-						"API request returned an unexpected response: {0} ({1}) -- Expected one of {2} \n\n {3}",
-						response.StatusCode,
-						response.StatusDescription,
-						expectedStatuses.Select(s => s.ToString()).Aggregate((s1, s2) => string.Format("{0}{1}", s1, s2)),
-						response.Content));
-			}
-		}
-
-		private IRestClient GetClient(bool skipAuthentication = false)
-		{
-			IAuthenticator authenticator = null;
-
-			if (IsAuthenticated && !skipAuthentication)
-			{
-				authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(_accessToken.AccessToken, _accessToken.TokenType);
-			}
-
-			var client = _restClientFactory.BuildRestClient(_baseUri, authenticator);
-
-			client.AddHandler("application/json", new NewtonsoftJsonDeserializer());
-
-			return client;
-		}
-
-		private string GetFileContentType(string filename)
-		{
-			var mime = "application/octetstream";
-			var extension = Path.GetExtension(filename);
-			if (extension != null)
-			{
-				var ext = extension.ToLower();
-				var rk = Registry.ClassesRoot.OpenSubKey(ext);
-				if (rk != null && rk.GetValue("Content Type") != null)
-				{
-					mime = rk.GetValue("Content Type").ToString();
-				}
-			}
-			return mime;
-		}
-
-		#endregion
-	}
+            /*
+             var expando = (IDictionary<string, object>)data;
+                request =
+                    new RestRequest(
+                        string.Format("{0}/{1}", YouTrackRestResourceBase, "issue?project={project}&summary={summary}&description={description}"),
+                        Method.PUT);
+                request.AddUrlSegment("project", expando.FirstOrDefault(x => x.Key == "project").Value.ToString());
+                request.AddUrlSegment("summary", expando.FirstOrDefault(x => x.Key == "summary").Value.ToString());
+                request.AddUrlSegment("description", expando.FirstOrDefault(x => x.Key == "description").Value.ToString());
+             */
+
+            var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, null, data, Method.PUT);
+
+            var response = GetClient().Execute(request);
+
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted, HttpStatusCode.Created);
+
+            return response.AsApiResponse();
+        }
+
+        public ApiResponse<T> Put<T>(string resource, object data, params KeyValuePair<string, string>[] requestParameters) where T : new()
+        {
+            EnsureAuthenticated();
+
+            var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, null, data, Method.PUT);
+
+            if (data != null)
+            {
+                request.AddBody(data);
+            }
+
+            var response = GetClient().Execute<T>(request);
+
+            EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted, HttpStatusCode.Created);
+
+            return response.AsApiResponse();
+        }
+
+        #endregion
+
+        #region Methods
+
+        private static RestRequest BuildPutPostRequest(
+            string resource,
+            KeyValuePair<string, string>[] requestParameters,
+            IDictionary<string, string> postParameters,
+            object postBody,
+            Method requestMethod = Method.POST)
+        {
+            if (postBody != null && postParameters != null && postParameters.Any())
+            {
+                throw new ArgumentException("Pass only non-null postBody or postParameters ... NOT BOTH", "postBody");
+            }
+
+            var requestResourceBuilder = new StringBuilder(resource);
+
+            if (requestParameters.Any())
+            {
+                requestResourceBuilder.Append("?");
+            }
+            var firstParam = true;
+            foreach (var kvp in requestParameters)
+            {
+                requestResourceBuilder.AppendFormat("{0}{1}={{{1}}}", !firstParam ? "&" : string.Empty, kvp.Key);
+                firstParam = false;
+            }
+
+            var request = new RestRequest(requestResourceBuilder.ToString(), requestMethod)
+                              {
+                                  RequestFormat = DataFormat.Json,
+                                  JsonSerializer = new NewtonsoftJsonSerializer()
+                              };
+
+            foreach (var kvp in requestParameters)
+            {
+                request.AddUrlSegment(kvp.Key, kvp.Value);
+            }
+
+            if (postBody != null)
+            {
+                request.AddBody(postBody);
+            }
+            else if (postParameters != null)
+            {
+                foreach (var p in postParameters)
+                {
+                    request.AddParameter(p.Key, p.Value);
+                }
+            }
+
+            return request;
+        }
+
+        private void EnsureAuthenticated()
+        {
+            // in the absence of an explicit call to the Authenticate method, we use the Client Credentials workflow to obtain an access token for YouTrack
+            // see https://www.jetbrains.com/hub/help/1.0/Client-Credentials.html
+
+            lock (_authenticationSync)
+            {
+                if (!IsAuthenticated)
+                {
+                    if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_clientSecret))
+                    {
+                        throw new ConnectionException("Cannot authenticate without a Client ID or Client Secret.  Please call authenticate method.");
+                    }
+
+                    var client = GetClient(skipAuthentication: true);
+                    // make a request to the oauth2 token endpoint using the client_credentials grant
+                    var request = new RestRequest(OAuth2TokenResource, Method.POST);
+                    request.AddParameter("grant_type", "client_credentials");
+                    request.AddParameter("scope", _youtrackScopeId);
+                    client.Authenticator = new HttpBasicAuthenticator(_clientId, _clientSecret);
+
+                    var response = client.Execute<OAuth2AccessToken>(request);
+                    var dateObtained = DateTime.Now;
+                    EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+                    _accessToken = response.Data;
+                    _accessToken.DateObtained = dateObtained;
+                }
+            }
+        }
+
+        private void EnsureExpectedResponseStatus(IRestResponse response, params HttpStatusCode[] expectedStatuses)
+        {
+            _log.Debug(string.Format("Checking request status for {0} ...", response.Request.Resource));
+
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                _log.Error(string.Format("!!!! Response status = {0} !!!!", response.ResponseStatus), response.ErrorException);
+                throw new ConnectionException(
+                    string.Format("API request did not complete successfully.  ResponseStatus = {0}", response.ResponseStatus),
+                    response.ErrorException);
+            }
+            if (!expectedStatuses.Contains(response.StatusCode))
+            {
+                _log.Warn(string.Format("Response returned an unexpected status = {0}", response.StatusCode));
+                throw new ConnectionException(
+                    string.Format(
+                        "API request returned an unexpected response: {0} ({1}) -- Expected one of {2} \n\n {3}",
+                        response.StatusCode,
+                        response.StatusDescription,
+                        expectedStatuses.Select(s => s.ToString()).Aggregate((s1, s2) => string.Format("{0}{1}", s1, s2)),
+                        response.Content));
+            }
+        }
+
+        private IRestClient GetClient(bool skipAuthentication = false)
+        {
+            IAuthenticator authenticator = null;
+
+            if (IsAuthenticated && !skipAuthentication)
+            {
+                authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(_accessToken.AccessToken, _accessToken.TokenType);
+            }
+
+            var client = _restClientFactory.BuildRestClient(_baseUri, authenticator);
+
+            client.AddHandler("application/json", new NewtonsoftJsonDeserializer());
+
+            return client;
+        }
+
+        private string GetFileContentType(string filename)
+        {
+            var mime = "application/octetstream";
+            var extension = Path.GetExtension(filename);
+            if (extension != null)
+            {
+                var ext = extension.ToLower();
+                var rk = Registry.ClassesRoot.OpenSubKey(ext);
+                if (rk != null && rk.GetValue("Content Type") != null)
+                {
+                    mime = rk.GetValue("Content Type").ToString();
+                }
+            }
+            return mime;
+        }
+
+        #endregion
+    }
 }
