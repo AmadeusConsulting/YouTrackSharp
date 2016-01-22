@@ -43,10 +43,11 @@ namespace YouTrackSharp.Issues
 		public string AssigneeName { get; set; }
 		public string ReporterName { get; set; }
 		public string UpdaterName { get; set; }
-		public string FixedInBiuld { get; set; }
+		public string FixedInBuild { get; set; }
 		public int CommentsCount { get; set; }
 		public int NumberInProject { get; set; }
-		public string Summary { get; set; }
+        public string Summary { get; set; }
+        public decimal Estimate { get; set; }
 		//   [JsonDateFormat(JsonDateFormat.TimestampMillis)]
 		public DateTime Created { get; set; }
 		public DateTime Updated { get; set; }

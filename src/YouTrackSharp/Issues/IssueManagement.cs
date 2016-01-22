@@ -90,7 +90,7 @@ namespace YouTrackSharp.Issues
 			{
 				var fieldList = issue.ToExpandoObject();
 
-				var apiResponse = _connection.Post<Issue>("rest/issue", fieldList);
+				var apiResponse = _connection.Post<Issue>("issue", fieldList);
 
 				var createdIssue = apiResponse.Data;
 
@@ -119,7 +119,7 @@ namespace YouTrackSharp.Issues
 		public IEnumerable<ListIssue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
 		{
 			return
-					_connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("rest/project/issues/{0}?max={1}&after={2}",	 projectIdentifier, max, start));
+					_connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("project/issues/{0}?max={1}&after={2}",	 projectIdentifier, max, start));
 		}
 
 		/// <summary>
@@ -140,7 +140,7 @@ namespace YouTrackSharp.Issues
 
 		public void AttachFileToIssue(string issuedId, string path)
 		{
-			var response = _connection.PostFile(string.Format("rest/issue/{0}/attachment", issuedId), path);
+			var response = _connection.PostFile(string.Format("issue/{0}/attachment", issuedId), path);
 
 			if (response.StatusCode != HttpStatusCode.Created)
 			{
@@ -166,7 +166,7 @@ namespace YouTrackSharp.Issues
 				if (!string.IsNullOrWhiteSpace(runAs))
 					commandMessage.runAs = runAs;
 
-				_connection.Post(string.Format("rest/issue/{0}/execute", issueId), commandMessage);
+				_connection.Post(string.Format("issue/{0}/execute", issueId), commandMessage);
 			}
 			catch (HttpException httpException)
 			{

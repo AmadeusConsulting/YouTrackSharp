@@ -59,7 +59,6 @@ namespace YouTrackSharp.Projects
             
         }
 
-
         public IEnumerable<ProjectPriority> GetPriorities()
         {
             return _connection.GetList<ProjectPriority>("project/priorities");
