@@ -30,8 +30,6 @@ namespace YouTrackSharp.Infrastructure
 
 		#region Fields
 
-		private readonly object _authenticationSync = new object();
-
 		private readonly Uri _baseUri;
 
 		private readonly string _clientId;
@@ -42,15 +40,17 @@ namespace YouTrackSharp.Infrastructure
 
 		private readonly IRestClientFactory _restClientFactory;
 
+		private readonly ICredentialStore _serviceCredentialStore;
+
 		private readonly string _youtrackScopeId;
 
-		private OAuth2AccessToken _accessToken;
+		private OAuth2AccessToken _resourceOwnerToken;
 
 		#endregion
 
 		#region Constructors and Destructors
 
-		public RestSharpConnection(Uri apiBaseUrl, IRestClientFactory restClientFactory, string clientId, string clientSecret, string youtrackScopeId)
+		public RestSharpConnection(Uri apiBaseUrl, IRestClientFactory restClientFactory, ICredentialStore serviceCredentialStore, string clientId, string clientSecret, string youtrackScopeId)
 		{
 			if (apiBaseUrl == null)
 			{
@@ -59,6 +59,10 @@ namespace YouTrackSharp.Infrastructure
 			if (restClientFactory == null)
 			{
 				throw new ArgumentNullException("restClientFactory");
+			}
+			if (serviceCredentialStore == null)
+			{
+				throw new ArgumentNullException("serviceCredentialStore");
 			}
 			if (string.IsNullOrEmpty(youtrackScopeId))
 			{
@@ -75,6 +79,7 @@ namespace YouTrackSharp.Infrastructure
 
 			_baseUri = apiBaseUrl;
 			_restClientFactory = restClientFactory;
+			_serviceCredentialStore = serviceCredentialStore;
 			_clientId = clientId;
 			_clientSecret = clientSecret;
 			_youtrackScopeId = youtrackScopeId;
@@ -88,11 +93,15 @@ namespace YouTrackSharp.Infrastructure
 		{
 			get
 			{
-				if (_accessToken == null)
+				if (_resourceOwnerToken == null && _serviceCredentialStore.Credential == null)
 				{
 					return false;
 				}
-				return !_accessToken.IsExpired;
+				if (_resourceOwnerToken != null)
+				{
+					return !_resourceOwnerToken.IsExpired;
+				}
+				return !_serviceCredentialStore.Credential.IsExpired;
 			}
 		}
 
@@ -100,7 +109,21 @@ namespace YouTrackSharp.Infrastructure
 
 		#region Public Methods and Operators
 
-		public void Authenticate(string username, string password)
+		public void Authenticate(OAuth2AccessToken accessToken)
+		{
+			if (accessToken == null)
+			{
+				throw new ArgumentNullException("accessToken`");
+			}
+			if (accessToken.IsExpired)
+			{
+				throw new ArgumentException("Access Token is Expired", "accessToken");
+			}
+
+			_resourceOwnerToken = accessToken;
+		}
+
+		public OAuth2AccessToken Authenticate(string username, string password)
 		{
 			// Obtains a new OAuth2 Access Token using the Resource Owner Password workflow
 			// see https://www.jetbrains.com/hub/help/1.0/Resource-Owner-Password-Credentials.html
@@ -125,19 +148,18 @@ namespace YouTrackSharp.Infrastructure
 			{
 				throw new AuthenticationException(Language.YouTrackClient_Login_Authentication_Failed, ex);
 			}
+			
+			_resourceOwnerToken = response.Data;
+			_resourceOwnerToken.DateObtained = dateObtained;
 
-			lock (_authenticationSync)
-			{
-				_accessToken = response.Data;
-				_accessToken.DateObtained = dateObtained;
-			}
+			return _resourceOwnerToken;
 		}
 
-		public ApiResponse Delete(string command)
+		public ApiResponse Delete(string resource)
 		{
 			EnsureAuthenticated();
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.DELETE);
+			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.DELETE);
 			var response = GetClient().Execute(request);
 
 			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted);
@@ -145,11 +167,11 @@ namespace YouTrackSharp.Infrastructure
 			return response.AsApiResponse();
 		}
 
-		public T Get<T>(string command) where T : new()
+		public T Get<T>(string resource) where T : new()
 		{
 			EnsureAuthenticated();
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
+			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.GET);
 
 			IRestResponse<T> response = GetClient().Execute<T>(request);
 
@@ -158,14 +180,14 @@ namespace YouTrackSharp.Infrastructure
 			return response.Data;
 		}
 
-		public IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, IDataWrapper<TInternal>, new()
+		public IEnumerable<TInternal> Get<TWrapper, TInternal>(string resource) where TWrapper : class, IDataWrapper<TInternal>, new()
 			where TInternal : new()
 		{
 			EnsureAuthenticated();
 
 			// TInternal data = GetWrappedData<TInternal, TWrapper>(command); 
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET) { RequestFormat = DataFormat.Json };
+			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.GET) { RequestFormat = DataFormat.Json };
 			var response = GetClient().Execute<TWrapper>(request);
 
 			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
@@ -182,11 +204,11 @@ namespace YouTrackSharp.Infrastructure
 			return user;
 		}
 
-		public IEnumerable<T> GetList<T>(string command) where T : new()
+		public IEnumerable<T> GetList<T>(string resource) where T : new()
 		{
 			EnsureAuthenticated();
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.GET);
+			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.GET);
 
 			IRestResponse<List<T>> response = GetClient().Execute<List<T>>(request);
 
@@ -213,11 +235,11 @@ namespace YouTrackSharp.Infrastructure
 			return response.Data.Data != null ? response.Data.Data.First() : default(TInternal);
 		}
 
-		public ApiResponse Head(string command)
+		public ApiResponse Head(string resource)
 		{
 			EnsureAuthenticated();
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.HEAD);
+			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.HEAD);
 
 			var response = GetClient().Execute(request);
 
@@ -231,11 +253,11 @@ namespace YouTrackSharp.Infrastructure
 
 		public void Logout()
 		{
-			_accessToken = null;
+			_resourceOwnerToken = null;
 		}
 
 		public ApiResponse<T> Post<T>(
-			string command,
+			string resource,
 			object data,
 			IDictionary<string, string> postParameters = null,
 			params KeyValuePair<string, string>[] requestParameters) where T : new()
@@ -256,9 +278,9 @@ namespace YouTrackSharp.Infrastructure
 			//{
 			//	request.AddParameter(kvp.Key, kvp.Value);
 			//}
-			var resource = string.Format("{0}/{1}", YouTrackRestResourceBase, command);
+			var fullPath = string.Format("{0}/{1}", YouTrackRestResourceBase, resource);
 
-			var request = BuildPutPostRequest(resource, requestParameters, postParameters, data);
+			var request = BuildPutPostRequest(fullPath, requestParameters, postParameters, data);
 
 			var response = GetClient().Execute<T>(request);
 
@@ -268,14 +290,14 @@ namespace YouTrackSharp.Infrastructure
 		}
 
 		public ApiResponse Post(
-			string command,
+			string resource,
 			object data = null,
 			IDictionary<string, string> postParameters = null,
 			params KeyValuePair<string, string>[] requestParameters)
 		{
 			EnsureAuthenticated();
 
-			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), requestParameters, postParameters, data);
+			var request = BuildPutPostRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), requestParameters, postParameters, data);
 
 			var response = GetClient().Execute(request);
 
@@ -284,12 +306,12 @@ namespace YouTrackSharp.Infrastructure
 			return response.AsApiResponse();
 		}
 
-		public ApiResponse PostFile(string command, string path)
+		public ApiResponse PostFile(string resource, string path)
 		{
 			EnsureAuthenticated();
 
 			var contentType = GetFileContentType(path);
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, command), Method.POST);
+			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.POST);
 			request.AddFile("file", File.ReadAllBytes(path), Path.GetFileName(path), contentType);
 			request.AddHeader("Content-type", "application/json");
 			request.AddHeader("Accept", "application/json");
@@ -402,23 +424,22 @@ namespace YouTrackSharp.Infrastructure
 		{
 			// in the absence of an explicit call to the Authenticate method, we use the Client Credentials workflow to obtain an access token for YouTrack
 			// see https://www.jetbrains.com/hub/help/1.0/Client-Credentials.html
-			lock (_authenticationSync)
-			{
-				if (!IsAuthenticated)
-				{
-					var client = GetClient(skipAuthentication: true);
-					// make a request to the oauth2 token endpoint using the client_credentials grant
-					var request = new RestRequest(OAuth2TokenResource, Method.POST);
-					request.AddParameter("grant_type", "client_credentials");
-					request.AddParameter("scope", _youtrackScopeId);
-					client.Authenticator = new HttpBasicAuthenticator(_clientId, _clientSecret);
 
-					var response = client.Execute<OAuth2AccessToken>(request);
-					var dateObtained = DateTime.Now;
-					EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
-					_accessToken = response.Data;
-					_accessToken.DateObtained = dateObtained;
-				}
+			if (!IsAuthenticated)
+			{
+				var client = GetClient(skipAuthentication: true);
+				// make a request to the oauth2 token endpoint using the client_credentials grant
+				var request = new RestRequest(OAuth2TokenResource, Method.POST);
+				request.AddParameter("grant_type", "client_credentials");
+				request.AddParameter("scope", _youtrackScopeId);
+				client.Authenticator = new HttpBasicAuthenticator(_clientId, _clientSecret);
+
+				var response = client.Execute<OAuth2AccessToken>(request);
+				var dateObtained = DateTime.Now;
+				EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
+				var accessToken = response.Data;
+				accessToken.DateObtained = dateObtained;
+				_serviceCredentialStore.Credential = accessToken;
 			}
 		}
 
@@ -469,7 +490,8 @@ namespace YouTrackSharp.Infrastructure
 
 			if (IsAuthenticated && !skipAuthentication)
 			{
-				authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(_accessToken.AccessToken, _accessToken.TokenType);
+				var token = _resourceOwnerToken ?? _serviceCredentialStore.Credential;
+				authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(token.AccessToken, token.TokenType);
 			}
 
 			var client = _restClientFactory.BuildRestClient(_baseUri, authenticator);

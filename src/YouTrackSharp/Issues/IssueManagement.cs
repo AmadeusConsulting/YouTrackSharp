@@ -64,7 +64,7 @@ namespace YouTrackSharp.Issues
 		/// </summary>
 		/// <param name="issueId">Id of the issue to retrieve</param>
 		/// <returns>An instance of Issue if successful or InvalidRequestException if issues is not found</returns>
-		public Issue GetIssue(string issueId)
+		public virtual Issue GetIssue(string issueId)
 		{
 			try
 			{
@@ -79,7 +79,7 @@ namespace YouTrackSharp.Issues
 			}
 		}
 
-		public string CreateIssue(Issue issue)
+		public virtual string CreateIssue(Issue issue)
 		{
 			if (!_connection.IsAuthenticated)
 			{
@@ -116,7 +116,7 @@ namespace YouTrackSharp.Issues
 		/// <param name="max">[Optional] Maximum number of issues to return. Default is int.MaxValue</param>
 		/// <param name="start">[Optional] The number by which to start the issues. Default is 0. Used for paging.</param>
 		/// <returns>List of Issues</returns>
-		public IEnumerable<ListIssue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
+		public virtual IEnumerable<ListIssue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
 		{
 			return
 					_connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("rest/project/issues/{0}?max={1}&after={2}",	 projectIdentifier, max, start));
@@ -127,18 +127,18 @@ namespace YouTrackSharp.Issues
 		/// </summary>
 		/// <param name="issueId"></param>
 		/// <returns></returns>
-		public IEnumerable<Comment> GetCommentsForIssue(string issueId)
+		public virtual IEnumerable<Comment> GetCommentsForIssue(string issueId)
 		{
 			return _connection.GetList<Comment>(String.Format("issue/comments/{0}", issueId));
 		}
 
-		public bool CheckIfIssueExists(string issueId)
+		public virtual bool CheckIfIssueExists(string issueId)
 		{
 			var response = _connection.Head(string.Format("issue/{0}/exists", issueId));
 			return response.StatusCode == HttpStatusCode.OK;
 		}
 
-		public void AttachFileToIssue(string issuedId, string path)
+		public virtual void AttachFileToIssue(string issuedId, string path)
 		{
 			var response = _connection.PostFile(string.Format("rest/issue/{0}/attachment", issuedId), path);
 
@@ -148,7 +148,7 @@ namespace YouTrackSharp.Issues
 			}
 		}
 
-		public void ApplyCommand(string issueId, string command, string comment, bool disableNotifications = false, string runAs = "")
+		public virtual void ApplyCommand(string issueId, string command, string comment, bool disableNotifications = false, string runAs = "")
 		{
 			if (!_connection.IsAuthenticated)
 			{
@@ -174,7 +174,7 @@ namespace YouTrackSharp.Issues
 			}
 		}
 
-		public void UpdateIssue(string issueId, string summary, string description)
+		public virtual void UpdateIssue(string issueId, string summary, string description)
 		{
 			if (!_connection.IsAuthenticated)
 			{
@@ -196,14 +196,14 @@ namespace YouTrackSharp.Issues
 			}
 		}
 
-		public IEnumerable<Issue> GetIssuesBySearch(string searchString, int max = int.MaxValue, int start = 0)
+		public virtual IEnumerable<Issue> GetIssuesBySearch(string searchString, int max = int.MaxValue, int start = 0)
 		{
 			var encodedQuery = HttpUtility.UrlEncode(searchString);
 
 			return _connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("project/issues?filter={0}&max={1}&after={2}",encodedQuery, max, start));
 		}
 
-		public int GetIssueCount(string searchString)
+		public virtual int GetIssueCount(string searchString)
 		{
 			var encodedQuery = HttpUtility.UrlEncode(searchString);
 
@@ -227,12 +227,12 @@ namespace YouTrackSharp.Issues
 			}
 		}
 
-		public void Delete(string id)
+		public virtual void Delete(string id)
 		{
 			_connection.Delete(string.Format("issue/{0}", id));
 		}
 
-		public void DeleteComment(string issueId, string commentId, bool deletePermanently)
+		public virtual void DeleteComment(string issueId, string commentId, bool deletePermanently)
 		{
 			_connection.Delete(string.Format("issue/{0}/comment/{1}?permanently={2}", issueId, commentId, deletePermanently));
 		}
