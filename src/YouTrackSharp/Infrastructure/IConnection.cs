@@ -81,8 +81,9 @@ namespace YouTrackSharp.Infrastructure
 		/// </summary>
 		/// <typeparam name="T">The type to deserialize from the response</typeparam>
 		/// <param name="resource">The resource.</param>
+		/// <param name="requestParameters"></param>
 		/// <returns></returns>
-		T Get<T>(string resource) where T : new();
+		T Get<T>(string resource, IDictionary<string, string> requestParameters = null) where T : new();
 
 		/// <summary>
 		///     Gets the specified resource.
@@ -90,8 +91,9 @@ namespace YouTrackSharp.Infrastructure
 		/// <typeparam name="TWrapper">The type of the wrapper.</typeparam>
 		/// <typeparam name="TInternal">The type of the internal.</typeparam>
 		/// <param name="resource">The resource.</param>
+		/// <param name="requestParameters"></param>
 		/// <returns></returns>
-		IEnumerable<TInternal> Get<TWrapper, TInternal>(string resource) where TWrapper : class, IDataWrapper<TInternal>, new() where TInternal : new();
+		IEnumerable<TInternal> Get<TWrapper, TInternal>(string resource, IDictionary<string, string> requestParameters = null) where TWrapper : class, IDataWrapper<TInternal>, new() where TInternal : new();
 
 		/// <summary>
 		///     Gets the current authenticated user.
@@ -104,10 +106,11 @@ namespace YouTrackSharp.Infrastructure
 		/// </summary>
 		/// <typeparam name="TEntity">The type of entity</typeparam>
 		/// <param name="resource">The resource.</param>
+		/// <param name="requestParameters"></param>
 		/// <returns></returns>
-		IEnumerable<TEntity> GetList<TEntity>(string resource) where TEntity : new();
+		IEnumerable<TEntity> GetList<TEntity>(string resource, IDictionary<string, string> requestParameters = null) where TEntity : new();
 
-		ApiResponse Head(string resource);
+		ApiResponse Head(string resource, IDictionary<string, string> requestParameters = null);
 
 		/// <summary>
 		/// Destroy the current authenticated session.

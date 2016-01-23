@@ -101,29 +101,25 @@ namespace YouTrackSharp.Tests {
         
         /// <summary>
         ///   Looks up a localized string similar to {
-        ///    &quot;id&quot;: &quot;NAT-2&quot;,
-        ///    &quot;entityId&quot;: &quot;97-151&quot;,
+        ///    &quot;id&quot;: &quot;YTM-1&quot;,
+        ///    &quot;entityId&quot;: &quot;97-461&quot;,
         ///    &quot;jiraId&quot;: null,
         ///    &quot;field&quot;: [
         ///        {
         ///            &quot;name&quot;: &quot;projectShortName&quot;,
-        ///            &quot;value&quot;: &quot;NAT&quot;
+        ///            &quot;value&quot;: &quot;YTM&quot;
         ///        },
         ///        {
         ///            &quot;name&quot;: &quot;numberInProject&quot;,
-        ///            &quot;value&quot;: &quot;2&quot;
+        ///            &quot;value&quot;: &quot;1&quot;
         ///        },
         ///        {
         ///            &quot;name&quot;: &quot;summary&quot;,
-        ///            &quot;value&quot;: &quot;Admin Login&quot;
+        ///            &quot;value&quot;: &quot;Nexus People Sync from Active Directory&quot;
         ///        },
         ///        {
         ///            &quot;name&quot;: &quot;description&quot;,
-        ///            &quot;value&quot;: &quot;testing&quot;
-        ///        },
-        ///        {
-        ///            &quot;name&quot;: &quot;created&quot;,
-        ///            &quot;value&quot; [rest of string was truncated]&quot;;.
+        ///            &quot;value&quot;: &quot;Replace SSIS package importing people into the Nexus dat [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string IssueDetail {
             get {
@@ -135,20 +131,21 @@ namespace YouTrackSharp.Tests {
         ///   Looks up a localized string similar to {
         ///    &quot;issue&quot;: [
         ///        {
-        ///            &quot;priority&quot;: &quot;3&quot;,
-        ///            &quot;type&quot;: &quot;Bug&quot;,
-        ///            &quot;state&quot;: &quot;Submitted&quot;,
-        ///            &quot;subsystem&quot;: &quot;No Subsystem&quot;,
-        ///            &quot;affectsVersion&quot;: null,
-        ///            &quot;id&quot;: &quot;NAT-1&quot;,
-        ///            &quot;fixedVersion&quot;: null,
-        ///            &quot;projectShortName&quot;: &quot;NAT&quot;,
-        ///            &quot;assigneeName&quot;: null,
-        ///            &quot;reporterName&quot;: &quot;Meagan_Combs&quot;,
-        ///            &quot;updaterName&quot;: &quot;Meagan_Combs&quot;,
-        ///            &quot;fixedInBuild&quot;: &quot;Next build&quot;,
-        ///            &quot;commentsCount&quot;: 0,
-        ///        [rest of string was truncated]&quot;;.
+        ///            &quot;id&quot;: &quot;YTM-1&quot;,
+        ///            &quot;entityId&quot;: &quot;97-461&quot;,
+        ///            &quot;jiraId&quot;: null,
+        ///            &quot;field&quot;: [
+        ///                {
+        ///                    &quot;name&quot;: &quot;projectShortName&quot;,
+        ///                    &quot;value&quot;: &quot;YTM&quot;
+        ///                },
+        ///                {
+        ///                    &quot;name&quot;: &quot;numberInProject&quot;,
+        ///                    &quot;value&quot;: &quot;1&quot;
+        ///                },
+        ///                {
+        ///                    &quot;name&quot;: &quot;summary&quot;,
+        ///                    &quot;value&quot;: &quot;Nexus People Sync from Active Di [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string IssueList {
             get {

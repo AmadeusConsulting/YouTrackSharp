@@ -34,11 +34,11 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Web;
-using EasyHttp.Http;
 using YouTrackSharp.Infrastructure;
 using HttpException = EasyHttp.Infrastructure.HttpException;
 
@@ -116,10 +116,15 @@ namespace YouTrackSharp.Issues
 		/// <param name="max">[Optional] Maximum number of issues to return. Default is int.MaxValue</param>
 		/// <param name="start">[Optional] The number by which to start the issues. Default is 0. Used for paging.</param>
 		/// <returns>List of Issues</returns>
-		public virtual IEnumerable<ListIssue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
+		public virtual IEnumerable<Issue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
 		{
-			return
-					_connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("rest/project/issues/{0}?max={1}&after={2}",	 projectIdentifier, max, start));
+			return _connection.Get<MultipleIssueWrapper, Issue>(
+				string.Format("issue/byproject/{0}", projectIdentifier),
+				new Dictionary<string, string>
+					{
+						{ "max", max.ToString(CultureInfo.InvariantCulture) },
+						{ "start", start.ToString(CultureInfo.InvariantCulture) }
+					});
 		}
 
 		/// <summary>
@@ -198,9 +203,14 @@ namespace YouTrackSharp.Issues
 
 		public virtual IEnumerable<Issue> GetIssuesBySearch(string searchString, int max = int.MaxValue, int start = 0)
 		{
-			var encodedQuery = HttpUtility.UrlEncode(searchString);
-
-			return _connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("project/issues?filter={0}&max={1}&after={2}",encodedQuery, max, start));
+			return _connection.Get<MultipleIssueWrapper, Issue>(
+				"issue",
+				new Dictionary<string, string>
+					{
+						{ "filter", searchString },
+						{ "max", max.ToString(CultureInfo.InvariantCulture) },
+						{ "after", start.ToString(CultureInfo.InvariantCulture) }
+					});
 		}
 
 		public virtual int GetIssueCount(string searchString)

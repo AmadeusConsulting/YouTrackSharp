@@ -167,11 +167,13 @@ namespace YouTrackSharp.Infrastructure
 			return response.AsApiResponse();
 		}
 
-		public T Get<T>(string resource) where T : new()
+		public T Get<T>(string resource, IDictionary<string, string> requestParameters = null) where T : new()
 		{
 			EnsureAuthenticated();
 
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.GET);
+
+			AddRequestParameters(request, requestParameters);
 
 			IRestResponse<T> response = GetClient().Execute<T>(request);
 
@@ -180,7 +182,7 @@ namespace YouTrackSharp.Infrastructure
 			return response.Data;
 		}
 
-		public IEnumerable<TInternal> Get<TWrapper, TInternal>(string resource) where TWrapper : class, IDataWrapper<TInternal>, new()
+		public IEnumerable<TInternal> Get<TWrapper, TInternal>(string resource, IDictionary<string,string> requestParameters = null) where TWrapper : class, IDataWrapper<TInternal>, new()
 			where TInternal : new()
 		{
 			EnsureAuthenticated();
@@ -188,11 +190,25 @@ namespace YouTrackSharp.Infrastructure
 			// TInternal data = GetWrappedData<TInternal, TWrapper>(command); 
 
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.GET) { RequestFormat = DataFormat.Json };
+
+			AddRequestParameters(request, requestParameters);
+			
 			var response = GetClient().Execute<TWrapper>(request);
 
 			EnsureExpectedResponseStatus(response, HttpStatusCode.OK);
 
 			return response.Data.Data ?? new TInternal[0];
+		}
+
+		private static void AddRequestParameters(IRestRequest request, IDictionary<string, string> requestParameters)
+		{
+			if (requestParameters != null)
+			{
+				foreach (var kvp in requestParameters)
+				{
+					request.AddParameter(kvp.Key, kvp.Value);
+				}
+			}
 		}
 
 		public User GetCurrentAuthenticatedUser()
@@ -204,11 +220,13 @@ namespace YouTrackSharp.Infrastructure
 			return user;
 		}
 
-		public IEnumerable<T> GetList<T>(string resource) where T : new()
+		public IEnumerable<T> GetList<T>(string resource, IDictionary<string, string> requestParameters = null) where T : new()
 		{
 			EnsureAuthenticated();
 
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.GET);
+
+			AddRequestParameters(request, requestParameters);
 
 			IRestResponse<List<T>> response = GetClient().Execute<List<T>>(request);
 
@@ -235,11 +253,13 @@ namespace YouTrackSharp.Infrastructure
 			return response.Data.Data != null ? response.Data.Data.First() : default(TInternal);
 		}
 
-		public ApiResponse Head(string resource)
+		public ApiResponse Head(string resource, IDictionary<string, string> requestParameters = null)
 		{
 			EnsureAuthenticated();
 
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.HEAD);
+
+			AddRequestParameters(request, requestParameters);
 
 			var response = GetClient().Execute(request);
 
