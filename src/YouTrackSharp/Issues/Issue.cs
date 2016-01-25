@@ -373,6 +373,7 @@ namespace YouTrackSharp.Issues
 
         public string JiraId { get; set; }
 
+        
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
             if (binder.Name.Equals("created", StringComparison.OrdinalIgnoreCase) || binder.Name.Equals("updated", StringComparison.OrdinalIgnoreCase))

@@ -48,9 +48,7 @@ namespace YouTrackSharp.Issues
 	{
 		static readonly List<string> PresetFields = new List<string>()
                                                      {
-                                                         "assignee", "priority", "type", "subsystem", "state",
-                                                         "fixVersions", "affectsVersions", "fixedInBuild", "summary",
-                                                         "description", "project", "permittedgroup"
+                                                         "projectShortName","summary","description"
                                                      };
 		readonly IConnection _connection;
 
@@ -88,13 +86,16 @@ namespace YouTrackSharp.Issues
 
 			try
 			{
-				var fieldList = issue.ToExpandoObject();
+                //var fieldList = issue.ToExpandoObject();
+                var fieldList = (from x in issue.GetType().GetProperties() select x)
+                            .ToDictionary(x => x.Name, x => (x.GetGetMethod().Invoke(issue, null) == null ? "" : x.GetGetMethod()
+                            .Invoke(issue, null).ToString()));
 
-				var apiResponse = _connection.Post<Issue>("issue", fieldList);
+                var apiResponse = _connection.Post<Issue>(string.Format("issue?project={0}&summary={1}&description={2}", issue.ProjectShortName, issue.Summary, issue.Description), null);
 
 				var createdIssue = apiResponse.Data;
 
-				var customFields = fieldList.Where(field => !PresetFields.Contains(field.Key.ToLower())).ToDictionary(field => field.Key, field => field.Value);
+				var customFields = fieldList.Where(field => !PresetFields.Contains(field.Key.ToLower()) && field.Value).ToDictionary(field => field.Key, field => field.Value);
 
 				foreach (var customField in customFields)
 				{
@@ -107,6 +108,23 @@ namespace YouTrackSharp.Issues
 				throw new InvalidRequestException(httpException.StatusDescription, httpException);
 			}
 		}
+
+        public void CreateIssue(string projectName, string summary, string description)
+        {
+            if (!_connection.IsAuthenticated)
+            {
+                throw new InvalidRequestException(Language.YouTrackClient_CreateIssue_Not_Logged_In);
+            }
+
+            try
+            {
+                _connection.Post<Issue>(string.Format("issue?project={0}&summary={1}&description={2}",projectName, summary,description), null);
+            }
+            catch (HttpException httpException)
+            {
+                throw new InvalidRequestException(httpException.StatusDescription, httpException);
+            }
+        }
 
 
 		/// <summary>

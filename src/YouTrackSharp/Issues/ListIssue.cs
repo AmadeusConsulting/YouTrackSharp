@@ -47,6 +47,8 @@ namespace YouTrackSharp.Issues
 		public int CommentsCount { get; set; }
 		public int NumberInProject { get; set; }
         public string Summary { get; set; }
+        public string Description { get; set; }
+        public double DueDate { get; set; }
         public decimal? Estimate { get; set; }
 		//   [JsonDateFormat(JsonDateFormat.TimestampMillis)]
 		public DateTime Created { get; set; }
