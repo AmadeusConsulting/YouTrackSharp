@@ -31,6 +31,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 using YouTrackSharp.Admin;
@@ -42,44 +43,134 @@ namespace YouTrackSharp.Infrastructure
 	{
 		#region Public Properties
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is authenticated.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if this instance is authenticated; otherwise, <c>false</c>.
+		/// </value>
 		bool IsAuthenticated { get; }
 
 		#endregion
 
 		#region Public Methods and Operators
 
-		void Authenticate(string username, string password);
+		/// <summary>
+		///     Authenticates with the specified Resource Owner username and password.
+		/// </summary>
+		/// <param name="username">The username.</param>
+		/// <param name="password">The password.</param>
+		OAuth2AccessToken Authenticate(string username, string password);
 
-		void Delete(string command);
+		/// <summary>
+		///     Authenticates using the specified OAuth2 access token.
+		/// </summary>
+		/// <param name="accessToken">The access token.</param>
+		/// <exception cref="ArgumentException">Thrown if the access token is <c>null</c> or expired</exception>
+		void Authenticate(OAuth2AccessToken accessToken);
 
-		T Get<T>(string command) where T : new();
+		/// <summary>
+		///     Performs a Delete command on the specified resource.
+		/// </summary>
+		/// <param name="resource">The resource.</param>
+		/// <returns></returns>
+		ApiResponse Delete(string resource);
 
-		IEnumerable<TInternal> Get<TWrapper, TInternal>(string command) where TWrapper : class, IDataWrapper<TInternal>, new() where TInternal : new();
+		/// <summary>
+		///     Gets the specified resource.
+		/// </summary>
+		/// <typeparam name="T">The type to deserialize from the response</typeparam>
+		/// <param name="resource">The resource.</param>
+		/// <param name="requestParameters"></param>
+		/// <returns></returns>
+		T Get<T>(string resource, IDictionary<string, string> requestParameters = null) where T : new();
 
+		/// <summary>
+		///     Gets the specified resource.
+		/// </summary>
+		/// <typeparam name="TWrapper">The type of the wrapper.</typeparam>
+		/// <typeparam name="TInternal">The type of the internal.</typeparam>
+		/// <param name="resource">The resource.</param>
+		/// <param name="requestParameters"></param>
+		/// <returns></returns>
+		IEnumerable<TInternal> Get<TWrapper, TInternal>(string resource, IDictionary<string, string> requestParameters = null) where TWrapper : class, IDataWrapper<TInternal>, new() where TInternal : new();
+
+		/// <summary>
+		///     Gets the current authenticated user.
+		/// </summary>
+		/// <returns></returns>
 		User GetCurrentAuthenticatedUser();
 
-		IEnumerable<T> GetList<T>(string command) where T : new();
+		/// <summary>
+		/// Gets a list of entities from the given resourcce.
+		/// </summary>
+		/// <typeparam name="TEntity">The type of entity</typeparam>
+		/// <param name="resource">The resource.</param>
+		/// <param name="requestParameters"></param>
+		/// <returns></returns>
+		IEnumerable<TEntity> GetList<TEntity>(string resource, IDictionary<string, string> requestParameters = null) where TEntity : new();
 
-		ApiResponse Head(string command);
+		ApiResponse Head(string resource, IDictionary<string, string> requestParameters = null);
 
+		/// <summary>
+		/// Destroy the current authenticated session.
+		/// </summary>
 		void Logout();
 
+		/// <summary>
+		/// Posts the specified resource.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="resource">The resource.</param>
+		/// <param name="data">The data.</param>
+		/// <param name="postParameters">The post parameters.</param>
+		/// <param name="requestParameters">The request parameters.</param>
+		/// <returns></returns>
 		ApiResponse<T> Post<T>(
-			string command,
+			string resource,
 			object data,
 			IDictionary<string, string> postParameters = null,
 			params KeyValuePair<string, string>[] requestParameters) where T : new();
 
+		/// <summary>
+		/// Posts the specified resource.
+		/// </summary>
+		/// <param name="resource">The resource.</param>
+		/// <param name="data">The data.</param>
+		/// <param name="postParameters">The post parameters.</param>
+		/// <param name="requestParameters">The request parameters.</param>
+		/// <returns></returns>
 		ApiResponse Post(
-			string command,
+			string resource,
 			object data = null,
 			IDictionary<string, string> postParameters = null,
 			params KeyValuePair<string, string>[] requestParameters);
 
-		ApiResponse PostFile(string command, string path);
+		/// <summary>
+		/// Posts a file to the specified resource.
+		/// </summary>
+		/// <param name="resource">The resource.</param>
+		/// <param name="path">The path.</param>
+		/// <returns></returns>
+		ApiResponse PostFile(string resource, string path);
 
-		ApiResponse Put(string command, object data, params KeyValuePair<string, string>[] requestParameters);
+		/// <summary>
+		/// Puts the specified resource.
+		/// </summary>
+		/// <param name="resource">The resource.</param>
+		/// <param name="data">The data.</param>
+		/// <param name="requestParameters">The request parameters.</param>
+		/// <returns></returns>
+		ApiResponse Put(string resource, object data, params KeyValuePair<string, string>[] requestParameters);
 
+		/// <summary>
+		/// Puts the specified resource.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="resource">The resource.</param>
+		/// <param name="data">The data.</param>
+		/// <param name="requestParameters">The request parameters.</param>
+		/// <returns></returns>
 		ApiResponse<T> Put<T>(string resource, object data, params KeyValuePair<string, string>[] requestParameters) where T : new();
 
 		#endregion

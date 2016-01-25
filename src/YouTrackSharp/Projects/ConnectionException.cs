@@ -32,6 +32,7 @@
 #endregion
 
 using System;
+using System.Net;
 using System.Runtime.Serialization;
 
 namespace YouTrackSharp.Projects

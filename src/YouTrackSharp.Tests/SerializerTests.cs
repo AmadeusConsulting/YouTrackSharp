@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 using Newtonsoft.Json;
@@ -63,9 +65,11 @@ namespace YouTrackSharp.Tests
 			dynamic issue = restSharpDeserializer.Deserialize<Issue>(mockResponse);
 
 			//Assert
-			Assert.AreEqual("NAT-2", issue.Id);
-			Assert.AreEqual("Admin Login", issue.Summary);
-
+			Assert.AreEqual("YTM-1", issue.Id);
+			Assert.AreEqual("Nexus People Sync from Active Directory", issue.Summary);
+			Assert.AreEqual("YTM", issue.projectShortName);
+			Assert.IsInstanceOf<IList>(issue.Subsystem);
+			Assert.AreEqual(issue.Subsystem[0], "SSIS");
 		}
 
 		[Test]
@@ -80,9 +84,13 @@ namespace YouTrackSharp.Tests
 			mockResponse.Content.Returns(responseContent);
 			mockResponse.Headers.Returns(new List<Parameter> { new Parameter { Name = "Content-Type", Value = "application/json" } });
 
-			List<ListIssue> issues = restSharpDeserializer.Deserialize<MultipleIssueWrapper>(mockResponse).Data;
+			var issues = restSharpDeserializer.Deserialize<MultipleIssueWrapper>(mockResponse).Data;
 
-			Assert.AreEqual("NAT-1", issues.First().Id);
+			dynamic firstIssue = issues.First();
+			Assert.AreEqual("YTM-1", firstIssue.Id);
+			Assert.AreEqual("YTM", firstIssue.projectShortName);
+			Assert.IsInstanceOf<IList>(firstIssue.Subsystem);
+			Assert.AreEqual(firstIssue.Subsystem[0], "SSIS");
 		}
 
 		[Test]
@@ -134,11 +142,12 @@ namespace YouTrackSharp.Tests
 
 			//Act
 			dynamic issue = restSharpDeserializer.Deserialize<Issue>(mockResponse);
-			issue.Created = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds((double)1444849398783);
+
 			//Assert
 			Assert.AreEqual("NAT-7", issue.Id);
 			Assert.AreEqual(274, issue.Created.DayOfYear);
-			Assert.AreEqual(274, issue.Updated.DayOfYear);
+			Assert.AreEqual(10, issue.Updated.Month);
+			Assert.AreEqual(14, issue.Updated.Day);
 		}
 
 		[Test]

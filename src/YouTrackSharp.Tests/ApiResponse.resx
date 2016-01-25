@@ -286,49 +286,49 @@
   </data>
   <data name="IssueDetail" xml:space="preserve">
     <value>{
-    "id": "NAT-2",
-    "entityId": "97-151",
+    "id": "YTM-1",
+    "entityId": "97-461",
     "jiraId": null,
     "field": [
         {
             "name": "projectShortName",
-            "value": "NAT"
+            "value": "YTM"
         },
         {
             "name": "numberInProject",
-            "value": "2"
+            "value": "1"
         },
         {
             "name": "summary",
-            "value": "Admin Login"
+            "value": "Nexus People Sync from Active Directory"
         },
         {
             "name": "description",
-            "value": "testing"
+            "value": "Replace SSIS package importing people into the Nexus database from FogBugz with one that imports from Active Directory"
         },
         {
             "name": "created",
-            "value": "1443729652313"
+            "value": "1452022191228"
         },
         {
             "name": "updated",
-            "value": "1443729652313"
+            "value": "1452022774509"
         },
         {
             "name": "updaterName",
-            "value": "Meagan_Combs"
+            "value": "kjones"
         },
         {
             "name": "updaterFullName",
-            "value": "Meagan Combs"
+            "value": "Kevin Jones"
         },
         {
             "name": "reporterName",
-            "value": "Meagan_Combs"
+            "value": "kjones"
         },
         {
             "name": "reporterFullName",
-            "value": "Meagan Combs"
+            "value": "Kevin Jones"
         },
         {
             "name": "commentsCount",
@@ -354,12 +354,15 @@
         {
             "name": "Type",
             "value": [
-                "Bug"
+                "Use Case"
             ],
             "valueId": [
-                "Bug"
+                "Use Case"
             ],
-            "color": null
+            "color": {
+                "bg": "#7b35db",
+                "fg": "white"
+            }
         },
         {
             "name": "State",
@@ -372,12 +375,12 @@
             "color": null
         },
         {
-            "name": "Non-Billable",
+            "name": "Subsystem",
             "value": [
-                "No"
+                "SSIS"
             ],
             "valueId": [
-                "No"
+                "SSIS"
             ],
             "color": null
         }
@@ -390,373 +393,1248 @@
     <value>{
     "issue": [
         {
-            "priority": "3",
-            "type": "Bug",
-            "state": "Submitted",
-            "subsystem": "No Subsystem",
-            "affectsVersion": null,
-            "id": "NAT-1",
-            "fixedVersion": null,
-            "projectShortName": "NAT",
-            "assigneeName": null,
-            "reporterName": "Meagan_Combs",
-            "updaterName": "Meagan_Combs",
-            "fixedInBuild": "Next build",
-            "commentsCount": 0,
-            "numberInProject": 1,
-            "summary": "test",
-            "description": null,
-            "created": 1443729466358,
-            "updated": 1444855950067,
-            "historyUpdated": 1444855950067,
-            "resolved": null,
+            "id": "YTM-1",
+            "entityId": "97-461",
             "jiraId": null,
-            "votes": 0,
-            "permittedGroup": null,
             "field": [
                 {
-                    "name": "Work Hours",
-                    "value": [],
-                    "valueId": [],
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "1"
+                },
+                {
+                    "name": "summary",
+                    "value": "Nexus People Sync from Active Directory"
+                },
+                {
+                    "name": "description",
+                    "value": "Replace SSIS package importing people into the Nexus database from FogBugz with one that imports from Active Directory"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022191228"
+                },
+                {
+                    "name": "updated",
+                    "value": "1452022774509"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
                     "color": null
                 },
                 {
-                    "name": "Non-Billable",
+                    "name": "Subsystem",
                     "value": [
-                        "No"
+                        "SSIS"
                     ],
                     "valueId": [
-                        "No"
+                        "SSIS"
                     ],
                     "color": null
                 }
             ],
-            "attachments": [],
-            "links": []
+            "comment": [],
+            "tag": []
         },
         {
-            "priority": "3",
-            "type": "Bug",
-            "state": "Submitted",
-            "subsystem": "No Subsystem",
-            "affectsVersion": null,
-            "id": "NAT-2",
-            "fixedVersion": null,
-            "projectShortName": "NAT",
-            "assigneeName": null,
-            "reporterName": "Meagan_Combs",
-            "updaterName": "Meagan_Combs",
-            "fixedInBuild": "Next build",
-            "commentsCount": 0,
-            "numberInProject": 2,
-            "summary": "Admin Login",
-            "description": "testing",
-            "created": 1443729652313,
-            "updated": 1443729652313,
-            "historyUpdated": 1443729652313,
-            "resolved": null,
+            "id": "YTM-2",
+            "entityId": "97-463",
             "jiraId": null,
-            "votes": 0,
-            "permittedGroup": null,
             "field": [
                 {
-                    "name": "Work Hours",
-                    "value": [],
-                    "valueId": [],
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "2"
+                },
+                {
+                    "name": "summary",
+                    "value": "Solution Import"
+                },
+                {
+                    "name": "description",
+                    "value": "Replace SSIS package which imports Solutions (Projects) from FogBugz with one that imports YouTrack projects as Solutions in the Nexus database "
+                },
+                {
+                    "name": "created",
+                    "value": "1452022266265"
+                },
+                {
+                    "name": "updated",
+                    "value": "1452086759839"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "links",
+                    "value": [
+                        {
+                            "value": "YTM-12",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        }
+                    ]
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
                     "color": null
                 },
                 {
-                    "name": "Non-Billable",
+                    "name": "Subsystem",
                     "value": [
-                        "No"
+                        "SSIS"
                     ],
                     "valueId": [
-                        "No"
+                        "SSIS"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Fix versions",
+                    "value": [
+                        "January"
+                    ],
+                    "valueId": [
+                        "January"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Estimate",
+                    "value": [
+                        "360"
+                    ],
+                    "valueId": [
+                        "6h"
                     ],
                     "color": null
                 }
             ],
-            "attachments": [],
-            "links": []
+            "comment": [],
+            "tag": []
         },
         {
-            "priority": "3",
-            "type": "Bug",
-            "state": "Submitted",
-            "subsystem": "No Subsystem",
-            "affectsVersion": null,
-            "id": "NAT-3",
-            "fixedVersion": null,
-            "projectShortName": "NAT",
-            "assigneeName": null,
-            "reporterName": "Meagan_Combs",
-            "updaterName": "Meagan_Combs",
-            "fixedInBuild": "Next build",
-            "commentsCount": 0,
-            "numberInProject": 3,
-            "summary": "Admin Login",
-            "description": "testing",
-            "created": 1443730317432,
-            "updated": 1443730317432,
-            "historyUpdated": 1443730317432,
-            "resolved": null,
+            "id": "YTM-3",
+            "entityId": "97-465",
             "jiraId": null,
-            "votes": 0,
-            "permittedGroup": null,
             "field": [
                 {
-                    "name": "Work Hours",
-                    "value": [],
-                    "valueId": [],
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "3"
+                },
+                {
+                    "name": "summary",
+                    "value": "Nexus Area Import from YouTrack"
+                },
+                {
+                    "name": "description",
+                    "value": "Replace the SSIS package which imports Areas from FogBugz with one that imports YouTrack Subsystems as Areas in the Nexus Database"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022317059"
+                },
+                {
+                    "name": "updated",
+                    "value": "1452807575545"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "jgawarecki"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Joel Gawarecki"
+                },
+                {
+                    "name": "resolved",
+                    "value": "1452806444132"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "links",
+                    "value": [
+                        {
+                            "value": "YTM-15",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        }
+                    ]
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Done"
+                    ],
+                    "valueId": [
+                        "Done"
+                    ],
                     "color": null
                 },
                 {
-                    "name": "Non-Billable",
+                    "name": "Assignee",
                     "value": [
-                        "No"
+                        {
+                            "value": "jgawarecki",
+                            "fullName": "Joel Gawarecki"
+                        }
+                    ]
+                },
+                {
+                    "name": "Subsystem",
+                    "value": [
+                        "SSIS"
                     ],
                     "valueId": [
-                        "No"
+                        "SSIS"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Fix versions",
+                    "value": [
+                        "January"
+                    ],
+                    "valueId": [
+                        "January"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Estimate",
+                    "value": [
+                        "480"
+                    ],
+                    "valueId": [
+                        "1d"
                     ],
                     "color": null
                 }
             ],
-            "attachments": [],
-            "links": []
+            "comment": [],
+            "tag": []
         },
         {
-            "priority": "3",
-            "type": "Bug",
-            "state": "Submitted",
-            "subsystem": "No Subsystem",
-            "affectsVersion": null,
-            "id": "NAT-4",
-            "fixedVersion": null,
-            "projectShortName": "NAT",
-            "assigneeName": null,
-            "reporterName": "Meagan_Combs",
-            "updaterName": "Meagan_Combs",
-            "fixedInBuild": "Next build",
-            "commentsCount": 0,
-            "numberInProject": 4,
-            "summary": "User Test",
-            "description": "testing",
-            "created": 1443731152159,
-            "updated": 1443731152159,
-            "historyUpdated": 1443731152159,
-            "resolved": null,
+            "id": "YTM-4",
+            "entityId": "97-467",
             "jiraId": null,
-            "votes": 0,
-            "permittedGroup": null,
             "field": [
                 {
-                    "name": "Work Hours",
-                    "value": [],
-                    "valueId": [],
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "4"
+                },
+                {
+                    "name": "summary",
+                    "value": "Nexus Task Import from YouTrack"
+                },
+                {
+                    "name": "description",
+                    "value": "Replace the SSIS package which imports Cases from FogBugz as Tasks with one that imports YouTrack Cases as Tasks in the Nexus Database"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022371341"
+                },
+                {
+                    "name": "updated",
+                    "value": "1453243974996"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "pchang"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "pchang"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "links",
+                    "value": [
+                        {
+                            "value": "YTM-18",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        },
+                        {
+                            "value": "YTM-21",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        }
+                    ]
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
                     "color": null
                 },
                 {
-                    "name": "Non-Billable",
+                    "name": "Subsystem",
                     "value": [
-                        "No"
+                        "SSIS"
                     ],
                     "valueId": [
-                        "No"
+                        "SSIS"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Fix versions",
+                    "value": [
+                        "January"
+                    ],
+                    "valueId": [
+                        "January"
                     ],
                     "color": null
                 }
             ],
-            "attachments": [],
-            "links": []
+            "comment": [],
+            "tag": []
         },
         {
-            "priority": "3",
-            "type": "Bug",
-            "state": "Submitted",
-            "subsystem": "No Subsystem",
-            "affectsVersion": null,
-            "id": "NAT-5",
-            "fixedVersion": null,
-            "projectShortName": "NAT",
-            "assigneeName": null,
-            "reporterName": "Meagan_Combs",
-            "updaterName": "Meagan_Combs",
-            "fixedInBuild": "Next build",
-            "commentsCount": 0,
-            "numberInProject": 5,
-            "summary": "User Test",
-            "description": "testing",
-            "created": 1443731199488,
-            "updated": 1443731199488,
-            "historyUpdated": 1443731199488,
-            "resolved": null,
+            "id": "YTM-6",
+            "entityId": "97-471",
             "jiraId": null,
-            "votes": 0,
-            "permittedGroup": null,
             "field": [
                 {
-                    "name": "Work Hours",
-                    "value": [],
-                    "valueId": [],
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "6"
+                },
+                {
+                    "name": "summary",
+                    "value": "Nexus Admin Tool - Generate Default Cases in YouTrack"
+                },
+                {
+                    "name": "description",
+                    "value": "Modify the Nexus Admin Tool to generate Default Project Cases in YouTrack instead of FogBugz"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022515736"
+                },
+                {
+                    "name": "updated",
+                    "value": "1453244449065"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "1"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "links",
+                    "value": [
+                        {
+                            "value": "YTM-16",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        },
+                        {
+                            "value": "YTM-22",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        }
+                    ]
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
                     "color": null
                 },
                 {
-                    "name": "Non-Billable",
+                    "name": "Subsystem",
                     "value": [
-                        "No"
+                        "Nexus Admin Tool"
                     ],
                     "valueId": [
-                        "No"
+                        "Nexus Admin Tool"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Fix versions",
+                    "value": [
+                        "January"
+                    ],
+                    "valueId": [
+                        "January"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Estimate",
+                    "value": [
+                        "120"
+                    ],
+                    "valueId": [
+                        "2h"
                     ],
                     "color": null
                 }
             ],
-            "attachments": [],
-            "links": []
+            "comment": [
+                {
+                    "id": "107-378",
+                    "author": "kjones",
+                    "authorFullName": "Kevin Jones",
+                    "issueId": "YTM-6",
+                    "parentId": null,
+                    "deleted": false,
+                    "jiraId": null,
+                    "text": "The Nexus Admin Tool will need to be able to detect if the selected solution is FogBugz or YouTrack and act accordingly, as there will be a period of time where we will have projects in both. Also, there is likely to be a need to support legacy projects that will need to be revived.",
+                    "shownForIssueAuthor": false,
+                    "created": 1452023067826,
+                    "updated": null,
+                    "permittedGroup": null,
+                    "replies": []
+                }
+            ],
+            "tag": []
         },
         {
-            "priority": "1",
-            "type": "Bug",
-            "state": "Submitted",
-            "subsystem": "Documentation",
-            "affectsVersion": null,
-            "id": "NAT-6",
-            "fixedVersion": null,
-            "projectShortName": "NAT",
-            "assigneeName": "Meagan_Combs",
-            "reporterName": "Meagan_Combs",
-            "updaterName": "Meagan_Combs",
-            "fixedInBuild": "Next build",
-            "commentsCount": 0,
-            "numberInProject": 6,
-            "summary": "Register Test",
-            "description": "testing",
-            "created": 1443731307195,
-            "updated": 1443795905060,
-            "historyUpdated": 1443795905060,
-            "resolved": null,
+            "id": "YTM-7",
+            "entityId": "97-473",
             "jiraId": null,
-            "votes": 0,
-            "permittedGroup": null,
             "field": [
                 {
-                    "name": "Work Hours",
-                    "value": [],
-                    "valueId": [],
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "7"
+                },
+                {
+                    "name": "summary",
+                    "value": "Nexus Admin Tool - Estimate Spreadsheet Import"
+                },
+                {
+                    "name": "description",
+                    "value": "Modify the Nexus Admin Tool's estimate spreadsheet import to create Subsystems in YouTrack instead of Areas in FogBugz and to apply the appropriate Subsystem Estimate based on the Functional Area budget in the spreadsheet"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022584718"
+                },
+                {
+                    "name": "updated",
+                    "value": "1452022750891"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
                     "color": null
                 },
                 {
-                    "name": "Non-Billable",
+                    "name": "Subsystem",
                     "value": [
-                        "No"
+                        "Nexus Admin Tool"
                     ],
                     "valueId": [
-                        "No"
+                        "Nexus Admin Tool"
                     ],
                     "color": null
                 }
             ],
-            "attachments": [],
-            "links": []
+            "comment": [],
+            "tag": []
         },
         {
-            "priority": "3",
-            "type": "Bug",
-            "state": "Submitted",
-            "subsystem": "Documentation",
-            "affectsVersion": null,
-            "id": "NAT-7",
-            "fixedVersion": null,
-            "projectShortName": "NAT",
-            "assigneeName": "Meagan_Combs",
-            "reporterName": "Meagan_Combs",
-            "updaterName": "Meagan_Combs",
-            "fixedInBuild": "Next build",
-            "commentsCount": 2,
-            "numberInProject": 7,
-            "summary": "updated",
-            "description": "updated",
-            "created": 1443731565889,
-            "updated": 1444849398783,
-            "historyUpdated": 1444849398783,
-            "resolved": null,
+            "id": "YTM-8",
+            "entityId": "97-475",
             "jiraId": null,
-            "votes": 0,
-            "permittedGroup": null,
             "field": [
                 {
-                    "name": "Work Hours",
-                    "value": [],
-                    "valueId": [],
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "8"
+                },
+                {
+                    "name": "summary",
+                    "value": "Chronos - Authenticate with Active Directory"
+                },
+                {
+                    "name": "description",
+                    "value": "Replace Authentication in Chronos with Active Directory instead of FogBugz username/password"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022806252"
+                },
+                {
+                    "name": "updated",
+                    "value": "1452086734990"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "links",
+                    "value": [
+                        {
+                            "value": "YTM-13",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        },
+                        {
+                            "value": "YTM-14",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        }
+                    ]
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
                     "color": null
                 },
                 {
-                    "name": "Non-Billable",
+                    "name": "Subsystem",
                     "value": [
-                        "No"
+                        "Chronos"
                     ],
                     "valueId": [
-                        "No"
+                        "Chronos"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Fix versions",
+                    "value": [
+                        "January"
+                    ],
+                    "valueId": [
+                        "January"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Estimate",
+                    "value": [
+                        "480"
+                    ],
+                    "valueId": [
+                        "1d"
                     ],
                     "color": null
                 }
             ],
-            "attachments": [
-                {
-                    "id": "113-0",
-                    "url": "https://yt.wolfgang.com/youtrack/_persistent/Screenshot_2015-10-14-16-54-36%20(1).png?file=113-0&amp;v=0&amp;c=false",
-                    "name": "Screenshot_2015-10-14-16-54-36 (1).png",
-                    "authorLogin": "Meagan_Combs",
-                    "group": "All Users",
-                    "created": 1444849393312
-                }
-            ],
-            "links": []
+            "comment": [],
+            "tag": []
         },
         {
-            "priority": "3",
-            "type": "Bug",
-            "state": "Fixed",
-            "subsystem": "No Subsystem",
-            "affectsVersion": null,
-            "id": "NAT-8",
-            "fixedVersion": null,
-            "projectShortName": "NAT",
-            "assigneeName": null,
-            "reporterName": "Meagan_Combs",
-            "updaterName": "Meagan_Combs",
-            "fixedInBuild": "Next build",
-            "commentsCount": 0,
-            "numberInProject": 8,
-            "summary": "Register Test",
-            "description": "testing",
-            "created": 1443731685723,
-            "updated": 1443731687244,
-            "historyUpdated": 1443731687244,
-            "resolved": 1443731687237,
+            "id": "YTM-9",
+            "entityId": "97-477",
             "jiraId": null,
-            "votes": 0,
-            "permittedGroup": null,
             "field": [
                 {
-                    "name": "Work Hours",
-                    "value": [],
-                    "valueId": [],
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "9"
+                },
+                {
+                    "name": "summary",
+                    "value": "Chronos - YouTrack Time Entry"
+                },
+                {
+                    "name": "description",
+                    "value": "Replace entry of time with entry of Time against YouTrack cases rather than FogBugz cases"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022846281"
+                },
+                {
+                    "name": "updated",
+                    "value": "1453244531855"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "links",
+                    "value": [
+                        {
+                            "value": "YTM-19",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        },
+                        {
+                            "value": "YTM-20",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        },
+                        {
+                            "value": "YTM-23",
+                            "type": "Subtask",
+                            "role": "parent for"
+                        }
+                    ]
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
                     "color": null
                 },
                 {
-                    "name": "Non-Billable",
+                    "name": "Subsystem",
                     "value": [
-                        "No"
+                        "Chronos"
                     ],
                     "valueId": [
-                        "No"
+                        "Chronos"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Fix versions",
+                    "value": [
+                        "January"
+                    ],
+                    "valueId": [
+                        "January"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Estimate",
+                    "value": [
+                        "960"
+                    ],
+                    "valueId": [
+                        "2d"
                     ],
                     "color": null
                 }
             ],
-            "attachments": [],
-            "links": []
+            "comment": [],
+            "tag": []
+        },
+        {
+            "id": "YTM-10",
+            "entityId": "97-479",
+            "jiraId": null,
+            "field": [
+                {
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "10"
+                },
+                {
+                    "name": "summary",
+                    "value": "Chronos - YouTrack Issue Search"
+                },
+                {
+                    "name": "description",
+                    "value": "Replace the Search feature in Chronos with YouTrack issue search, rather than search of FogBugz cases"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022883857"
+                },
+                {
+                    "name": "updated",
+                    "value": "1452022950689"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
+                    "color": null
+                },
+                {
+                    "name": "Subsystem",
+                    "value": [
+                        "Chronos"
+                    ],
+                    "valueId": [
+                        "Chronos"
+                    ],
+                    "color": null
+                }
+            ],
+            "comment": [],
+            "tag": []
+        },
+        {
+            "id": "YTM-11",
+            "entityId": "97-481",
+            "jiraId": null,
+            "field": [
+                {
+                    "name": "projectShortName",
+                    "value": "YTM"
+                },
+                {
+                    "name": "numberInProject",
+                    "value": "11"
+                },
+                {
+                    "name": "summary",
+                    "value": "FogBugz to YouTrack Migration Script"
+                },
+                {
+                    "name": "description",
+                    "value": "Create a reusable script to migrate all project data from FogBugz into a new YouTrack project"
+                },
+                {
+                    "name": "created",
+                    "value": "1452022935559"
+                },
+                {
+                    "name": "updated",
+                    "value": "1452022935559"
+                },
+                {
+                    "name": "updaterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "updaterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "reporterName",
+                    "value": "kjones"
+                },
+                {
+                    "name": "reporterFullName",
+                    "value": "Kevin Jones"
+                },
+                {
+                    "name": "commentsCount",
+                    "value": "0"
+                },
+                {
+                    "name": "votes",
+                    "value": "0"
+                },
+                {
+                    "name": "Priority",
+                    "value": [
+                        "Normal"
+                    ],
+                    "valueId": [
+                        "Normal"
+                    ],
+                    "color": {
+                        "bg": "#ebf4dd",
+                        "fg": "#64992C"
+                    }
+                },
+                {
+                    "name": "Type",
+                    "value": [
+                        "Use Case"
+                    ],
+                    "valueId": [
+                        "Use Case"
+                    ],
+                    "color": {
+                        "bg": "#7b35db",
+                        "fg": "white"
+                    }
+                },
+                {
+                    "name": "State",
+                    "value": [
+                        "Submitted"
+                    ],
+                    "valueId": [
+                        "Submitted"
+                    ],
+                    "color": null
+                }
+            ],
+            "comment": [],
+            "tag": []
         }
     ]
 }</value>

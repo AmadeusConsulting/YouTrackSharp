@@ -31,7 +31,10 @@
 
 #endregion
 
-using JsonFx.Json;
+using System.Collections.Generic;
+
+using Newtonsoft.Json;
+
 using YouTrackSharp.Projects;
 using RestSharp.Deserializers;
 using System.Collections.Generic;
@@ -39,21 +42,20 @@ using Newtonsoft.Json;
 
 namespace YouTrackSharp.Issues
 {
-    public class MultipleIssueWrapper : IDataWrapper<ListIssue>
+    public class MultipleIssueWrapper : IDataWrapper<Issue>
     {
-        [JsonName("issue")]
         [JsonProperty(PropertyName="issue")]
-        public List<ListIssue> Data { get; set; }
+        public List<Issue> Data { get; set; }
 
-        IEnumerable<ListIssue> IDataWrapper<ListIssue>.Data
+        IEnumerable<Issue> IDataWrapper<Issue>.Data
         {
             get
             {
-                return this.Data;
+                return Data;
             }
             set
             {
-                this.Data = new List<ListIssue>(value);
+                Data = new List<Issue>(value);
             }
         }
     }
