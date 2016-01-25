@@ -37,7 +37,7 @@ namespace Nexus.Admin.Test
         public void SetUp()
         {
             _restClient = Substitute.For<IRestClient>();
-            _restSharpConnection = new RestSharpConnection(new Uri("http://yt.wolfgang.com/"), new DefaultRestClientFactory(), "", "", "");
+            _restSharpConnection = new RestSharpConnection(new Uri("http://yt.wolfgang.com/"), new DefaultRestClientFactory(), new ThreadSafeCredentialStore(), "", "", "");
         }
 
         [TearDown]

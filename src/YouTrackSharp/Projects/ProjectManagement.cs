@@ -33,89 +33,103 @@
 
 using System;
 using System.Collections.Generic;
+
 using YouTrackSharp.Infrastructure;
 
 namespace YouTrackSharp.Projects
 {
-    public class ProjectManagement
-    {
-        readonly IConnection _connection;
+	public class ProjectManagement
+	{
+		#region Fields
 
-        public ProjectManagement(IConnection connection)
-        {
-            try
-            { 
-                _connection = connection;
-            }
-            catch (ConnectionException e)
-            {
-                Console.WriteLine(e);
-            }
-        }
+		private readonly IConnection _connection;
 
-        public IEnumerable<Project> GetProjects()
-        {
-            return _connection.GetList<Project>("project/all");
-            
-        }
+		#endregion
 
-        public IEnumerable<ProjectPriority> GetPriorities()
-        {
-            return _connection.GetList<ProjectPriority>("project/priorities");
-        }
+		#region Constructors and Destructors
 
-        public IEnumerable<ProjectState> GetStates()
-        {
-            return _connection.GetList<ProjectState>("project/states");
-        }
+		public ProjectManagement(IConnection connection)
+		{
+			try
+			{
+				_connection = connection;
+			}
+			catch (ConnectionException e)
+			{
+				Console.WriteLine(e);
+			}
+		}
 
-        public IEnumerable<ProjectIssueTypes> GetIssueTypes()
-        {
-            return _connection.GetList<ProjectIssueTypes>("project/types");
-        }
+		#endregion
 
-        public IEnumerable<ProjectResolutionType> GetResolutions()
-        {
-            return _connection.GetList<ProjectResolutionType>("project/resolutions");
-        }
+		#region Public Methods and Operators
 
-        public IEnumerable<ProjectVersion> GetVersions(string versionBundleName)
-        {
-            var x = _connection.Get<VersionBundle>(string.Format("admin/customfield/versionBundle/{0}", versionBundleName));
-            return x.Version;
-        }
+		public virtual void AddSubsystem(string projectName, string subsystem)
+		{
+			_connection.Put(String.Format("admin/project/{0}/subsystem/{1}", projectName, subsystem), null);
+		}
 
-        public IEnumerable<ProjectVersion> GetVersions(Project project)
-        {
-            return GetVersions(project.VersionBundleName());
-        }
+		public virtual void AddVersion(Project project, ProjectVersion version)
+		{
+			throw new NotImplementedException();
+		}
 
-        public Project GetProject(string projectName)
-        {
-            return _connection.Get<Project>(String.Format("admin/project/{0}", projectName));
-        }
-        
-        public void AddSubsystem(string projectName, string subsystem)
-        {
-            _connection.Put(String.Format("admin/project/{0}/subsystem/{1}", projectName, subsystem), null);
-           
-        }
+		public virtual void DeleteVersion(string bundleName, string versionName)
+		{
+			_connection.Delete(string.Format("admin/customfield/versionBundle/{0}/{1}", bundleName, versionName));
+		}
 
-        public IEnumerable<Subsystem> ListSubsystems(string projectName)
-        {
-            return _connection.GetList<Subsystem>(String.Format("admin/project/{0}/subsystem", projectName));
-        }
+		public virtual IEnumerable<ProjectIssueTypes> GetIssueTypes()
+		{
+			return _connection.GetList<ProjectIssueTypes>("project/types");
+		}
 
-        public void AddVersion(Project project, ProjectVersion version)
-        {
-        }
+		public virtual IEnumerable<ProjectPriority> GetPriorities()
+		{
+			return _connection.GetList<ProjectPriority>("project/priorities");
+		}
 
-        public void DeleteVersion(string bundleName, string versionName)
-        {
-            _connection.Delete(string.Format("admin/customfield/versionBundle/{0}/{1}", bundleName, versionName));
-        }
+		public virtual Project GetProject(string projectName)
+		{
+			return _connection.Get<Project>(String.Format("admin/project/{0}", projectName));
+		}
 
+		public virtual IEnumerable<Project> GetProjects()
+		{
+			return _connection.GetList<Project>("project/all");
+		}
 
-       
-    }
+		public virtual IEnumerable<WorkType> GetProjectWorkTypes(object projectShortname)
+		{
+			return _connection.GetList<WorkType>(string.Format("admin/project/{0}/timetracking/worktype", projectShortname));
+		}
+
+		public virtual IEnumerable<ProjectResolutionType> GetResolutions()
+		{
+			return _connection.GetList<ProjectResolutionType>("project/resolutions");
+		}
+
+		public virtual IEnumerable<ProjectState> GetStates()
+		{
+			return _connection.GetList<ProjectState>("project/states");
+		}
+
+		public virtual IEnumerable<ProjectVersion> GetVersions(string versionBundleName)
+		{
+			var x = _connection.Get<VersionBundle>(string.Format("admin/customfield/versionBundle/{0}", versionBundleName));
+			return x.Version;
+		}
+
+		public virtual IEnumerable<ProjectVersion> GetVersions(Project project)
+		{
+			return GetVersions(project.VersionBundleName());
+		}
+
+		public virtual IEnumerable<Subsystem> ListSubsystems(string projectName)
+		{
+			return _connection.GetList<Subsystem>(String.Format("admin/project/{0}/subsystem", projectName));
+		}
+
+		#endregion
+	}
 }

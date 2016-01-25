@@ -256,7 +256,7 @@ namespace YouTrackSharp.Infrastructure
             }
             else if (type == typeof (object))
             {
-                Type targetType;
+	            Type targetType = null;
                 switch (element.Type)
                 {
                     case JTokenType.String:
@@ -277,13 +277,20 @@ namespace YouTrackSharp.Infrastructure
                     case JTokenType.Uri:
                         targetType = typeof (Uri);
                         break;
+					case JTokenType.Array:
+		                instance = BuildList(typeof(ArrayList), element.Children());
+		                break;
+					case JTokenType.Object:
+		                instance = BuildDictionary(typeof(Dictionary<string, object>), element.Children());
+		                break;
                     default:
-                       // throw new NotImplementedException(string.Format("Target type of {0} is not implemented", element.Type));
-                        targetType = typeof (object);
-                        break;
+                       throw new NotImplementedException(string.Format("Target type of {0} is not implemented", element.Type));
                 }
 
-                instance = element.ToObject(targetType);
+	            if (targetType != null)
+	            {
+		            instance = element.ToObject(targetType);
+	            }
             }
             else
             {
@@ -361,7 +368,7 @@ namespace YouTrackSharp.Infrastructure
         private IList BuildList(Type type, JEnumerable<JToken> elements)
         {
             var list = (IList) Activator.CreateInstance(type);
-            var itemType = type.GetGenericArguments()[0];
+	        var itemType = type.IsGenericType ? type.GetGenericArguments()[0] : typeof(object);
 
             foreach (var element in elements)
             {
