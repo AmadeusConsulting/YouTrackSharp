@@ -38,24 +38,26 @@ using Newtonsoft.Json;
 using YouTrackSharp.Projects;
 using RestSharp.Deserializers;
 using System.Collections.Generic;
+using JsonFx.Json;
 using Newtonsoft.Json;
 
 namespace YouTrackSharp.Issues
 {
-    public class MultipleIssueWrapper : IDataWrapper<Issue>
+    public class MultipleIssueWrapper : IDataWrapper<ListIssue>
     {
-        [JsonProperty(PropertyName="issue")]
-        public List<Issue> Data { get; set; }
+        [JsonName("issue")]
+        [JsonProperty(PropertyName = "issue")]
+        public List<ListIssue> Data { get; set; }
 
-        IEnumerable<Issue> IDataWrapper<Issue>.Data
+        IEnumerable<ListIssue> IDataWrapper<ListIssue>.Data
         {
             get
             {
-                return Data;
+                return this.Data;
             }
             set
             {
-                Data = new List<Issue>(value);
+                this.Data = new List<ListIssue>(value);
             }
         }
     }

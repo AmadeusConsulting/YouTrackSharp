@@ -37,6 +37,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using System.Threading;
 using System.Web;
 using YouTrackSharp.Infrastructure;
@@ -44,72 +45,40 @@ using HttpException = EasyHttp.Infrastructure.HttpException;
 
 namespace YouTrackSharp.Issues
 {
-	public class IssueManagement
-	{
-		static readonly List<string> PresetFields = new List<string>()
+    public class IssueManagement
+    {
+        static readonly List<string> PresetFields = new List<string>()
                                                      {
-                                                         "projectShortName","summary","description"
+                                                         "project","summary","description", "id", "jiraid", "entityid"
                                                      };
-		readonly IConnection _connection;
+        readonly IConnection _connection;
 
-		public IssueManagement(IConnection connection)
-		{
-			_connection = connection;
-		}
+        public IssueManagement(IConnection connection)
+        {
+            _connection = connection;
+        }
 
-		/// <summary>
-		/// Retrieve an issue by id
-		/// </summary>
-		/// <param name="issueId">Id of the issue to retrieve</param>
-		/// <returns>An instance of Issue if successful or InvalidRequestException if issues is not found</returns>
-		public virtual Issue GetIssue(string issueId)
-		{
-			try
-			{
-				dynamic issue = _connection.Get<Issue>(String.Format("issue/{0}", issueId));
+        /// <summary>
+        /// Retrieve an issue by id
+        /// </summary>
+        /// <param name="issueId">Id of the issue to retrieve</param>
+        /// <returns>An instance of Issue if successful or InvalidRequestException if issues is not found</returns>
+        public virtual Issue GetIssue(string issueId)
+        {
+            try
+            {
+                dynamic issue = _connection.Get<Issue>(String.Format("issue/{0}", issueId));
 
-				return issue;
-			}
-			catch (HttpException exception)
-			{
-				throw new InvalidRequestException(
-						String.Format(Language.YouTrackClient_GetIssue_Issue_not_found___0_, issueId), exception);
-			}
-		}
+                return issue;
+            }
+            catch (HttpException exception)
+            {
+                throw new InvalidRequestException(
+                        String.Format(Language.YouTrackClient_GetIssue_Issue_not_found___0_, issueId), exception);
+            }
+        }
 
-		public virtual string CreateIssue(Issue issue)
-		{
-			if (!_connection.IsAuthenticated)
-			{
-				throw new InvalidRequestException(Language.YouTrackClient_CreateIssue_Not_Logged_In);
-			}
-
-			try
-			{
-                //var fieldList = issue.ToExpandoObject();
-                var fieldList = (from x in issue.GetType().GetProperties() select x)
-                            .ToDictionary(x => x.Name, x => (x.GetGetMethod().Invoke(issue, null) == null ? "" : x.GetGetMethod()
-                            .Invoke(issue, null).ToString()));
-
-				var apiResponse = _connection.Post<Issue>("rest/issue", fieldList);
-
-				var createdIssue = apiResponse.Data;
-
-				var customFields = fieldList.Where(field => !PresetFields.Contains(field.Key.ToLower()) && field.Value).ToDictionary(field => field.Key, field => field.Value);
-
-				foreach (var customField in customFields)
-				{
-					ApplyCommand(createdIssue.Id, string.Format("{0} {1}", customField.Key, customField.Value), string.Empty);
-				}
-				return createdIssue.Id;
-			}
-			catch (HttpException httpException)
-			{
-				throw new InvalidRequestException(httpException.StatusDescription, httpException);
-			}
-		}
-
-        public void CreateIssue(string projectName, string summary, string description)
+        public string CreateIssue(Issue issue)
         {
             if (!_connection.IsAuthenticated)
             {
@@ -118,7 +87,23 @@ namespace YouTrackSharp.Issues
 
             try
             {
-                _connection.Post<Issue>(string.Format("issue?project={0}&summary={1}&description={2}",projectName, summary,description), null);
+                var fieldList = issue.ToExpandoObject();
+
+                var project = fieldList.Where(f => f.Key == "project").Select(f => f.Value).FirstOrDefault();
+                var summary = fieldList.Where(f => f.Key == "summary").Select(f => f.Value).FirstOrDefault();
+                var description = fieldList.Where(f => f.Key == "description").Select(f => f.Value).FirstOrDefault();
+
+                var apiResponse = _connection.Post<Issue>(string.Format("issue?project={0}&summary={1}&description={2}", project, summary, description), null);
+
+                var createdIssue = apiResponse.Data;
+
+                var customFields = fieldList.Where(field => !PresetFields.Contains(field.Key.ToLower()) && field.Value != null).ToDictionary(field => field.Key, field => field.Value);
+
+                foreach (var customField in customFields)
+                {
+                    ApplyCommand(createdIssue.Id, string.Format("{0} {1}", customField.Key, customField.Value), string.Empty);
+                }
+                return createdIssue.Id;
             }
             catch (HttpException httpException)
             {
@@ -126,142 +111,147 @@ namespace YouTrackSharp.Issues
             }
         }
 
+        /// <summary>
+        /// Retrieves a list of issues 
+        /// </summary>
+        /// <param name="projectIdentifier">Project Identifier</param>
+        /// <param name="max">[Optional] Maximum number of issues to return. Default is int.MaxValue</param>
+        /// <param name="start">[Optional] The number by which to start the issues. Default is 0. Used for paging.</param>
+        /// <returns>List of Issues</returns>
+        //public virtual IEnumerable<Issue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
+        //{
+        //    return _connection.Get<MultipleIssueWrapper, Issue>(
+        //        string.Format("issue/byproject/{0}", projectIdentifier),
+        //        new Dictionary<string, string>
+        //            {
+        //                { "max", max.ToString(CultureInfo.InvariantCulture) },
+        //                { "start", start.ToString(CultureInfo.InvariantCulture) }
+        //            });
+        //}
 
-		/// <summary>
-		/// Retrieves a list of issues 
-		/// </summary>
-		/// <param name="projectIdentifier">Project Identifier</param>
-		/// <param name="max">[Optional] Maximum number of issues to return. Default is int.MaxValue</param>
-		/// <param name="start">[Optional] The number by which to start the issues. Default is 0. Used for paging.</param>
-		/// <returns>List of Issues</returns>
-		public virtual IEnumerable<Issue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
-		{
-			return _connection.Get<MultipleIssueWrapper, Issue>(
-				string.Format("issue/byproject/{0}", projectIdentifier),
-				new Dictionary<string, string>
-					{
-						{ "max", max.ToString(CultureInfo.InvariantCulture) },
-						{ "start", start.ToString(CultureInfo.InvariantCulture) }
-					});
-		}
+        public IEnumerable<ListIssue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
+        {
+            return
+                    _connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("project/issues/{0}?max={1}&after={2}", projectIdentifier, max, start));
+        }
 
-		/// <summary>
-		/// Retrieve comments for a particular issue
-		/// </summary>
-		/// <param name="issueId"></param>
-		/// <returns></returns>
-		public virtual IEnumerable<Comment> GetCommentsForIssue(string issueId)
-		{
-			return _connection.GetList<Comment>(String.Format("issue/comments/{0}", issueId));
-		}
+        /// <summary>
+        /// Retrieve comments for a particular issue
+        /// </summary>
+        /// <param name="issueId"></param>
+        /// <returns></returns>
+        public virtual IEnumerable<Comment> GetCommentsForIssue(string issueId)
+        {
+            return _connection.GetList<Comment>(String.Format("issue/comments/{0}", issueId));
+        }
 
-		public virtual bool CheckIfIssueExists(string issueId)
-		{
-			var response = _connection.Head(string.Format("issue/{0}/exists", issueId));
-			return response.StatusCode == HttpStatusCode.OK;
-		}
+        public virtual bool CheckIfIssueExists(string issueId)
+        {
+            var response = _connection.Head(string.Format("issue/{0}/exists", issueId));
+            return response.StatusCode == HttpStatusCode.OK;
+        }
 
-		public virtual void AttachFileToIssue(string issuedId, string path)
-		{
-			var response = _connection.PostFile(string.Format("rest/issue/{0}/attachment", issuedId), path);
+        public virtual void AttachFileToIssue(string issuedId, string path)
+        {
+            var response = _connection.PostFile(string.Format("issue/{0}/attachment", issuedId), path);
 
-			if (response.StatusCode != HttpStatusCode.Created)
-			{
-				throw new InvalidRequestException(response.StatusCode.ToString());
-			}
-		}
+            if (response.StatusCode != HttpStatusCode.Created)
+            {
+                throw new InvalidRequestException(response.StatusCode.ToString());
+            }
+        }
 
-		public virtual void ApplyCommand(string issueId, string command, string comment, bool disableNotifications = false, string runAs = "")
-		{
-			if (!_connection.IsAuthenticated)
-			{
-				throw new InvalidRequestException(Language.YouTrackClient_CreateIssue_Not_Logged_In);
-			}
+        public virtual void ApplyCommand(string issueId, string command, string comment, bool disableNotifications = false, string runAs = "")
+        {
+            if (!_connection.IsAuthenticated)
+            {
+                throw new InvalidRequestException(Language.YouTrackClient_CreateIssue_Not_Logged_In);
+            }
 
-			try
-			{
-				dynamic commandMessage = new ExpandoObject();
-				commandMessage.command = command;
-				commandMessage.comment = comment;
-				if (disableNotifications)
-					commandMessage.disableNotifications = disableNotifications;
-				if (!string.IsNullOrWhiteSpace(runAs))
-					commandMessage.runAs = runAs;
+            try
+            {
+                dynamic commandMessage = new ExpandoObject();
+                commandMessage.command = command;
+                commandMessage.comment = comment;
+                if (disableNotifications)
+                    commandMessage.disableNotifications = disableNotifications;
+                if (!string.IsNullOrWhiteSpace(runAs))
+                    commandMessage.runAs = runAs;
 
-				_connection.Post(string.Format("rest/issue/{0}/execute", issueId), commandMessage);
-			}
-			catch (HttpException httpException)
-			{
-				throw new InvalidRequestException(httpException.StatusDescription, httpException);
-			}
-		}
+                _connection.Post(string.Format("issue/{0}/execute?command={1}&comment={2}&disableNotifications={3}&runAS={4}", issueId, command, comment, disableNotifications, runAs), null);
+            }
+            catch (HttpException httpException)
+            {
+                throw new InvalidRequestException(httpException.StatusDescription, httpException);
+            }
+        }
 
-		public virtual void UpdateIssue(string issueId, string summary, string description)
-		{
-			if (!_connection.IsAuthenticated)
-			{
-				throw new InvalidRequestException(Language.YouTrackClient_CreateIssue_Not_Logged_In);
-			}
+        public virtual void UpdateIssue(string issueId, string summary, string description)
+        {
+            if (!_connection.IsAuthenticated)
+            {
+                throw new InvalidRequestException(Language.YouTrackClient_CreateIssue_Not_Logged_In);
+            }
 
-			try
-			{
-				dynamic commandMessage = new ExpandoObject();
+            try
+            {
+                dynamic commandMessage = new ExpandoObject();
 
-				commandMessage.summary = summary;
-				commandMessage.description = description;
-				
-				_connection.Post(string.Format("issue/{0}", issueId), commandMessage);
-			}
-			catch (HttpException httpException)
-			{
-				throw new InvalidRequestException(httpException.StatusDescription, httpException);
-			}
-		}
+                commandMessage.summary = summary;
+                commandMessage.description = description;
 
-		public virtual IEnumerable<Issue> GetIssuesBySearch(string searchString, int max = int.MaxValue, int start = 0)
-		{
-			return _connection.Get<MultipleIssueWrapper, Issue>(
-				"issue",
-				new Dictionary<string, string>
+                _connection.Post(string.Format("issue/{0}", issueId), commandMessage);
+            }
+            catch (HttpException httpException)
+            {
+                throw new InvalidRequestException(httpException.StatusDescription, httpException);
+            }
+        }
+
+        public virtual IEnumerable<ListIssue> GetIssuesBySearch(string searchString, int max = int.MaxValue, int start = 0)
+        {
+            return _connection.Get<MultipleIssueWrapper, ListIssue>(
+                "issue",
+                new Dictionary<string, string>
 		{
 						{ "filter", searchString },
 						{ "max", max.ToString(CultureInfo.InvariantCulture) },
 						{ "after", start.ToString(CultureInfo.InvariantCulture) }
 					});
-		}
+        }
 
-		public virtual int GetIssueCount(string searchString)
-		{
-			var encodedQuery = HttpUtility.UrlEncode(searchString);
+        public virtual int GetIssueCount(string searchString)
+        {
+            var encodedQuery = HttpUtility.UrlEncode(searchString);
 
-			try
-			{
-				var count = -1;
+            try
+            {
+                var count = -1;
 
-				while (count < 0)
-				{
-					var countObject = _connection.Get<Count>(string.Format("issue/count?filter={0}", encodedQuery));
+                while (count < 0)
+                {
+                    var countObject = _connection.Get<Count>(string.Format("issue/count?filter={0}", encodedQuery));
 
-					count = countObject.Entity.Value;
-					Thread.Sleep(3000);
-				}
+                    count = countObject.Entity.Value;
+                    Thread.Sleep(3000);
+                }
 
-				return count;
-			}
-			catch (HttpException httpException)
-			{
-				throw new InvalidRequestException(httpException.StatusDescription, httpException);
-			}
-		}
+                return count;
+            }
+            catch (HttpException httpException)
+            {
+                throw new InvalidRequestException(httpException.StatusDescription, httpException);
+            }
+        }
 
-		public virtual void Delete(string id)
-		{
-			_connection.Delete(string.Format("issue/{0}", id));
-		}
+        public virtual void Delete(string id)
+        {
+            _connection.Delete(string.Format("issue/{0}", id));
+        }
 
-		public virtual void DeleteComment(string issueId, string commentId, bool deletePermanently)
-		{
-			_connection.Delete(string.Format("issue/{0}/comment/{1}?permanently={2}", issueId, commentId, deletePermanently));
-		}
-	}
+        public virtual void DeleteComment(string issueId, string commentId, bool deletePermanently)
+        {
+            _connection.Delete(string.Format("issue/{0}/comment/{1}?permanently={2}", issueId, commentId, deletePermanently));
+        }
+    }
 }
