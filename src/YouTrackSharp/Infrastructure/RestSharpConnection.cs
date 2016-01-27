@@ -480,7 +480,7 @@ namespace YouTrackSharp.Infrastructure
 			---------------------------
 			*/
 
-			_log.Debug(string.Format("Checking request status for {0} ...", response.Request.Resource));
+			_log.Debug(string.Format("Checking request status for {0} {1} ...", response.Request.Method, response.Request.Resource));
 
 			if (response.ResponseStatus != ResponseStatus.Completed)
 			{
