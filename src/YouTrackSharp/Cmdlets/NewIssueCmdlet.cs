@@ -53,11 +53,14 @@ namespace YouTrackSharp.CmdLets
         [ValidateNotNull]
         public string ProjectShortName { get; set; }
 
-        [Parameter(HelpMessage = "Priority")]
+        [Parameter(HelpMessage = "Type")]
         public string Type { get; set; }
 
         [Parameter(HelpMessage = "Subsystem")]
         public string Subsystem { get; set; }
+
+        [Parameter(HelpMessage = "Case Complete ID")]
+        public string CaseCompleteId { get; set; }
 
         [Parameter(HelpMessage = "Force issue creation without check")]
         public bool Force { get; set; }

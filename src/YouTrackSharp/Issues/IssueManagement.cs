@@ -131,8 +131,9 @@ namespace YouTrackSharp.Issues
 
         public IEnumerable<ListIssue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
         {
-            return
-                    _connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("project/issues/{0}?max={1}&after={2}", projectIdentifier, max, start));
+            var issues = _connection.Get<MultipleIssueWrapper, ListIssue>(string.Format("project/issues/{0}?max={1}&after={2}", projectIdentifier, max, start));
+
+            return issues;
         }
 
         /// <summary>

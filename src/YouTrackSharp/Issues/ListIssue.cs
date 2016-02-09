@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-
+using System.Dynamic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace YouTrackSharp.Issues
@@ -58,7 +60,18 @@ namespace YouTrackSharp.Issues
 		public int Votes { get; set; }
 		public string PermittedGroup { get; set; }
 
-		private List<Attachment> _attachments;
+        private string _caseCompleteId;
+        //[JsonProperty(PropertyName = "case complete id")]
+        public string CaseCompleteId
+        {
+            get
+            {
+                return string.IsNullOrEmpty(_caseCompleteId) ? (string) GetValue("Case Complete ID") : _caseCompleteId;
+            }
+            set { _caseCompleteId = value; }
+        }
+	  
+	    private List<Attachment> _attachments;
 
 		[JsonProperty(PropertyName = "attachments")]
 		public List<Attachment> Attachments
@@ -76,5 +89,34 @@ namespace YouTrackSharp.Issues
 			set { _links = value; }
 		}
 
+        public void SetCustomFields()
+        {
+            var fieldList = ToExpandoObject();
+
+            //Priority = (string) GetValue(fieldList, "Priority");
+                //Estimate = (string)GetValue(fieldList, "Id"),
+                //DueDate = (string)GetValue(fieldList, "Id"),
+            //CaseCompleteId = (string) GetValue(fieldList, "Case Complete ID");
+            //CommentsCount = (string)GetValue(fieldList, "Id"),
+            //Created = (string)GetValue(fieldList, "Id"),
+            //FixedInBuild = (string)GetValue(fieldList, "Id"),
+            //FixedVersion = (string)GetValue(fieldList, "Id"),
+            //HistoryUpdated = (string)GetValue(fieldList, "Id"),
+            //NumberInProject = (string)GetValue(fieldList, "Id"),
+            //Resolved = (string)GetValue(fieldList, "Id"),
+            //UpdaterName = (string)GetValue(fieldList, "Id"),
+            //Votes = (string)GetValue(fieldList, "Id"),
+            //Updated = (string)GetValue(fieldList, "Id"),
+            //ReporterName = (string)GetValue(fieldList, "Id"),
+            //PermittedGroup = (string)GetValue(fieldList, "Id"),
+            //State = (string)GetValue(fieldList, "Id"),
+        }
+
+        private object GetValue(string key)
+        {
+            var valueArray = (Fields.Where(f => f.name == key).Select(f => f.value).FirstOrDefault() as ArrayList);
+            if (valueArray == null || valueArray.Count == 0) return null;
+            return valueArray[0];
+        }
 	}
 }
