@@ -35,7 +35,7 @@ namespace YouTrackSharp.TimeTracking
 		[JsonProperty(PropertyName = "author")]
 		public WorkItemAuthor Author { get; set; }
 
-		[JsonProperty(PropertyName = "worktype")]
-		public WorkType WorkType { get; set; }
+		[JsonProperty(PropertyName = "workType")]
+		public string WorkType { get; set; }
 	}
 }
