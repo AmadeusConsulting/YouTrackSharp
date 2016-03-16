@@ -13,6 +13,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{EB9366
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildProcess", "BuildProcess", "{9F1C0D73-4E38-4CB5-A94E-E4162BDCBA1E}"
+	ProjectSection(SolutionItems) = preProject
+		nant.build = nant.build
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Includes", "Includes", "{7ACB1AAB-2389-4D50-BB52-CA5EE1D30FFE}"
+	ProjectSection(SolutionItems) = preProject
+		BuildProcess\Amadeus.include = BuildProcess\Amadeus.include
+		BuildProcess\Environment.include = BuildProcess\Environment.include
+		BuildProcess\Jenkins.include = BuildProcess\Jenkins.include
+		BuildProcess\MSBuild.include = BuildProcess\MSBuild.include
+		BuildProcess\nuget.include = BuildProcess\nuget.include
+		BuildProcess\UnitTest.NUnit.include = BuildProcess\UnitTest.NUnit.include
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,5 +49,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7ACB1AAB-2389-4D50-BB52-CA5EE1D30FFE} = {9F1C0D73-4E38-4CB5-A94E-E4162BDCBA1E}
 	EndGlobalSection
 EndGlobal

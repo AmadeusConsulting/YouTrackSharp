@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project name="YouTrackSharp" default="build" basedir="." xmlns="http://nant.sf.net/release/0.92/nant.xsd">
+	<!-- 
+		UNCOMMENT THIS TO SKIP DEPLOYING ANY ARTIFACTS FROM THIS BUILD
+		<property name="skip.deploy.artifacts" value="true" /> 
+	-->
+	<property name="skip.deploy.artifacts" value="true" />
+
+	<!-- Define the path to the included build scripts (Default is a Folder called BuildProcess at the root of the source tree)-->
+	<property name="buildfile.includes.dir" value="${project::get-base-directory()}\BuildProcess" />
+	
+	<!-- LIST OF SOLUTION FILES (INCLUDING THE .SLN EXTENSION), COMMA SEPARATED, WHICH SHOULD BE BUILT AS A PART OF THIS BUILD PROJECT -->
+	<property name="compile.Solution.list" value="YouTrackSharp.sln" />
+	
+	<!-- subscribe the same target to the creating website ZIP fileset as well -->
+
+	<!-- General Settings -->
+	<property name="clientName" value="Amadeus Consulting" />
+	<property name="projectNames" value="YouTrackSharp,YouTrackSharp.Tests" />
+
+	<!-- Building Blocks -->
+	<include buildfile="${buildfile.includes.dir}\Amadeus.include" /> <!-- This is the main Shared Build Script, Required in all Build Projects -->
+	<include buildfile="${buildfile.includes.dir}\MSBuild.include" /> <!-- The main include file required for building solutions -->
+
+	<!--   Include the build files you need here, depending on the aspects of your project    -->
+	<include buildfile="${buildfile.includes.dir}\nuget.include" />
+	<include buildfile="${buildfile.includes.dir}\UnitTest.NUnit.include" />    <!-- NUnit Test Projects --> 
+
+	<!-- NUnit -->
+	<!-- <property name="unitTestProjectNames" value="" /> PROVIDE A COMMA SEPARATED LIST OF NUNIT PROJECTS - DON'T FORGET TO INCLUDE THE UnitTest.NUnit.include SHARED BUILD FILE! -->
+	<property name="unitTestProjectNames" value="YouTrackSharp.Tests" />
+	<property name="YouTrackSharp.Tests.binaryfile.extension" value=".exe" />
+
+	<property name="nuget.package.projects" value="YouTrackSharp" />
+	
+	<!-- Event Handlers - Attach to events to hook into certain stages in the build process -->
+	
+	<!-- 
+	SUBSCRIBE TO THE ARTIFACTS-DEPLOYING EVENT TO COPY CUSTOM ARTIFACTS TO THE ARTIFACTS DIRECTORY
+	<property name="event" value="artifactsDeploying" />
+	<property name="subscriber" valuer=<YOUR-CUSTOM-TASK> />
+	<call target="subscribe" />
+	-->
+	
+</project>

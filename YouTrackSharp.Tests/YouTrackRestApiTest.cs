@@ -49,6 +49,7 @@ namespace Nexus.Admin.Test
 
         
         [Test]
+		[Ignore]
         public void Test_Put_Request_With_Issue()
         {
             _restSharpConnection.Authenticate("mecombs@amadeusconsulting.com", "mozart");
@@ -79,6 +80,7 @@ namespace Nexus.Admin.Test
 
 
         [Test]
+		[Ignore]
         public void Test_Post_File_To_Issue()
         {
             Uri uri = new Uri("http://yt.wolfgang.com/youtrack/");
