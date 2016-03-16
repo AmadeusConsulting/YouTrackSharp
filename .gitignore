@@ -9,5 +9,5 @@ _ReSharper.*
 *.user
 ~$*
 
-src/packages
+packages/
 
