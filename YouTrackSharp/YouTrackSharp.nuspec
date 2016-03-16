@@ -1,24 +1,28 @@
 <?xml version="1.0"?>
-<package >
-  <metadata>
-    <id>YouTrackSharp</id>
-    <version>$version$</version>
-    <title>YouTrackSharp</title>
-    <authors>Amadeus Consulting</authors>
-    <owners>Innovation Team</owners>
-    <licenseUrl>https://git.wolfgang.com/innovation/youtracksharp/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>https://git.wolfgang.com/innovation/youtracksharp</projectUrl>
-    <iconUrl>https://git.wolfgang.com/innovation/youtracksharp/blob/master/logo.png</iconUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A YouTrack Client for .NET</description>
-    <copyright>Copyright 2012 Hadi Hariri and Contributors</copyright>
-    <tags>YouTrack JetBrains</tags>
-    <dependencies>
-      <dependency id="EasyHttp" version="1.6.80.0" />
-    </dependencies>
-  </metadata>
-  <files>
-    <file src="bin\Release\YouTrackSharp.*" target="lib\net40" />
-	<file src="**\*.cs" target="src" />
-  </files>
+
+<package>
+	<metadata>
+		<id>YouTrackSharp</id>
+		<version>$version$</version>
+		<title>YouTrackSharp</title>
+		<authors>Amadeus Consulting</authors>
+		<owners>Innovation Team</owners>
+		<licenseUrl>https://git.wolfgang.com/innovation/youtracksharp/blob/master/LICENSE.txt</licenseUrl>
+		<projectUrl>https://git.wolfgang.com/innovation/youtracksharp</projectUrl>
+		<iconUrl>https://git.wolfgang.com/innovation/youtracksharp/blob/master/logo.png</iconUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>A YouTrack Client for .NET</description>
+		<copyright>Copyright 2012 Hadi Hariri and Contributors</copyright>
+		<tags>YouTrack JetBrains</tags>
+		<dependencies>
+			<dependency id="EasyHttp" version="1.6.80.0" />
+			<dependency id="Newtonsoft.Json" version="8.0.2" />
+			<dependency id="log4net" version="2.0.5" />
+			<dependency id="RestSharp" version="105.2.3" />
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="bin\Release\YouTrackSharp.*" target="lib\net40" />
+		<file src="**\*.cs" target="src" />
+	</files>
 </package>
