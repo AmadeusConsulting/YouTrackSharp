@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<project name="Nuget Tasks Include" xmlns="http://nant.sf.net/release/0.92/nant.xsd">
+	<!-- 
+		Environment Variable Requirements
+			env.NugetPath								- path the the Nuget.exe executable
+			env.NugetPackageRepository	- file path where nuget packages are output
+		
+		Required Properties
+		
+			nuget-package:
+				nuget.package.projects		- comma separated list of projects that should produce a nuget package
+				BuildLabel								- Version Label for the nuget package
+		
+		Optional Properties
+		
+		nuget.sourceLocation				- Base working copy location for the nuspec file ( default = project::get-base-directory() )
+		env.Development			- if set to 'true' the nuget-package target will be skipped
+		projectNames				- projects in this list will be checked to ensure their required packages are installed before compile target is executed
+	-->
+	<property name="nuget.sourceLocation" value="${project::get-base-directory()}" unless="${property::exists('nuget.sourceLocation')}"/>
+	<property name="nuget.nuspec.xmlnamespace" value="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd" unless="${property::exists('nuget.nuspec.xmlnamespace')}" />
+
+	<!-- subscribe to the before-compile event to first install all nuget packages -->
+	<property name="event" value="before-compile" />
+	<property name="subscriber" value="nuget-install-all" />
+	<call target="subscribe" />
+
+	<target name="nuget-package">
+
+		<!-- Event Hook for configuring NuGet Packages -->
+		<property name="event" value="before-nuget-package" />
+		<call target="raiseEvent" />
+		
+		<property name="nuspec.package.version" value="${BuildLabel}" unless="${property::exists('nuspec.package.version')}" />
+		
+		<foreach item="String" property="nuget.projectName" in="${nuget.package.projects}" delim="," trim="Both">
+			<do>
+				<property name="nuget.project.packageversion.propertyname" value="${nuget.projectName}.package.version"/>
+				<property name="${nuget.project.packageversion.propertyname}" value="${nuspec.package.version}" 
+						  unless="${property::exists(nuget.project.packageversion.propertyname)}"/>
+
+				<echo message="Creating NuGet Package for ${nuget.projectName}"/>
+				<echo message="NuGet working directory is ${nuget.sourceLocation}" />
+				<echo message="NuGet Pacakge Version is ${property::get-value(nuget.project.packageversion.propertyname)}"/>
+				<echo message="NuGet Repository Location is ${env.NugetPackageRepository}"/>
+
+				<xmlpoke file="${nuget.sourceLocation}\${nuget.projectName}\${nuget.projectName}.nuspec"
+								 xpath="/ng:package/ng:metadata/ng:version"
+								 value="${property::get-value(nuget.project.packageversion.propertyname)}" >
+					<namespaces>
+						<namespace prefix="ng" uri="${nuget.nuspec.xmlnamespace}" />
+					</namespaces>
+				</xmlpoke>
+
+				<property name="markdown.readme.file" value="${nuget.sourceLocation}\${nuget.projectName}\README.md"/>
+				
+				<if test="${file::exists(markdown.readme.file)}">
+					<!-- Copy the Markdown Readme to Readme.txt which can be used as the readme displayed when the package is installed -->
+					<copy file="${markdown.readme.file}" tofile="${nuget.sourceLocation}\${nuget.projectName}\readme.txt" overwrite="true" />
+				</if>
+				
+				<!-- ensure the latest NuGet version-->
+				<exec program="${env.NugetPath}">
+					<arg line="update -Self" />
+				</exec>
+				
+				<exec workingdir="${nuget.sourceLocation}\${nuget.projectName}"
+					       verbose="true"
+							program="${env.NugetPath}">
+					<arg value="pack" />
+					<arg file="${nuget.sourceLocation}\${nuget.projectName}\${nuget.projectName}.nuspec" />
+					<arg line="/Verbosity detailed" />
+					<arg value="/OutputDirectory" />
+					<arg file="${env.NugetPackageRepository}" />
+					<environment>
+						<variable name="EnableNuGetPackageRestore" value="true" />
+					</environment>
+				</exec>
+			</do>
+		</foreach>
+	</target>
+
+	<target name="update-nuspec-dependency-version">
+		<xmlpoke file="${nuspec.filepath}"
+						 xpath="/nsp:package/nsp:metadata/nsp:dependencies/nsp:dependency[@id='${nuspec.dependency.packageid}']/@version"
+						 value="${nuspec.dependency.version}" >
+			<namespaces>
+				<namespace prefix="nsp" uri="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd" />
+			</namespaces>
+		</xmlpoke>
+	</target>
+
+	<target name="nuget-install-all">
+		<!-- 
+			Execute NuGet restore command on solutions to ensure required packages are installed prior to compiling
+		-->
+		<foreach item="String" property="solution.file" in="${compile.Solution.list}" delim="," trim="Both" unless="${not property::exists('compile.Solution.list')}" >
+			<do>
+				<echo message="restoring solution packages for ${solution.file} using ${env.NugetPath}"/>
+				<exec program="${env.NugetPath}" verbose="true">
+					<arg value="restore" />
+					<arg file="${sourceLocation}\${solution.file}" />
+					<arg value="-NonInteractive" />
+					<arg value="-Verbosity" />
+					<arg value="detailed" />
+				</exec>
+			</do>
+		</foreach>
+	</target>
+</project>
