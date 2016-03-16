@@ -295,13 +295,13 @@ namespace YouTrackSharp.Issues
 	///  ]]></c>
 	/// </example>
 	public class Issue : YouTrackExpando
-    {
+	{
 		#region Static Fields
 
 		private static readonly Regex MillisecondDateTimestampRegex = new Regex(@"^\d{12,}$", RegexOptions.Compiled);
 
 		#endregion
-        
+
 		#region Fields
 
 		#endregion
@@ -321,69 +321,69 @@ namespace YouTrackSharp.Issues
 		#region Public Methods and Operators
 
 		public override ExpandoObject ToExpandoObject()
-            {
+		{
 			dynamic expando = base.ToExpandoObject();
 			expando.Id = Id;
 			expando.JiraId = JiraId;
 			expando.EntityId = EntityId;
 			return expando;
-                }
+		}
 
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
-                {
+		{
 			var found = base.TryGetMember(binder, out result);
 			if (found && IsProbablyADate(result))
-                {
+			{
 				if (result is string)
 				{
 					result = long.Parse((string)result);
-                }
-
+				}
+				
 				result = ((long)result).DateTimeOffsetFromTimestamp();
-            }
+			}
 			return found;
-        }
+		}
 
-        public override bool TrySetMember(SetMemberBinder binder, object value)
-        {
+		public override bool TrySetMember(SetMemberBinder binder, object value)
+		{
 			if (value is DateTimeOffset)
-            {
+			{
 				value = ((DateTimeOffset)value).ToTimestampMillis();
-            }
+			}
 			else if (value is DateTime)
-            {
+			{
 				value = new DateTimeOffset(((DateTime)value).ToUniversalTime(), TimeSpan.Zero).ToTimestampMillis();
-    }
+			}
 
 			if (binder.Name != null && binder.Name.Equals("id", StringComparison.OrdinalIgnoreCase))
-            {
-                Id = value != null ? value.ToString() : null;
-                return true;
-            }
-            
-            return base.TrySetMember(binder, value);
-        }
+			{
+				Id = value != null ? value.ToString() : null;
+				return true;
+			}
+
+			return base.TrySetMember(binder, value);
+		}
 
 		#endregion
 
 		#region Methods
 
 		private bool IsProbablyADate(object value)
-        {
+		{
 			if (value is long || value is int)
-            {
+			{
 				return (long)value >= 100000000000;
 			}
 
 			var strValue = value as string;
-                
+
 			if (string.IsNullOrEmpty(strValue))
-                    {
+			{
 				return false;
-                    }
+			}
 			return MillisecondDateTimestampRegex.IsMatch(strValue);
-            }
+		}
 
 		#endregion
-    }
+	}
 }

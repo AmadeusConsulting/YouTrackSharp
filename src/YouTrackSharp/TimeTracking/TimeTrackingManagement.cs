@@ -57,7 +57,7 @@ namespace YouTrackSharp.TimeTracking
 		{
 			try
 			{
-			_connection.Delete(string.Format("issue/{0}/timetracking/workitem/{1}", issueId, workItemId));
+				_connection.Delete(string.Format("issue/{0}/timetracking/workitem/{1}", issueId, workItemId));
 			}
 			catch (HttpStatusCodeException ex)
 			{
