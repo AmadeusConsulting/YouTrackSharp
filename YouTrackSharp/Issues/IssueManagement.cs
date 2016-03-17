@@ -118,7 +118,7 @@ namespace YouTrackSharp.Issues
 		/// <returns>List of Issues</returns>
 		public virtual IEnumerable<Issue> GetAllIssuesForProject(string projectIdentifier, int max = int.MaxValue, int start = 0)
 		{
-			return _connection.Get<MultipleIssueWrapper, Issue>(
+			return _connection.GetList<Issue>(
 				string.Format("issue/byproject/{0}", projectIdentifier),
 				new Dictionary<string, string>
 					{
