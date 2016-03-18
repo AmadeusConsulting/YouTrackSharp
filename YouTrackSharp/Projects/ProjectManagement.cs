@@ -33,6 +33,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using YouTrackSharp.Infrastructure;
 
@@ -64,9 +65,13 @@ namespace YouTrackSharp.Projects
 
 		#region Public Methods and Operators
 
-		public virtual void AddSubsystem(string projectName, string subsystem)
+		public virtual void AddSubsystem(string projectId, string subsystem, string description = null, string owner = null, string colorIndex = null)
 		{
-			_connection.Put(String.Format("admin/project/{0}/subsystem/{1}", projectName, subsystem), null);
+			var bundleName = GetProjectSubsystemBundleName(projectId);
+
+			_connection.Put(
+				"admin/customfield/ownedFieldBundle/{bundleName}/{subsystem}",
+				routeParameters: new Dictionary<string, string> { { "bundleName", bundleName }, { "subsystem", subsystem } });
 		}
 
 		public virtual void AddVersion(Project project, ProjectVersion version)
@@ -91,7 +96,7 @@ namespace YouTrackSharp.Projects
 
 		public virtual Project GetProject(string projectName)
 		{
-			return _connection.Get<Project>(String.Format("admin/project/{0}", projectName));
+			return _connection.Get<Project>("admin/project/{projectName}", routeParameters: new Dictionary<string, string> { { "projectName", projectName } });
 		}
 
 		public virtual IEnumerable<Project> GetProjects()
@@ -116,7 +121,9 @@ namespace YouTrackSharp.Projects
 
 		public virtual IEnumerable<ProjectVersion> GetVersions(string versionBundleName)
 		{
-			var x = _connection.Get<VersionBundle>(string.Format("admin/customfield/versionBundle/{0}", versionBundleName));
+			var x = _connection.Get<VersionBundle>(
+				"admin/customfield/versionBundle/{versionBundleName}",
+				routeParameters: new Dictionary<string, string> { { "versionBundleName", versionBundleName } });
 			return x.Version;
 		}
 
@@ -125,9 +132,42 @@ namespace YouTrackSharp.Projects
 			return GetVersions(project.VersionBundleName());
 		}
 
-		public virtual IEnumerable<Subsystem> ListSubsystems(string projectName)
+		public virtual IEnumerable<OwnedField> ListSubsystems(string projectId)
 		{
-			return _connection.GetList<Subsystem>(String.Format("admin/project/{0}/subsystem", projectName));
+			var subsystemBundle = GetProjectSubsystemBundleName(projectId);
+
+			var ownedFieldBundle = _connection.Get<OwnedFieldBundle>(
+				"admin/customfield/ownedFieldBundle/{bundleName}",
+				routeParameters: new Dictionary<string, string> { { "bundleName", subsystemBundle } });
+
+			if (ownedFieldBundle == null)
+			{
+				return Enumerable.Empty<OwnedField>();
+			}
+
+			return ownedFieldBundle.OwnedFields ?? Enumerable.Empty<OwnedField>();
+		}
+
+		#endregion
+
+		#region Methods
+
+		private string GetProjectSubsystemBundleName(string projectId)
+		{
+			var subsystemCustomField = _connection.Get<CustomField>(
+				"admin/project/{projectId}/customfield/subsystem",
+				routeParameters: new Dictionary<string, string> { { "projectId", projectId } });
+
+			var bundle = subsystemCustomField.Parameters != null
+				? subsystemCustomField.Parameters.SingleOrDefault(p => p.Name.Equals("bundle", StringComparison.OrdinalIgnoreCase))
+				: null;
+
+			if (subsystemCustomField == null || string.IsNullOrEmpty(subsystemCustomField.Name) || bundle == null || string.IsNullOrEmpty(bundle.Value))
+			{
+				throw new InvalidOperationException(string.Format("Project {0} is missing a Custom Field for Subsystem with an OwnedField Bundle!", projectId));
+			}
+
+			return bundle.Value;
 		}
 
 		#endregion

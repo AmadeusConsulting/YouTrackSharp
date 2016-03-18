@@ -175,6 +175,37 @@ namespace YouTrackSharp.Issues
 			{
 				return "NO-VALUE";
 			}
+
+			/// <summary>
+			/// Implements the operator == between a YouTrack.
+			/// </summary>
+			/// <param name="noValue">The no value.</param>
+			/// <param name="other">The other object to be compared.</param>
+			/// <returns>
+			/// The result of the operator.
+			/// </returns>
+			public static bool operator ==(YouTrackExpandoNoValue noValue, object other)
+			{
+				if (other == null)
+				{
+					return true;
+				}
+
+				return false;
+			}
+
+			/// <summary>
+			/// Implements the operator !=.
+			/// </summary>
+			/// <param name="noValue">The no value.</param>
+			/// <param name="other">The other object to be compared.</param>
+			/// <returns>
+			/// The result of the operator.
+			/// </returns>
+			public static bool operator !=(YouTrackExpandoNoValue noValue, object other)
+			{
+				return !(noValue == other);
+			}
 		}
 	}
 }

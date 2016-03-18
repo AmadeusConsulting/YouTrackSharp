@@ -62,7 +62,7 @@ namespace YouTrackSharp.Admin
 
 		public User GetUserByUserName(string username)
 		{
-			var user = _connection.Get<User>(String.Format("user/bylogin/{0}", username));
+			var user = _connection.Get<User>("user/bylogin/{username}", routeParameters: new Dictionary<string, string> { { "username", username } });
 
 			if (user != null)
 			{

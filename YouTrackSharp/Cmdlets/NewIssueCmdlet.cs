@@ -92,13 +92,12 @@ namespace YouTrackSharp.CmdLets
             newIssue.Summary = Summary;
             newIssue.Description = Description;
             newIssue.Priority = new[] {Priority};
-            newIssue.ProjectShortName = ProjectShortName;
             newIssue.ReporterName = Connection.GetCurrentAuthenticatedUser().Username;
             newIssue.State = "Submitted";
             newIssue.Type = Type;
             newIssue.Subsystem = Subsystem;
 
-            var id = IssueManagement.CreateIssue(newIssue);
+            var id = IssueManagement.CreateIssue(newIssue, ProjectShortName);
 
             WriteObject(string.Format("Issue Created with id: {0}", id));
         }

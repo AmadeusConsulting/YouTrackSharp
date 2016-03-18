@@ -37,21 +37,22 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
+
 using YouTrackSharp.Infrastructure;
+using YouTrackSharp.Projects;
+
 using HttpException = EasyHttp.Infrastructure.HttpException;
 
 namespace YouTrackSharp.Issues
 {
 	public class IssueManagement
 	{
-		static readonly List<string> PresetFields = new List<string>()
-                                                     {
-                                                         "assignee", "priority", "type", "subsystem", "state",
-                                                         "fixVersions", "affectsVersions", "fixedInBuild", "summary",
-                                                         "description", "project", "permittedgroup"
-                                                     };
+		private static readonly List<string> PredefinedIssueFields = new List<string> { "id", "jiraid", "entityid", "summary", "description", "permittedgroup" };
+
 		readonly IConnection _connection;
 
 		public IssueManagement(IConnection connection)
@@ -68,7 +69,7 @@ namespace YouTrackSharp.Issues
 		{
 			try
 			{
-				dynamic issue = _connection.Get<Issue>(String.Format("issue/{0}", issueId));
+				dynamic issue = _connection.Get<Issue>("issue/{issueId}", routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
 
 				return issue;
 			}
@@ -79,7 +80,7 @@ namespace YouTrackSharp.Issues
 			}
 		}
 
-		public virtual string CreateIssue(Issue issue)
+		public virtual string CreateIssue(Issue issue, string projectId, string permittedGroup = null, bool disableNotifications = false)
 		{
 			if (!_connection.IsAuthenticated)
 			{
@@ -88,19 +89,37 @@ namespace YouTrackSharp.Issues
 
 			try
 			{
-				var fieldList = issue.ToExpandoObject();
+				dynamic dynamicIssue = issue;
 
-				var apiResponse = _connection.Post<Issue>("rest/issue", fieldList);
+				var requestParams = new Dictionary<string,string>
+					                    {
+						                    {"project", projectId},
+											{"summary", dynamicIssue.Summary},
+											{"description", dynamicIssue.Description}
+					                    };
 
-				var createdIssue = apiResponse.Data;
+				if (!string.IsNullOrEmpty(permittedGroup))
+				{
+					requestParams["permittedGroup"] = permittedGroup;
+				}
 
-				var customFields = fieldList.Where(field => !PresetFields.Contains(field.Key.ToLower())).ToDictionary(field => field.Key, field => field.Value);
+				var apiResponse = _connection.Put<Issue>("issue", null, requestParams);
+
+				var createdIssueId = Regex.Match(apiResponse.Headers["Location"], @"issue/(?<issueId>[^/]+)$").Groups["issueId"].Value;
+
+				var customFields = issue.ToExpandoObject().Where(field => !PredefinedIssueFields.Contains(field.Key.ToLower())).ToDictionary(field => field.Key, field => field.Value);
 
 				foreach (var customField in customFields)
 				{
-					ApplyCommand(createdIssue.Id, string.Format("{0} {1}", customField.Key, customField.Value), string.Empty);
+					if (customField.Value == null)
+					{
+						continue;
+					}
+
+					ApplyCommand(createdIssueId, string.Format("{0} {1}", customField.Key, customField.Value), disableNotifications: disableNotifications);
 				}
-				return createdIssue.Id;
+
+				return createdIssueId;
 			}
 			catch (HttpException httpException)
 			{
@@ -145,7 +164,7 @@ namespace YouTrackSharp.Issues
 
 		public virtual void AttachFileToIssue(string issuedId, string path)
 		{
-			var response = _connection.PostFile(string.Format("rest/issue/{0}/attachment", issuedId), path);
+			var response = _connection.PostFile(string.Format("issue/{0}/attachment", issuedId), path);
 
 			if (response.StatusCode != HttpStatusCode.Created)
 			{
@@ -153,7 +172,7 @@ namespace YouTrackSharp.Issues
 			}
 		}
 
-		public virtual void ApplyCommand(string issueId, string command, string comment, bool disableNotifications = false, string runAs = "")
+		public virtual void ApplyCommand(string issueId, string command, string comment = null, bool disableNotifications = false, string runAs = "")
 		{
 			if (!_connection.IsAuthenticated)
 			{
@@ -162,16 +181,25 @@ namespace YouTrackSharp.Issues
 
 			try
 			{
-				dynamic commandMessage = new ExpandoObject();
+				var commandMessage = new Dictionary<string, string> { { "command", command } };
 
-				commandMessage.command = command;
-				commandMessage.comment = comment;
+				if (!string.IsNullOrEmpty(comment))
+				{
+					commandMessage["comment"] = comment;
+				}
 				if (disableNotifications)
-					commandMessage.disableNotifications = disableNotifications;
+				{
+					commandMessage["disableNotifications"] = disableNotifications.ToString().ToLowerInvariant();
+				}
 				if (!string.IsNullOrWhiteSpace(runAs))
-					commandMessage.runAs = runAs;
+				{
+					commandMessage["runAs"] = runAs;
+				}
 
-				_connection.Post(string.Format("rest/issue/{0}/execute", issueId), commandMessage);
+				_connection.Post(
+					"issue/{issueId}/execute",
+					requestParameters: commandMessage,
+					routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
 			}
 			catch (HttpException httpException)
 			{
@@ -192,8 +220,8 @@ namespace YouTrackSharp.Issues
 
 				commandMessage.summary = summary;
 				commandMessage.description = description;
-				
-				_connection.Post(string.Format("issue/{0}", issueId), commandMessage);
+
+				_connection.Post("issue/{issueId}", commandMessage, routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
 			}
 			catch (HttpException httpException)
 			{
@@ -215,15 +243,13 @@ namespace YouTrackSharp.Issues
 
 		public virtual int GetIssueCount(string searchString)
 		{
-			var encodedQuery = HttpUtility.UrlEncode(searchString);
-
 			try
 			{
 				var count = -1;
 
 				while (count < 0)
 				{
-					var countObject = _connection.Get<Count>(string.Format("issue/count?filter={0}", encodedQuery));
+					var countObject = _connection.Get<Count>("issue/count", requestParameters: new Dictionary<string, string> { { "filter", searchString } });
 
 					count = countObject.Entity.Value;
 					Thread.Sleep(3000);
@@ -245,6 +271,41 @@ namespace YouTrackSharp.Issues
 		public virtual void DeleteComment(string issueId, string commentId, bool deletePermanently)
 		{
 			_connection.Delete(string.Format("issue/{0}/comment/{1}?permanently={2}", issueId, commentId, deletePermanently));
+		}
+
+		public Tag GetTag(string tagName)
+		{
+			try
+			{
+				return _connection.Get<Tag>("user/tag/{tagName}", routeParameters: new Dictionary<string, string> { { "tagName", tagName } });
+			}
+			catch (HttpStatusCodeException ex)
+			{
+				if (ex.Response.StatusCode == HttpStatusCode.NotFound)
+				{
+					return null;
+				}
+				throw;
+			}
+		}
+
+		public void CreateTag(string name, string visibleForGroup = null, string updatableByGroup = null, bool untagOnResolve = false)
+		{
+			var requestParams = new Dictionary<string, string>();
+
+			if (!string.IsNullOrEmpty(visibleForGroup))
+			{
+				requestParams["visibleForGroup"] = visibleForGroup;
+			}
+
+			if (!string.IsNullOrEmpty(updatableByGroup))
+			{
+				requestParams["updatableByGroup"] = updatableByGroup;
+			}
+
+			requestParams["untagOnResolve"] = untagOnResolve.ToString().ToLowerInvariant();
+
+			_connection.Put("user/tag/{tagName}", null, requestParameters: requestParams, routeParameters: new Dictionary<string, string> { { "tagName", name } });
 		}
 	}
 }

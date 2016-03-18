@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 
 using YouTrackSharp.Import;
 using YouTrackSharp.Infrastructure;
@@ -34,7 +33,11 @@ namespace YouTrackSharp.TimeTracking
 				throw new ArgumentNullException("issueId");
 			}
 
-			var response = _connection.Post(string.Format("issue/{0}/timetracking/workitem/", issueId), workItem);
+			var response = _connection.Post(
+				"issue/{issueId}/timetracking/workitem/",
+				workItem,
+				routeParameters: new Dictionary<string, string> { { "issueid", issueId } });
+
 			var locationHeader = response.Headers.Where(kvp => kvp.Key == "Location").Select(kvp => kvp.Value).SingleOrDefault();
 			if (locationHeader != null)
 			{
@@ -86,7 +89,10 @@ namespace YouTrackSharp.TimeTracking
 				throw new ArgumentException("WorkItem must have an ID in order to call update.", "workItem");
 			}
 
-			_connection.Put(string.Format("issue/{0}/timetracking/workitem/{1}", issueId, workItem.Id), workItem);
+			_connection.Put(
+				"issue/{issueId}/timetracking/workitem/{workItemId}",
+				workItem,
+				routeParameters: new Dictionary<string, string> { { "issueId", issueId }, { "workItemId", workItem.Id } });
 		}
 
 		public virtual ImportResponse ImportWorkItems(string issueId, IEnumerable<WorkItem> workItems)
@@ -100,7 +106,10 @@ namespace YouTrackSharp.TimeTracking
 				throw new ArgumentNullException("workItems");
 			}
 
-			var response = _connection.Put<ImportResponse>(string.Format("import/issue/{0}/workitems", issueId), workItems.ToList());
+			var response = _connection.Put<ImportResponse>(
+				"import/issue/{issueId}/workitems",
+				workItems.ToList(),
+				routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
 
 			return response.Data;
 		}

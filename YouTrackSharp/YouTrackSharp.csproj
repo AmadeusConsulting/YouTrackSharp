@@ -127,14 +127,18 @@
     <Compile Include="Infrastructure\IUriConstructor.cs" />
     <Compile Include="Issues\IssueManagement.cs" />
     <Compile Include="Issues\Issue.cs" />
+    <Compile Include="Issues\Tag.cs" />
     <Compile Include="Issues\YouTrackExpando.cs" />
     <Compile Include="Language.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Language.resx</DependentUpon>
     </Compile>
+    <Compile Include="Projects\CustomField.cs" />
+    <Compile Include="Projects\GenericParameter.cs" />
     <Compile Include="Projects\HttpStatusCodeException.cs" />
-    <Compile Include="Projects\Subsystem.cs" />
+    <Compile Include="Projects\OwnedField.cs" />
+    <Compile Include="Projects\OwnedFieldBundle.cs" />
     <Compile Include="Projects\ConnectionException.cs" />
     <Compile Include="Projects\Customer.cs" />
     <Compile Include="Projects\IDataWrapper.cs" />
