@@ -2,7 +2,7 @@
 
 <package>
 	<metadata>
-		<id>YouTrackSharp</id>
+		<id>ACG-YouTrackSharp</id>
 		<version>$version$</version>
 		<title>YouTrackSharp</title>
 		<authors>Amadeus Consulting</authors>
