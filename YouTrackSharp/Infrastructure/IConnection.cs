@@ -160,8 +160,9 @@ namespace YouTrackSharp.Infrastructure
 		/// </summary>
 		/// <param name="resource">The resource.</param>
 		/// <param name="path">The path.</param>
+		/// <param name="fileName"></param>
 		/// <returns></returns>
-		ApiResponse PostFile(string resource, string path);
+		ApiResponse PostFile(string resource, string path, string fileName = null);
 
 		/// <summary>
 		///     Puts the specified resource.

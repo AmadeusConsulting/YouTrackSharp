@@ -32,6 +32,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
@@ -332,15 +333,41 @@ namespace YouTrackSharp.Issues
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
 			var found = base.TryGetMember(binder, out result);
-			if (found && IsProbablyADate(result))
+			if (found && IsProbablyADateOrListOfDates(result))
 			{
 				if (result is string)
 				{
-					result = long.Parse((string)result);
+					var timestampFromString = long.Parse((string)result);
+					result = timestampFromString.DateTimeOffsetFromTimestamp();
 				}
-				
-				result = ((long)result).DateTimeOffsetFromTimestamp();
+				else if (result is long)
+				{
+					result = ((long)result).DateTimeOffsetFromTimestamp();
+				}
+				else if (result is ArrayList)
+				{
+					var newResultList = new ArrayList();
+					var list = (ArrayList)result;
+					foreach (object item in list)
+					{
+						if (item is long)
+						{
+							newResultList.Add(((long)item).DateTimeOffsetFromTimestamp());
+						}
+						else
+						{
+							var str = item as string;
+							if (!string.IsNullOrEmpty(str))
+							{
+								var timestamp = long.Parse((string)item);
+								newResultList.Add(timestamp.DateTimeOffsetFromTimestamp());
+							}	
+						}
+					}
+					result = newResultList;
+				}
 			}
+
 			return found;
 		}
 
@@ -368,20 +395,39 @@ namespace YouTrackSharp.Issues
 
 		#region Methods
 
-		private bool IsProbablyADate(object value)
+		private bool IsProbablyADateOrListOfDates(object value)
 		{
 			if (value is long || value is int)
 			{
 				return (long)value >= 100000000000;
 			}
 
-			var strValue = value as string;
-
-			if (string.IsNullOrEmpty(strValue))
+			var arrayList = value as ArrayList;
+			if (arrayList != null)
 			{
-				return false;
+				if (arrayList.Count == 0)
+				{
+					return false;
+				}
+				foreach (object item in arrayList)
+				{
+					if (!IsProbablyADateOrListOfDates(item))
+					{
+						return false;
+					}
+				}
+				return true;
 			}
-			return MillisecondDateTimestampRegex.IsMatch(strValue);
+			else
+			{
+				var strValue = value as string;
+
+				if (string.IsNullOrEmpty(strValue))
+				{
+					return false;
+				}
+				return MillisecondDateTimestampRegex.IsMatch(strValue);	
+			}
 		}
 
 		#endregion

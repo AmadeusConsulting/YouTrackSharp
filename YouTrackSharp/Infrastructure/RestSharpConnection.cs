@@ -319,13 +319,13 @@ namespace YouTrackSharp.Infrastructure
 			return response.AsApiResponse();
 		}
 
-		public ApiResponse PostFile(string resource, string path)
+		public ApiResponse PostFile(string resource, string path, string fileName = null)
 		{
 			EnsureAuthenticated();
 
 			var contentType = GetFileContentType(path);
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.POST);
-			request.AddFile("file", File.ReadAllBytes(path), Path.GetFileName(path), contentType);
+			request.AddFile("file", File.ReadAllBytes(path), !string.IsNullOrEmpty(fileName) ? fileName : Path.GetFileName(path), contentType);
 			request.AddHeader("Content-type", "application/json");
 			request.AddHeader("Accept", "application/json");
 			request.RequestFormat = DataFormat.Json;

@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -73,6 +74,14 @@ namespace YouTrackSharp.Issues
 
 				return issue;
 			}
+			catch (HttpStatusCodeException ex)
+			{
+				if (ex.Response.StatusCode == HttpStatusCode.NotFound)
+				{
+					return null;
+				}
+				throw;
+			}
 			catch (HttpException exception)
 			{
 				throw new InvalidRequestException(
@@ -103,7 +112,7 @@ namespace YouTrackSharp.Issues
 					requestParams["permittedGroup"] = permittedGroup;
 				}
 
-				var apiResponse = _connection.Put<Issue>("issue", null, requestParams);
+				var apiResponse = _connection.Put<Issue>("issue", putParameters: requestParams);
 
 				var createdIssueId = Regex.Match(apiResponse.Headers["Location"], @"issue/(?<issueId>[^/]+)$").Groups["issueId"].Value;
 
@@ -162,13 +171,37 @@ namespace YouTrackSharp.Issues
 			return response.StatusCode == HttpStatusCode.OK;
 		}
 
-		public virtual void AttachFileToIssue(string issuedId, string path)
+		public virtual void AttachFileToIssue(string issuedId, string path, string attachmentFileName = null)
 		{
-			var response = _connection.PostFile(string.Format("issue/{0}/attachment", issuedId), path);
+			if (string.IsNullOrEmpty(path))
+			{
+				throw new ArgumentNullException("path");
+			}
+			if (!File.Exists(path))
+			{
+				throw new ArgumentException(string.Format("File does not exist at path {0}", path), "path");
+			}
+
+			var response = _connection.PostFile(string.Format("issue/{0}/attachment", issuedId), path, attachmentFileName);
 
 			if (response.StatusCode != HttpStatusCode.Created)
 			{
 				throw new InvalidRequestException(response.StatusCode.ToString());
+			}
+		}
+
+		public virtual void DeleteAttachment(string issueId, string attachmentId)
+		{
+			try
+			{
+				_connection.Delete(string.Format("issue/{0}/attachment/{1}", issueId, attachmentId));
+			}
+			catch (HttpStatusCodeException ex)
+			{
+				if (ex.Response.StatusCode != HttpStatusCode.NotFound)
+				{
+					throw;
+				}
 			}
 		}
 
@@ -198,7 +231,7 @@ namespace YouTrackSharp.Issues
 
 				_connection.Post(
 					"issue/{issueId}/execute",
-					requestParameters: commandMessage,
+					postParameters: commandMessage,
 					routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
 			}
 			catch (HttpException httpException)
@@ -216,12 +249,9 @@ namespace YouTrackSharp.Issues
 
 			try
 			{
-				dynamic commandMessage = new ExpandoObject();
+				var postParameters = new Dictionary<string, string> { { "summary", summary }, { "description", description } };
 
-				commandMessage.summary = summary;
-				commandMessage.description = description;
-
-				_connection.Post("issue/{issueId}", commandMessage, routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
+				_connection.Post("issue/{issueId}", postParameters: postParameters, routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
 			}
 			catch (HttpException httpException)
 			{

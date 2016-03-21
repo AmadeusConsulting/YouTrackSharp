@@ -177,6 +177,24 @@ namespace YouTrackSharp.Issues
 			}
 
 			/// <summary>
+			/// Gets the count.
+			/// </summary>
+			/// <value>
+			/// The count.
+			/// </value>
+			/// <remarks>
+			/// Convenience property for checking multi-valued YouTrack Expando Properties
+			/// (rather than needing to check both null and count)
+			/// </remarks>
+			public int Count
+			{
+				get
+				{
+					return 0;
+				}
+			}
+
+			/// <summary>
 			/// Implements the operator == between a YouTrack.
 			/// </summary>
 			/// <param name="noValue">The no value.</param>
