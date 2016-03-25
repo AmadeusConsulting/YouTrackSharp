@@ -36,7 +36,7 @@ namespace YouTrackSharp.TimeTracking
 			var response = _connection.Post(
 				"issue/{issueId}/timetracking/workitem/",
 				workItem,
-				routeParameters: new Dictionary<string, string> { { "issueid", issueId } });
+				routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
 
 			var locationHeader = response.Headers.Where(kvp => kvp.Key == "Location").Select(kvp => kvp.Value).SingleOrDefault();
 			if (locationHeader != null)
