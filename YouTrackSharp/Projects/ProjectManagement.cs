@@ -33,6 +33,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 using YouTrackSharp.Infrastructure;
@@ -64,6 +65,29 @@ namespace YouTrackSharp.Projects
 		#endregion
 
 		#region Public Methods and Operators
+
+		public virtual void CreateProject(string projectId, string projectName, string projectLeadLogin, int startingIssueNumber = 1, string description = null)
+		{
+			var putParams = new Dictionary<string, string>
+				                    {
+					                    { "projectName", projectName },
+					                    { "startingNumber", startingIssueNumber.ToString(CultureInfo.InvariantCulture) },
+					                    { "projectLeadLogin", projectLeadLogin }
+				                    };
+
+			if (!string.IsNullOrEmpty(description))
+			{
+				putParams["description"] = description;
+			}
+
+			_connection.Put(
+				"admin/project/{projectId}",
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "projectId", projectId }
+					                 },
+				putParameters: putParams);
+		}
 
 		public virtual void AddSubsystem(string projectId, string subsystem, string description = null, string owner = null, string colorIndex = null)
 		{
