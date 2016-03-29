@@ -91,6 +91,11 @@ namespace YouTrackSharp.Issues
 
 		public virtual string CreateIssue(Issue issue, string projectId, string permittedGroup = null, bool disableNotifications = false)
 		{
+			if (string.IsNullOrEmpty(projectId))
+			{
+				throw new ArgumentNullException("projectId");
+			}
+
 			if (!_connection.IsAuthenticated)
 			{
 				throw new InvalidRequestException(Language.YouTrackClient_CreateIssue_Not_Logged_In);
@@ -100,12 +105,21 @@ namespace YouTrackSharp.Issues
 			{
 				dynamic dynamicIssue = issue;
 
+				if (string.IsNullOrEmpty(dynamicIssue.Summary as string))
+				{
+					throw new ArgumentException("Issue must have a summary.", "issue");
+				}
+
 				var requestParams = new Dictionary<string,string>
 					                    {
 						                    {"project", projectId},
-											{"summary", dynamicIssue.Summary},
-											{"description", dynamicIssue.Description}
+											{"summary", dynamicIssue.Summary}
 					                    };
+
+				if (!string.IsNullOrEmpty(dynamicIssue.Description as string))
+				{
+					requestParams["Description"] = dynamicIssue.Description;
+				}
 
 				if (!string.IsNullOrEmpty(permittedGroup))
 				{
