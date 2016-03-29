@@ -135,6 +135,7 @@
       <DependentUpon>Language.resx</DependentUpon>
     </Compile>
     <Compile Include="Projects\CustomField.cs" />
+    <Compile Include="Projects\CustomFieldType.cs" />
     <Compile Include="Projects\GenericParameter.cs" />
     <Compile Include="Projects\HttpStatusCodeException.cs" />
     <Compile Include="Projects\OwnedField.cs" />

@@ -66,14 +66,19 @@ namespace YouTrackSharp.Projects
 
 		#region Public Methods and Operators
 
-		public virtual void CreateProject(string projectId, string projectName, string projectLeadLogin, int startingIssueNumber = 1, string description = null)
+		public virtual void CreateProject(
+			string projectId,
+			string projectName,
+			string projectLeadLogin,
+			int startingIssueNumber = 1,
+			string description = null)
 		{
 			var putParams = new Dictionary<string, string>
-				                    {
-					                    { "projectName", projectName },
-					                    { "startingNumber", startingIssueNumber.ToString(CultureInfo.InvariantCulture) },
-					                    { "projectLeadLogin", projectLeadLogin }
-				                    };
+				                {
+					                { "projectName", projectName },
+					                { "startingNumber", startingIssueNumber.ToString(CultureInfo.InvariantCulture) },
+					                { "projectLeadLogin", projectLeadLogin }
+				                };
 
 			if (!string.IsNullOrEmpty(description))
 			{
@@ -87,6 +92,44 @@ namespace YouTrackSharp.Projects
 						                 { "projectId", projectId }
 					                 },
 				putParameters: putParams);
+		}
+
+		public virtual void AddCustomFieldToProject(
+			string projectId,
+			string customFieldName,
+			CustomFieldType type,
+			bool canBeEmpty,
+			string emptyText = null,
+			string defaultValue = null)
+		{
+			if (string.IsNullOrEmpty(projectId))
+			{
+				throw new ArgumentNullException("projectId");
+			}
+
+			var parameters = new Dictionary<string, string>
+				                 {
+					                 { "type", type.ToString() },
+					                 { "canBeEmpty", canBeEmpty.ToString(CultureInfo.InvariantCulture).ToLowerInvariant() }
+				                 };
+
+			if (emptyText != null)
+			{
+				parameters["emptyText"] = emptyText;
+			}
+			if (defaultValue != null)
+			{
+				parameters["defaultValue"] = defaultValue;
+			}
+
+			_connection.Post(
+				"admin/project/{projectId}/customfield/{customFieldName}",
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "projectId", projectId },
+						                 { "customFieldName", customFieldName }
+					                 },
+				postParameters: parameters);
 		}
 
 		public virtual void AddSubsystem(string projectId, string subsystem, string description = null, string owner = null, string colorIndex = null)
