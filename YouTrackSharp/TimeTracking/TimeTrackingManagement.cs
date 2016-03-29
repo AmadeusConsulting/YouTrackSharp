@@ -26,6 +26,34 @@ namespace YouTrackSharp.TimeTracking
 		{
 		}
 
+		public virtual void SetProjectTimeTrackingStatus(string projectId, bool enabled, string estimationFieldName = null, string spentTimeFieldName = null)
+		{
+			var projectTimeTrackingSettings = new ProjectTimeTrackingSettings
+				                                  {
+					                                  Enabled = enabled,
+					                                  EstimationFieldName = !string.IsNullOrEmpty(estimationFieldName)
+						                                                        ? new CustomFieldReference
+							                                                          {
+								                                                          Name = estimationFieldName
+							                                                          }
+						                                                        : null,
+					                                  SpentTimeFieldName = !string.IsNullOrEmpty(spentTimeFieldName)
+						                                                       ? new CustomFieldReference
+							                                                         {
+								                                                         Name = spentTimeFieldName
+							                                                         }
+						                                                       : null
+				                                  };
+
+			_connection.Put(
+				"admin/project/{projectId}/timetracking",
+				projectTimeTrackingSettings,
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "projectId", projectId }
+					                 });
+		}
+
 		public virtual void CreateWorkItem(string issueId, WorkItem workItem)
 		{
 			if (string.IsNullOrEmpty(issueId))

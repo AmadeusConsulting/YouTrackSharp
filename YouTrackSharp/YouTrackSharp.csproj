@@ -153,6 +153,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Admin\UserManagement.cs" />
     <Compile Include="Admin\User.cs" />
+    <Compile Include="TimeTracking\CustomFieldReference.cs" />
+    <Compile Include="TimeTracking\ProjectTimeTrackingSettings.cs" />
     <Compile Include="TimeTracking\TimeTrackingManagement.cs" />
     <Compile Include="TimeTracking\WorkItem.cs" />
     <Compile Include="TimeTracking\WorkItemAuthor.cs" />
