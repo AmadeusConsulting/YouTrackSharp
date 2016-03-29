@@ -97,8 +97,6 @@ namespace YouTrackSharp.Projects
 		public virtual void AddCustomFieldToProject(
 			string projectId,
 			string customFieldName,
-			CustomFieldType type,
-			bool canBeEmpty,
 			string emptyText = null,
 			string defaultValue = null)
 		{
@@ -107,11 +105,7 @@ namespace YouTrackSharp.Projects
 				throw new ArgumentNullException("projectId");
 			}
 
-			var parameters = new Dictionary<string, string>
-				                 {
-					                 { "type", type.ToString() },
-					                 { "canBeEmpty", canBeEmpty.ToString(CultureInfo.InvariantCulture).ToLowerInvariant() }
-				                 };
+			var parameters = new Dictionary<string, string>();
 
 			if (emptyText != null)
 			{
@@ -122,14 +116,15 @@ namespace YouTrackSharp.Projects
 				parameters["defaultValue"] = defaultValue;
 			}
 
-			_connection.Post(
+			_connection.Put(
 				"admin/project/{projectId}/customfield/{customFieldName}",
 				routeParameters: new Dictionary<string, string>
 					                 {
 						                 { "projectId", projectId },
 						                 { "customFieldName", customFieldName }
 					                 },
-				postParameters: parameters);
+
+				putParameters: parameters);
 		}
 
 		public virtual void AddSubsystem(string projectId, string subsystem, string description = null, string owner = null, string colorIndex = null)
