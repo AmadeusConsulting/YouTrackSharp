@@ -66,6 +66,90 @@ namespace YouTrackSharp.Projects
 
 		#region Public Methods and Operators
 
+		public virtual void AddCustomFieldToProject(string projectId, string customFieldName, string emptyText = null, string defaultValue = null)
+		{
+			if (string.IsNullOrEmpty(projectId))
+			{
+				throw new ArgumentNullException("projectId");
+			}
+
+			var parameters = new Dictionary<string, string>();
+
+			if (emptyText != null)
+			{
+				parameters["emptyText"] = emptyText;
+			}
+			if (defaultValue != null)
+			{
+				parameters["defaultValue"] = defaultValue;
+			}
+
+			_connection.Put(
+				"admin/project/{projectId}/customfield/{customFieldName}",
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "projectId", projectId },
+						                 { "customFieldName", customFieldName }
+					                 },
+				putParameters: parameters);
+		}
+
+		public virtual void AddSubsystem(string projectId, string subsystem, string description = null, string owner = null, string colorIndex = null)
+		{
+			var bundleName = GetProjectSubsystemBundleName(projectId);
+
+			_connection.Put(
+				"admin/customfield/ownedFieldBundle/{bundleName}/{subsystem}",
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "bundleName", bundleName },
+						                 { "subsystem", subsystem }
+					                 });
+		}
+
+		public virtual void AddVersion(Project project, ProjectVersion version)
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		///     Creates the owned field bundle.
+		/// </summary>
+		/// <param name="bundleName">Name of the bundle. Must be unique; auto-generated if not supplied.</param>
+		/// <param name="copyValuesFromBundle">The copy values from bundle.</param>
+		/// <param name="values">The values.</param>
+		/// <returns>The new bundle name.</returns>
+		public virtual string CreateOwnedFieldBundle(string bundleName = null, string copyValuesFromBundle = null, params OwnedField[] values)
+		{
+			var bundleValues = new List<OwnedField>();
+
+			if (string.IsNullOrEmpty(bundleName))
+			{
+				bundleName = Guid.NewGuid().ToString("D");
+			}
+
+			if (!string.IsNullOrEmpty(copyValuesFromBundle))
+			{
+				var existingBundle = GetOwnedFieldBundle(copyValuesFromBundle);
+				bundleValues.AddRange(existingBundle.OwnedFields);
+			}
+
+			if (values.Any())
+			{
+				bundleValues.AddRange(values);
+			}
+
+			var newBundle = new OwnedFieldBundle
+				                {
+					                Name = bundleName,
+					                OwnedFields = bundleValues
+				                };
+
+			_connection.Put("/admin/customfield/ownedFieldBundle", newBundle);
+
+			return bundleName;
+		}
+
 		public virtual void CreateProject(
 			string projectId,
 			string projectName,
@@ -94,51 +178,40 @@ namespace YouTrackSharp.Projects
 				putParameters: putParams);
 		}
 
-		public virtual void AddCustomFieldToProject(
+		/// <summary>
+		///     Creates the project specific owned field bundle for custom field.
+		/// </summary>
+		/// <param name="projectId">The project identifier.</param>
+		/// <param name="customFieldName">Name of the field.</param>
+		/// <param name="newBundleName">
+		///     New name of the bundle.  Must be unique across all Owned Field bundles. Will be
+		///     auto-generated if not supplied
+		/// </param>
+		/// <param name="copyValuesFromBundle">The copy values from bundle.</param>
+		/// <param name="values">The values.</param>
+		/// <returns>The new bundle name</returns>
+		public virtual string CreateProjectSpecificOwnedFieldBundleForCustomField(
 			string projectId,
 			string customFieldName,
-			string emptyText = null,
-			string defaultValue = null)
+			string newBundleName = null,
+			string copyValuesFromBundle = null,
+			params OwnedField[] values)
 		{
-			if (string.IsNullOrEmpty(projectId))
-			{
-				throw new ArgumentNullException("projectId");
-			}
+			var bundleName = CreateOwnedFieldBundle(newBundleName, copyValuesFromBundle, values);
 
-			var parameters = new Dictionary<string, string>();
-
-			if (emptyText != null)
-			{
-				parameters["emptyText"] = emptyText;
-			}
-			if (defaultValue != null)
-			{
-				parameters["defaultValue"] = defaultValue;
-			}
-
-			_connection.Put(
+			_connection.Post(
 				"admin/project/{projectId}/customfield/{customFieldName}",
 				routeParameters: new Dictionary<string, string>
 					                 {
 						                 { "projectId", projectId },
 						                 { "customFieldName", customFieldName }
 					                 },
+				requestParameters: new Dictionary<string, string>
+					                   {
+						                   { "bundle", newBundleName }
+					                   });
 
-				putParameters: parameters);
-		}
-
-		public virtual void AddSubsystem(string projectId, string subsystem, string description = null, string owner = null, string colorIndex = null)
-		{
-			var bundleName = GetProjectSubsystemBundleName(projectId);
-
-			_connection.Put(
-				"admin/customfield/ownedFieldBundle/{bundleName}/{subsystem}",
-				routeParameters: new Dictionary<string, string> { { "bundleName", bundleName }, { "subsystem", subsystem } });
-		}
-
-		public virtual void AddVersion(Project project, ProjectVersion version)
-		{
-			throw new NotImplementedException();
+			return newBundleName;
 		}
 
 		public virtual void DeleteVersion(string bundleName, string versionName)
@@ -151,6 +224,16 @@ namespace YouTrackSharp.Projects
 			return _connection.GetList<ProjectIssueTypes>("project/types");
 		}
 
+		public OwnedFieldBundle GetOwnedFieldBundle(string bundleName)
+		{
+			return _connection.Get<OwnedFieldBundle>(
+				"admin/customfield/ownedFieldBundle/{bundleName}",
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "bundleName", bundleName }
+					                 });
+		}
+
 		public virtual IEnumerable<ProjectPriority> GetPriorities()
 		{
 			return _connection.GetList<ProjectPriority>("project/priorities");
@@ -158,7 +241,12 @@ namespace YouTrackSharp.Projects
 
 		public virtual Project GetProject(string projectName)
 		{
-			return _connection.Get<Project>("admin/project/{projectName}", routeParameters: new Dictionary<string, string> { { "projectName", projectName } });
+			return _connection.Get<Project>(
+				"admin/project/{projectName}",
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "projectName", projectName }
+					                 });
 		}
 
 		public virtual IEnumerable<Project> GetProjects()
@@ -185,7 +273,10 @@ namespace YouTrackSharp.Projects
 		{
 			var x = _connection.Get<VersionBundle>(
 				"admin/customfield/versionBundle/{versionBundleName}",
-				routeParameters: new Dictionary<string, string> { { "versionBundleName", versionBundleName } });
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "versionBundleName", versionBundleName }
+					                 });
 			return x.Version;
 		}
 
@@ -200,7 +291,10 @@ namespace YouTrackSharp.Projects
 
 			var ownedFieldBundle = _connection.Get<OwnedFieldBundle>(
 				"admin/customfield/ownedFieldBundle/{bundleName}",
-				routeParameters: new Dictionary<string, string> { { "bundleName", subsystemBundle } });
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "bundleName", subsystemBundle }
+					                 });
 
 			if (ownedFieldBundle == null)
 			{
@@ -218,11 +312,14 @@ namespace YouTrackSharp.Projects
 		{
 			var subsystemCustomField = _connection.Get<CustomField>(
 				"admin/project/{projectId}/customfield/subsystem",
-				routeParameters: new Dictionary<string, string> { { "projectId", projectId } });
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "projectId", projectId }
+					                 });
 
 			var bundle = subsystemCustomField.Parameters != null
-				? subsystemCustomField.Parameters.SingleOrDefault(p => p.Name.Equals("bundle", StringComparison.OrdinalIgnoreCase))
-				: null;
+				             ? subsystemCustomField.Parameters.SingleOrDefault(p => p.Name.Equals("bundle", StringComparison.OrdinalIgnoreCase))
+				             : null;
 
 			if (subsystemCustomField == null || string.IsNullOrEmpty(subsystemCustomField.Name) || bundle == null || string.IsNullOrEmpty(bundle.Value))
 			{
