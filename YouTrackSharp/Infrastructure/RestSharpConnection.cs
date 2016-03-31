@@ -161,11 +161,16 @@ namespace YouTrackSharp.Infrastructure
 			return _resourceOwnerToken;
 		}
 
-		public ApiResponse Delete(string resource)
+		public ApiResponse Delete(string resource, IDictionary<string, string> routeParameters = null, IDictionary<string,string> requestParameters = null)
 		{
 			EnsureAuthenticated();
 
 			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.DELETE);
+
+			AddRouteParameters(request, routeParameters);
+
+			AddRequestParameters(request, requestParameters);
+
 			var response = GetClient().Execute(request);
 
 			EnsureExpectedResponseStatus(response, HttpStatusCode.OK, HttpStatusCode.Accepted);
@@ -198,7 +203,10 @@ namespace YouTrackSharp.Infrastructure
 
 			// TInternal data = GetWrappedData<TInternal, TWrapper>(command); 
 
-			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.GET) { RequestFormat = DataFormat.Json };
+			var request = new RestRequest(string.Format("{0}/{1}", YouTrackRestResourceBase, resource), Method.GET)
+				              {
+					              RequestFormat = DataFormat.Json
+				              };
 
 			AddRequestParameters(request, requestParameters);
 
@@ -218,7 +226,10 @@ namespace YouTrackSharp.Infrastructure
 			return user;
 		}
 
-		public IEnumerable<T> GetList<T>(string resource, IDictionary<string, string> requestParameters = null, IDictionary<string, string> routeParameters = null) where T : new()
+		public IEnumerable<T> GetList<T>(
+			string resource,
+			IDictionary<string, string> requestParameters = null,
+			IDictionary<string, string> routeParameters = null) where T : new()
 		{
 			EnsureAuthenticated();
 
@@ -281,13 +292,14 @@ namespace YouTrackSharp.Infrastructure
 			object data = null,
 			IDictionary<string, string> postParameters = null,
 			IDictionary<string, string> requestParameters = null,
-			IDictionary<string, string> routeParameters = null) where T : new()
+			IDictionary<string, string> routeParameters = null,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json) where T : new()
 		{
 			EnsureAuthenticated();
 
 			var fullPath = string.Format("{0}/{1}", YouTrackRestResourceBase, resource);
 
-			var request = BuildPutPostRequest(fullPath, routeParameters, requestParameters, postParameters, data);
+			var request = BuildPutPostRequest(fullPath, routeParameters, requestParameters, postParameters, data, dataFormat: dataFormat);
 
 			var response = GetClient().Execute<T>(request);
 
@@ -301,7 +313,8 @@ namespace YouTrackSharp.Infrastructure
 			object data = null,
 			IDictionary<string, string> postParameters = null,
 			IDictionary<string, string> requestParameters = null,
-			IDictionary<string, string> routeParameters = null)
+			IDictionary<string, string> routeParameters = null,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json)
 		{
 			EnsureAuthenticated();
 
@@ -310,7 +323,8 @@ namespace YouTrackSharp.Infrastructure
 				routeParameters,
 				requestParameters,
 				postParameters,
-				data);
+				data,
+				dataFormat: dataFormat);
 
 			var response = GetClient().Execute(request);
 
@@ -341,7 +355,8 @@ namespace YouTrackSharp.Infrastructure
 			object data = null,
 			IDictionary<string, string> requestParameters = null,
 			IDictionary<string, string> routeParameters = null,
-			IDictionary<string, string> putParameters = null)
+			IDictionary<string, string> putParameters = null,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json)
 		{
 			EnsureAuthenticated();
 
@@ -351,7 +366,8 @@ namespace YouTrackSharp.Infrastructure
 				requestParameters,
 				putParameters,
 				data,
-				Method.PUT);
+				Method.PUT,
+				dataFormat);
 
 			var response = GetClient().Execute(request);
 
@@ -365,7 +381,8 @@ namespace YouTrackSharp.Infrastructure
 			object data = null,
 			IDictionary<string, string> requestParameters = null,
 			IDictionary<string, string> routeParameters = null,
-			IDictionary<string, string> putParameters = null) where T : new()
+			IDictionary<string, string> putParameters = null,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json) where T : new()
 		{
 			EnsureAuthenticated();
 
@@ -375,7 +392,8 @@ namespace YouTrackSharp.Infrastructure
 				requestParameters,
 				putParameters,
 				data,
-				Method.PUT);
+				Method.PUT,
+				dataFormat);
 
 			if (data != null)
 			{
@@ -410,7 +428,8 @@ namespace YouTrackSharp.Infrastructure
 			IDictionary<string, string> requestParameters,
 			IDictionary<string, string> postParameters,
 			object postBody,
-			Method requestMethod = Method.POST)
+			Method requestMethod = Method.POST,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json)
 		{
 			if (postBody != null && postParameters != null && postParameters.Any())
 			{
@@ -436,9 +455,15 @@ namespace YouTrackSharp.Infrastructure
 
 			var request = new RestRequest(requestResourceBuilder.ToString(), requestMethod)
 				              {
-					              RequestFormat = DataFormat.Json,
+					              RequestFormat = dataFormat == DataSerializationFormat.Json ? DataFormat.Json : DataFormat.Xml,
 					              JsonSerializer = new NewtonsoftJsonSerializer()
 				              };
+
+			if (request.RequestFormat == DataFormat.Xml)
+			{
+				request.XmlSerializer.ContentType = "application/xml; charset=utf-8";
+				
+			}
 
 			if (requestParameters != null)
 			{

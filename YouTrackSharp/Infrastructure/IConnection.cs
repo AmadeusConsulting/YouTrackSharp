@@ -73,8 +73,10 @@ namespace YouTrackSharp.Infrastructure
 		///     Performs a Delete command on the specified resource.
 		/// </summary>
 		/// <param name="resource">The resource.</param>
+		/// <param name="routeParameters"></param>
+		/// <param name="requestParameters"></param>
 		/// <returns></returns>
-		ApiResponse Delete(string resource);
+		ApiResponse Delete(string resource, IDictionary<string,string> routeParameters = null, IDictionary<string,string> requestParameters = null );
 
 		/// <summary>
 		///     Gets the specified resource.
@@ -111,9 +113,10 @@ namespace YouTrackSharp.Infrastructure
 		/// <param name="requestParameters"></param>
 		/// <param name="routeParameters"></param>
 		/// <returns></returns>
-		IEnumerable<TEntity> GetList<TEntity>(string resource, 
+		IEnumerable<TEntity> GetList<TEntity>(
+			string resource,
 			IDictionary<string, string> requestParameters = null,
-			IDictionary<string,string> routeParameters = null) where TEntity : new();
+			IDictionary<string, string> routeParameters = null) where TEntity : new();
 
 		ApiResponse Head(string resource, IDictionary<string, string> requestParameters = null);
 
@@ -131,13 +134,15 @@ namespace YouTrackSharp.Infrastructure
 		/// <param name="postParameters">The post parameters.</param>
 		/// <param name="requestParameters">The request parameters.</param>
 		/// <param name="routeParameters"></param>
+		/// <param name="dataFormat"></param>
 		/// <returns></returns>
 		ApiResponse<T> Post<T>(
 			string resource,
 			object data = null,
 			IDictionary<string, string> postParameters = null,
 			IDictionary<string, string> requestParameters = null,
-			IDictionary<string, string> routeParameters = null) where T : new();
+			IDictionary<string, string> routeParameters = null,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json) where T : new();
 
 		/// <summary>
 		///     Posts the specified resource.
@@ -147,13 +152,15 @@ namespace YouTrackSharp.Infrastructure
 		/// <param name="postParameters">The post parameters.</param>
 		/// <param name="requestParameters">The request parameters.</param>
 		/// <param name="routeParameters"></param>
+		/// <param name="dataFormat"></param>
 		/// <returns></returns>
 		ApiResponse Post(
 			string resource,
 			object data = null,
 			IDictionary<string, string> postParameters = null,
 			IDictionary<string, string> requestParameters = null,
-			IDictionary<string, string> routeParameters = null);
+			IDictionary<string, string> routeParameters = null,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json);
 
 		/// <summary>
 		///     Posts a file to the specified resource.
@@ -183,7 +190,8 @@ namespace YouTrackSharp.Infrastructure
 			object data = null,
 			IDictionary<string, string> requestParameters = null,
 			IDictionary<string, string> routeParameters = null,
-			IDictionary<string, string> putParameters = null);
+			IDictionary<string, string> putParameters = null,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json);
 
 		/// <summary>
 		///     Puts the specified resource.
@@ -194,6 +202,7 @@ namespace YouTrackSharp.Infrastructure
 		/// <param name="requestParameters">The request parameters.</param>
 		/// <param name="routeParameters"></param>
 		/// <param name="putParameters"></param>
+		/// <param name="dataFormat"></param>
 		/// <returns></returns>
 		/// ///
 		/// <remarks>
@@ -206,7 +215,8 @@ namespace YouTrackSharp.Infrastructure
 			object data = null,
 			IDictionary<string, string> requestParameters = null,
 			IDictionary<string, string> routeParameters = null,
-			IDictionary<string, string> putParameters = null) where T : new();
+			IDictionary<string, string> putParameters = null,
+			DataSerializationFormat dataFormat = DataSerializationFormat.Json) where T : new();
 
 		#endregion
 	}

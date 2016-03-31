@@ -97,6 +97,7 @@
     <Compile Include="Import\ImportResponse.cs" />
     <Compile Include="Import\ImportError.cs" />
     <Compile Include="Infrastructure\ApiResponse.cs" />
+    <Compile Include="Infrastructure\DataSerializationFormat.cs" />
     <Compile Include="Infrastructure\DefaultRestClientFactory.cs" />
     <Compile Include="Infrastructure\ICredentialStore.cs" />
     <Compile Include="Infrastructure\SkipDeserializeOnlyContractResolver.cs" />

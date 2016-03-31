@@ -145,9 +145,19 @@ namespace YouTrackSharp.Projects
 					                OwnedFields = bundleValues
 				                };
 
-			_connection.Put("/admin/customfield/ownedFieldBundle", newBundle);
+			_connection.Put("admin/customfield/ownedFieldBundle", newBundle, dataFormat: DataSerializationFormat.Xml);
 
 			return bundleName;
+		}
+
+		public virtual void DeleteOwnedFieldBundle(string bundleName)
+		{
+			_connection.Delete(
+				"admin/customfield/ownedFieldBundle/{bundleName}",
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "bundleName", bundleName }
+					                 });
 		}
 
 		public virtual void CreateProject(
@@ -197,21 +207,20 @@ namespace YouTrackSharp.Projects
 			string copyValuesFromBundle = null,
 			params OwnedField[] values)
 		{
-			var bundleName = CreateOwnedFieldBundle(newBundleName, copyValuesFromBundle, values);
+			var createdBundleName = CreateOwnedFieldBundle(newBundleName, copyValuesFromBundle, values);
 
 			_connection.Post(
 				"admin/project/{projectId}/customfield/{customFieldName}",
-				routeParameters: new Dictionary<string, string>
-					                 {
-						                 { "projectId", projectId },
-						                 { "customFieldName", customFieldName }
-					                 },
 				requestParameters: new Dictionary<string, string>
 					                   {
-						                   { "bundle", newBundleName }
-					                   });
+						                   { "bundle", createdBundleName }
+					                   }, routeParameters: new Dictionary<string, string>
+						                                       {
+							                                       { "projectId", projectId },
+							                                       { "customFieldName", customFieldName }
+						                                       });
 
-			return newBundleName;
+			return createdBundleName;
 		}
 
 		public virtual void DeleteVersion(string bundleName, string versionName)
