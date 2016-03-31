@@ -92,7 +92,7 @@ namespace YouTrackSharp.CmdLets
             newIssue.Summary = Summary;
             newIssue.Description = Description;
             newIssue.Priority = new[] {Priority};
-            newIssue.ReporterName = Connection.GetCurrentAuthenticatedUser().Username;
+            newIssue.ReporterName = Connection.GetCurrentAuthenticatedUser().Login;
             newIssue.State = "Submitted";
             newIssue.Type = Type;
             newIssue.Subsystem = Subsystem;

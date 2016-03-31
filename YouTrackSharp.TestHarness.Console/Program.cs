@@ -5,6 +5,7 @@ using NDesk.Options;
 
 using Newtonsoft.Json;
 
+using YouTrackSharp.Admin;
 using YouTrackSharp.Infrastructure;
 using YouTrackSharp.Projects;
 
@@ -52,17 +53,14 @@ namespace YouTrackSharp.TestHarness
 
 			connection.Authenticate(Username, Password);
 
-			var projectMgt = new ProjectManagement(connection);
+			var userManagement = new UserManagement(connection);
 
-			var bundleName = projectMgt.CreateProjectSpecificOwnedFieldBundleForCustomField("ACTSC", "Subsystem");
+			var users = userManagement.ListUsers();
 
-			Console.WriteLine(bundleName);
-
-			var bundle = projectMgt.GetOwnedFieldBundle(bundleName);
-
-			Console.WriteLine(JsonConvert.SerializeObject(bundle));
-
-			projectMgt.DeleteOwnedFieldBundle(bundleName);
+			foreach (var user in users)
+			{
+				Console.WriteLine(JsonConvert.SerializeObject(user));
+			}
 
 			Console.ReadKey(true);
 		}

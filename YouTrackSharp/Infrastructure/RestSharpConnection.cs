@@ -217,11 +217,11 @@ namespace YouTrackSharp.Infrastructure
 			return response.Data.Data ?? new TInternal[0];
 		}
 
-		public User GetCurrentAuthenticatedUser()
+		public CurrentUserInfo GetCurrentAuthenticatedUser()
 		{
 			EnsureAuthenticated();
 
-			var user = Get<User>(string.Format("{0}/{1}", YouTrackRestResourceBase, "user/current"));
+			var user = Get<CurrentUserInfo>(string.Format("{0}/{1}", YouTrackRestResourceBase, "user/current"));
 
 			return user;
 		}
@@ -547,7 +547,13 @@ namespace YouTrackSharp.Infrastructure
 			---------------------------
 			*/
 
-			_log.Debug(string.Format("Checking request status for {0} {1} ...", response.Request.Method, response.Request.Resource));
+			_log.Debug(
+				string.Format(
+					"Checking request status for {0} {1} \n\n {2}",
+					response.Request.Method,
+					response.Request.Resource,
+					response.Request.Parameters.Where(p => p.Type == ParameterType.UrlSegment)
+						.Aggregate(string.Empty, (str, parameter) => string.Format("{0}{1}={2}\n", str, parameter.Name, parameter.Value))));
 
 			if (response.ResponseStatus != ResponseStatus.Completed)
 			{

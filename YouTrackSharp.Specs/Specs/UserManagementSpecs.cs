@@ -110,7 +110,7 @@ namespace YouTrackSharp.Specs.Specs
 	//	{
 	//		Establish context = () => { userManagement = new UserManagement(connection); };
 
-	//		Because of = () => { users = userManagement.GetAllUsers(); };
+	//		Because of = () => { users = userManagement.ListAllUsers(); };
 
 	//		It should_return_all_users = () => users.ShouldNotBeNull();
 	//		It should_return_at_least_one_user = () => users.ShouldNotBeEmpty();

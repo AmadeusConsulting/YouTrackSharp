@@ -33,15 +33,15 @@
 
 using JsonFx.Json;
 
+using Newtonsoft.Json;
+
 namespace YouTrackSharp.Admin
 {
     public class User
     {
-        [JsonIgnore]
-        public string Username { get; set; }
-
-        public string FullName { get; set; }
-        public string Email { get; set; }
-        public string LastCreatedProject { get; set; }
+        public string Login { get; set; }
+		public string RingId { get; set; }
+		[JsonProperty(PropertyName = "url")]
+		public string DetailUrl { get; set; }
     }
 }

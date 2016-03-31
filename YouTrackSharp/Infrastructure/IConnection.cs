@@ -103,7 +103,7 @@ namespace YouTrackSharp.Infrastructure
 		///     Gets the current authenticated user.
 		/// </summary>
 		/// <returns></returns>
-		User GetCurrentAuthenticatedUser();
+		CurrentUserInfo GetCurrentAuthenticatedUser();
 
 		/// <summary>
 		///     Gets a list of entities from the given resourcce.

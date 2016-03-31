@@ -34,6 +34,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Security;
+
 using YouTrackSharp.Infrastructure;
 
 namespace YouTrackSharp.Admin
@@ -47,35 +50,50 @@ namespace YouTrackSharp.Admin
 			_connection = connection;
 		}
 
-		public IEnumerable<User> GetAllUsers()
+		public IEnumerable<User> ListUsers(string query = null, string groupId = null, string role = null, string projectId = null, string permission = null, bool onlineOnly = false, int start = 0)
 		{
 			ICollection<User> users = new Collection<User>();
-			IEnumerable<AllUsersItem> userItems = _connection.GetList<AllUsersItem>("admin/user");
 
-			foreach (AllUsersItem userItem in userItems)
+			var requestParameters = new Dictionary<string,string>
+				                        {
+					                        {"start", start.ToString(CultureInfo.InvariantCulture)},
+											{"onlineOnly", onlineOnly.ToString().ToLowerInvariant()}
+				                        };
+
+			if (!string.IsNullOrEmpty(query))
 			{
-				users.Add(GetUserByUserName(userItem.Login));
+				requestParameters["q"] = query;
 			}
+			if (!string.IsNullOrEmpty(groupId))
+			{
+				requestParameters["group"] = groupId;
+			}
+			if (!string.IsNullOrEmpty(role))
+			{
+				requestParameters["role"] = role;
+			}
+			if (!string.IsNullOrEmpty(projectId))
+			{
+				requestParameters["project"] = projectId;
+			}
+			if (!string.IsNullOrEmpty(permission))
+			{
+				requestParameters["permission"] = permission;
+			}
+
+			IEnumerable<User> userItems = _connection.GetList<User>("admin/user", requestParameters);
 
 			return users;
 		}
 
-		public User GetUserByUserName(string username)
+		public UserDetail GetUser(string login)
 		{
-			var user = _connection.Get<User>("user/bylogin/{username}", routeParameters: new Dictionary<string, string> { { "username", username } });
-
-			if (user != null)
-			{
-				user.Username = username;
-				return user;
-			}
-
-			throw new InvalidRequestException(Language.Server_GetUserByUserName_User_does_not_exist);
-		}
-
-		public IEnumerable<Filter> GetFiltersByUsername(string username)
-		{
-			return _connection.GetList<Filter>(String.Format("user/filters/{0}", username));
+			return _connection.Get<UserDetail>(
+				"admin/user/{login}",
+				routeParameters: new Dictionary<string, string>
+					                 {
+						                 { "login", login }
+					                 });
 		}
 	}
 }
