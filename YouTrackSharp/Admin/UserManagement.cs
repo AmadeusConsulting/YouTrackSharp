@@ -52,8 +52,6 @@ namespace YouTrackSharp.Admin
 
 		public IEnumerable<User> ListUsers(string query = null, string groupId = null, string role = null, string projectId = null, string permission = null, bool onlineOnly = false, int start = 0)
 		{
-			ICollection<User> users = new Collection<User>();
-
 			var requestParameters = new Dictionary<string,string>
 				                        {
 					                        {"start", start.ToString(CultureInfo.InvariantCulture)},
@@ -83,7 +81,7 @@ namespace YouTrackSharp.Admin
 
 			IEnumerable<User> userItems = _connection.GetList<User>("admin/user", requestParameters);
 
-			return users;
+			return userItems;
 		}
 
 		public UserDetail GetUser(string login)
