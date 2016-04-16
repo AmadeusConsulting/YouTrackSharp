@@ -22,9 +22,9 @@ namespace YouTrackSharp.Infrastructure
 	{
 		#region Constants
 
-		private const string OAuth2TokenResource = "hub/api/rest/oauth2/token";
+		private readonly string OAuth2TokenResource;
 
-		private const string YouTrackRestResourceBase = "youtrack/rest";
+		private readonly string YouTrackRestResourceBase;
 
 		#endregion
 
@@ -56,7 +56,9 @@ namespace YouTrackSharp.Infrastructure
 			ICredentialStore serviceCredentialStore,
 			string clientId,
 			string clientSecret,
-			string youtrackScopeId)
+			string youtrackScopeId,
+			string youTrackResourceBasePath = "youtrack",
+			string hubResourceBasePath = "hub")
 		{
 			if (apiBaseUrl == null)
 			{
@@ -89,6 +91,9 @@ namespace YouTrackSharp.Infrastructure
 			_clientId = clientId;
 			_clientSecret = clientSecret;
 			_youtrackScopeId = youtrackScopeId;
+
+			OAuth2TokenResource = string.Format("{0}/api/rest/oauth2/token", (hubResourceBasePath ?? string.Empty).TrimEnd('/')).TrimStart('/');
+			YouTrackRestResourceBase = string.Format("{0}/rest", (youTrackResourceBasePath ?? string.Empty).TrimEnd('/')).TrimStart('/');
 		}
 
 		#endregion
