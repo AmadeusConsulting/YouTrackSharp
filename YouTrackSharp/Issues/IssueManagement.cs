@@ -139,7 +139,13 @@ namespace YouTrackSharp.Issues
 						continue;
 					}
 
-					ApplyCommand(createdIssueId, string.Format("{0} {1}", customField.Key, customField.Value), disableNotifications: disableNotifications);
+					var commandValue = customField.Value.ToString().Trim();
+					if (Regex.IsMatch(commandValue, @"\s"))
+					{
+						commandValue = string.Format("{{{0}}}", commandValue);
+					}
+
+					ApplyCommand(createdIssueId, string.Format("{0} {1}", customField.Key, commandValue), disableNotifications: disableNotifications);
 				}
 
 				return createdIssueId;
