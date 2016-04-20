@@ -61,6 +61,7 @@
 							program="${env.NugetPath}">
 					<arg value="pack" />
 					<arg file="${nuget.sourceLocation}\${nuget.projectName}\${nuget.projectName}.nuspec" />
+					<arg line="-Symbols" />
 					<arg line="-Verbosity detailed" />
 					<arg line="-Version" />
 					<arg value="${property::get-value(nuget.project.packageversion.propertyname)}" />
