@@ -40,26 +40,13 @@ using YouTrackSharp.Infrastructure;
 
 namespace YouTrackSharp.Projects
 {
-	public class ProjectManagement
+	public class ProjectManagement : ManagementBase
 	{
-		#region Fields
-
-		private readonly IConnection _connection;
-
-		#endregion
 
 		#region Constructors and Destructors
 
-		public ProjectManagement(IConnection connection)
+		public ProjectManagement(IConnection connection) : base(connection)
 		{
-			try
-			{
-				_connection = connection;
-			}
-			catch (ConnectionException e)
-			{
-				Console.WriteLine(e);
-			}
 		}
 
 		#endregion
@@ -84,7 +71,7 @@ namespace YouTrackSharp.Projects
 				parameters["defaultValue"] = defaultValue;
 			}
 
-			_connection.Put(
+			Connection.Put(
 				"admin/project/{projectId}/customfield/{customFieldName}",
 				routeParameters: new Dictionary<string, string>
 					                 {
@@ -98,7 +85,7 @@ namespace YouTrackSharp.Projects
 		{
 			var bundleName = GetProjectSubsystemBundleName(projectId);
 
-			_connection.Put(
+			Connection.Put(
 				"admin/customfield/ownedFieldBundle/{bundleName}/{subsystem}",
 				routeParameters: new Dictionary<string, string>
 					                 {
@@ -145,14 +132,14 @@ namespace YouTrackSharp.Projects
 					                OwnedFields = bundleValues
 				                };
 
-			_connection.Put("admin/customfield/ownedFieldBundle", newBundle, dataFormat: DataSerializationFormat.Xml);
+			Connection.Put("admin/customfield/ownedFieldBundle", newBundle, dataFormat: DataSerializationFormat.Xml);
 
 			return bundleName;
 		}
 
 		public virtual void DeleteOwnedFieldBundle(string bundleName)
 		{
-			_connection.Delete(
+			Connection.Delete(
 				"admin/customfield/ownedFieldBundle/{bundleName}",
 				routeParameters: new Dictionary<string, string>
 					                 {
@@ -179,7 +166,7 @@ namespace YouTrackSharp.Projects
 				putParams["description"] = description;
 			}
 
-			_connection.Put(
+			Connection.Put(
 				"admin/project/{projectId}",
 				routeParameters: new Dictionary<string, string>
 					                 {
@@ -209,7 +196,7 @@ namespace YouTrackSharp.Projects
 		{
 			var createdBundleName = CreateOwnedFieldBundle(newBundleName, copyValuesFromBundle, values);
 
-			_connection.Post(
+			Connection.Post(
 				"admin/project/{projectId}/customfield/{customFieldName}",
 				requestParameters: new Dictionary<string, string>
 					                   {
@@ -225,17 +212,17 @@ namespace YouTrackSharp.Projects
 
 		public virtual void DeleteVersion(string bundleName, string versionName)
 		{
-			_connection.Delete(string.Format("admin/customfield/versionBundle/{0}/{1}", bundleName, versionName));
+			Connection.Delete(string.Format("admin/customfield/versionBundle/{0}/{1}", bundleName, versionName));
 		}
 
 		public virtual IEnumerable<ProjectIssueTypes> GetIssueTypes()
 		{
-			return _connection.GetList<ProjectIssueTypes>("project/types");
+			return Connection.GetList<ProjectIssueTypes>("project/types");
 		}
 
 		public OwnedFieldBundle GetOwnedFieldBundle(string bundleName)
 		{
-			return _connection.Get<OwnedFieldBundle>(
+			return Connection.Get<OwnedFieldBundle>(
 				"admin/customfield/ownedFieldBundle/{bundleName}",
 				routeParameters: new Dictionary<string, string>
 					                 {
@@ -245,12 +232,12 @@ namespace YouTrackSharp.Projects
 
 		public virtual IEnumerable<ProjectPriority> GetPriorities()
 		{
-			return _connection.GetList<ProjectPriority>("project/priorities");
+			return Connection.GetList<ProjectPriority>("project/priorities");
 		}
 
 		public virtual Project GetProject(string projectName)
 		{
-			return _connection.Get<Project>(
+			return Connection.Get<Project>(
 				"admin/project/{projectName}",
 				routeParameters: new Dictionary<string, string>
 					                 {
@@ -260,27 +247,27 @@ namespace YouTrackSharp.Projects
 
 		public virtual IEnumerable<Project> GetProjects()
 		{
-			return _connection.GetList<Project>("project/all");
+			return Connection.GetList<Project>("project/all");
 		}
 
 		public virtual IEnumerable<WorkType> GetProjectWorkTypes(object projectShortname)
 		{
-			return _connection.GetList<WorkType>(string.Format("admin/project/{0}/timetracking/worktype", projectShortname));
+			return Connection.GetList<WorkType>(string.Format("admin/project/{0}/timetracking/worktype", projectShortname));
 		}
 
 		public virtual IEnumerable<ProjectResolutionType> GetResolutions()
 		{
-			return _connection.GetList<ProjectResolutionType>("project/resolutions");
+			return Connection.GetList<ProjectResolutionType>("project/resolutions");
 		}
 
 		public virtual IEnumerable<ProjectState> GetStates()
 		{
-			return _connection.GetList<ProjectState>("project/states");
+			return Connection.GetList<ProjectState>("project/states");
 		}
 
 		public virtual IEnumerable<ProjectVersion> GetVersions(string versionBundleName)
 		{
-			var x = _connection.Get<VersionBundle>(
+			var x = Connection.Get<VersionBundle>(
 				"admin/customfield/versionBundle/{versionBundleName}",
 				routeParameters: new Dictionary<string, string>
 					                 {
@@ -298,7 +285,7 @@ namespace YouTrackSharp.Projects
 		{
 			var subsystemBundle = GetProjectSubsystemBundleName(projectId);
 
-			var ownedFieldBundle = _connection.Get<OwnedFieldBundle>(
+			var ownedFieldBundle = Connection.Get<OwnedFieldBundle>(
 				"admin/customfield/ownedFieldBundle/{bundleName}",
 				routeParameters: new Dictionary<string, string>
 					                 {
@@ -319,7 +306,7 @@ namespace YouTrackSharp.Projects
 
 		private string GetProjectSubsystemBundleName(string projectId)
 		{
-			var subsystemCustomField = _connection.Get<CustomField>(
+			var subsystemCustomField = Connection.Get<CustomField>(
 				"admin/project/{projectId}/customfield/subsystem",
 				routeParameters: new Dictionary<string, string>
 					                 {

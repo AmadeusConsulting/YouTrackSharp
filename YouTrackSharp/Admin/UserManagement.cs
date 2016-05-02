@@ -41,13 +41,11 @@ using YouTrackSharp.Infrastructure;
 
 namespace YouTrackSharp.Admin
 {
-	public class UserManagement
+	public class UserManagement : ManagementBase
 	{
-		readonly IConnection _connection;
 
-		public UserManagement(IConnection connection)
+		public UserManagement(IConnection connection) : base(connection)
 		{
-			_connection = connection;
 		}
 
 		public IEnumerable<User> ListUsers(string query = null, string groupId = null, string role = null, string projectId = null, string permission = null, bool onlineOnly = false, int start = 0)
@@ -79,14 +77,14 @@ namespace YouTrackSharp.Admin
 				requestParameters["permission"] = permission;
 			}
 
-			IEnumerable<User> userItems = _connection.GetList<User>("admin/user", requestParameters);
+			IEnumerable<User> userItems = Connection.GetList<User>("admin/user", requestParameters);
 
 			return userItems;
 		}
 
 		public UserDetail GetUser(string login)
 		{
-			return _connection.Get<UserDetail>(
+			return Connection.Get<UserDetail>(
 				"admin/user/{login}",
 				routeParameters: new Dictionary<string, string>
 					                 {

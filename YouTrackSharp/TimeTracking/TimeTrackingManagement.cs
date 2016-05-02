@@ -9,20 +9,9 @@ using YouTrackSharp.Projects;
 
 namespace YouTrackSharp.TimeTracking
 {
-	public class TimeTrackingManagement
+	public class TimeTrackingManagement : ManagementBase
 	{
-		private readonly IConnection _connection;
-
-		public TimeTrackingManagement(IConnection connection)
-		{
-			if (connection == null)
-			{
-				throw new ArgumentNullException("connection");
-			}
-			_connection = connection;
-		}
-
-		protected TimeTrackingManagement()
+		public TimeTrackingManagement(IConnection connection) : base(connection)
 		{
 		}
 
@@ -45,7 +34,7 @@ namespace YouTrackSharp.TimeTracking
 						                                                       : null
 				                                  };
 
-			_connection.Put(
+			Connection.Put(
 				"admin/project/{projectId}/timetracking",
 				projectTimeTrackingSettings,
 				routeParameters: new Dictionary<string, string>
@@ -61,7 +50,7 @@ namespace YouTrackSharp.TimeTracking
 				throw new ArgumentNullException("issueId");
 			}
 
-			var response = _connection.Post(
+			var response = Connection.Post(
 				"issue/{issueId}/timetracking/workitem/",
 				workItem,
 				routeParameters: new Dictionary<string, string> { { "issueId", issueId } });
@@ -81,14 +70,14 @@ namespace YouTrackSharp.TimeTracking
 				throw new ArgumentNullException("issueId");
 			}
 
-			return _connection.GetList<WorkItem>(string.Format("issue/{0}/timetracking/workitem/", issueId));
+			return Connection.GetList<WorkItem>(string.Format("issue/{0}/timetracking/workitem/", issueId));
 		}
 
 		public virtual void DeleteWorkItem(string issueId, string workItemId)
 		{
 			try
 			{
-				_connection.Delete(string.Format("issue/{0}/timetracking/workitem/{1}", issueId, workItemId));
+				Connection.Delete(string.Format("issue/{0}/timetracking/workitem/{1}", issueId, workItemId));
 			}
 			catch (HttpStatusCodeException ex)
 			{
@@ -117,7 +106,7 @@ namespace YouTrackSharp.TimeTracking
 				throw new ArgumentException("WorkItem must have an ID in order to call update.", "workItem");
 			}
 
-			_connection.Put(
+			Connection.Put(
 				"issue/{issueId}/timetracking/workitem/{workItemId}",
 				workItem,
 				routeParameters: new Dictionary<string, string> { { "issueId", issueId }, { "workItemId", workItem.Id } });
@@ -134,7 +123,7 @@ namespace YouTrackSharp.TimeTracking
 				throw new ArgumentNullException("workItems");
 			}
 
-			var response = _connection.Put<ImportResponse>(
+			var response = Connection.Put<ImportResponse>(
 				"import/issue/{issueId}/workitems",
 				workItems.ToList(),
 				routeParameters: new Dictionary<string, string> { { "issueId", issueId } });

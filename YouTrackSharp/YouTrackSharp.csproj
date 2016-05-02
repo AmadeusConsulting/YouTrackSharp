@@ -32,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\YouTrackSharp.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -101,6 +102,7 @@
     <Compile Include="Infrastructure\DataSerializationFormat.cs" />
     <Compile Include="Infrastructure\DefaultRestClientFactory.cs" />
     <Compile Include="Infrastructure\ICredentialStore.cs" />
+    <Compile Include="Infrastructure\ManagementBase.cs" />
     <Compile Include="Infrastructure\SkipDeserializeOnlyContractResolver.cs" />
     <Compile Include="Infrastructure\IRestClientFactory.cs" />
     <Compile Include="Infrastructure\JsonDeserializeOnlyAttribute.cs" />
