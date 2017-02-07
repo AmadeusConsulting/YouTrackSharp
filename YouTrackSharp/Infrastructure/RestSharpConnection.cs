@@ -226,7 +226,7 @@ namespace YouTrackSharp.Infrastructure
 		{
 			EnsureAuthenticated();
 
-			var user = Get<CurrentUserInfo>(string.Format("{0}/{1}", YouTrackRestResourceBase, "user/current"));
+			var user = Get<CurrentUserInfo>("user/current");
 
 			return user;
 		}
